@@ -6,17 +6,27 @@
 export type SectionId = 'sec-0' | 'sec-1' | 'sec-2' | 'sec-3' | 'sec-4' | 'sec-5';
 
 export type SubTabId =
-  | 'locker-story'
-  | 'factor-pairs'
-  | 'scene-0'
-  | 'scene-1'
-  | 'scene-2'
-  | 'scene-3'
-  | 'scene-4'
-  | 'scene-5'
-  | 'dot-grid'
-  | 'isometric-cube'
-  | 'prime-factor';
+  | 'locker-puzzle'
+  | 'factor-partners'
+  | 'squares-areas'
+  | 'last-digits'
+  | 'odd-squares'
+  | 'between-triangular'
+  | 'roots-plus-minus'
+  | 'finding-roots'
+  | 'estimating-roots'
+  | 'building-cubes'
+  | 'cube-patterns'
+  | 'taxicab-numbers'
+  | 'cubes-odd-numbers'
+  | 'cube-roots'
+  | 'successive-differences'
+  | 'pinch-history'
+  | 'chapter-summary'
+  | 'square-pairs'
+  | 'ncert-unsolved'
+  | 'solved-examples'
+  | 'concept-clearing';
 
 export interface SubTabConfig {
   id: SubTabId;
@@ -28,61 +38,78 @@ export interface SectionConfig {
   id: SectionId;
   label: string;
   shortLabel: string;
+  storyHook?: string;
   subTabs: SubTabConfig[];
 }
 
 export const CHAPTER_SECTIONS: SectionConfig[] = [
   {
     id: 'sec-0',
-    label: '0. The 100 Lockers Story',
-    shortLabel: '0. Story & Lockers',
+    label: '1. Lockers and Square Numbers',
+    shortLabel: '1. Lockers & Squares',
+    storyHook: 'A royal queen hides jewels in 100 lockers, but her guards keep flipping the locks—can you guess which ones stay open?',
     subTabs: [
-      { id: 'locker-story', label: '100 Lockers Puzzle' },
-      { id: 'factor-pairs', label: 'Factor Pairs & Squares' },
+      { id: 'locker-puzzle', label: 'The Locker Puzzle', sceneIndex: 0 },
+      { id: 'factor-partners', label: 'Factor Partners', sceneIndex: 1 },
+      { id: 'squares-areas', label: 'Squares as Areas', sceneIndex: 2 },
     ],
   },
   {
     id: 'sec-1',
-    label: '1. Squares & Patterns',
-    shortLabel: '1. Squares',
+    label: '2. Patterns in Squares',
+    shortLabel: '2. Patterns',
+    storyHook: "Ancient builders didn't use calculators; they grew squares by adding one bent corner at a time.",
     subTabs: [
-      { id: 'scene-0', label: 'What is a Square?', sceneIndex: 0 },
-      { id: 'scene-1', label: 'Patterns & Odd Sums', sceneIndex: 1 },
+      { id: 'last-digits', label: 'Last Digits, Zeros & Parity', sceneIndex: 3 },
+      { id: 'odd-squares', label: 'Odd Numbers Make Squares', sceneIndex: 4 },
+      { id: 'between-triangular', label: 'Between Squares & Triangular', sceneIndex: 5 },
     ],
   },
   {
     id: 'sec-2',
-    label: '2. Square Roots',
-    shortLabel: '2. Square Roots',
+    label: '3. Square Roots',
+    shortLabel: '3. Square Roots',
+    storyHook: 'If a square courtyard covers 1936 tiles, how many steps does it take to walk along one wall?',
     subTabs: [
-      { id: 'scene-2', label: 'Concept of Square Root', sceneIndex: 2 },
-      { id: 'scene-3', label: 'Methods for Square Roots', sceneIndex: 3 },
+      { id: 'roots-plus-minus', label: 'Roots and Plus-Minus', sceneIndex: 6 },
+      { id: 'finding-roots', label: 'Finding Roots', sceneIndex: 7 },
+      { id: 'estimating-roots', label: 'Estimating Roots', sceneIndex: 8 },
     ],
   },
   {
     id: 'sec-3',
-    label: '3. Cubes & Volume',
-    shortLabel: '3. Cubes',
+    label: '4. Cubes and Cube Roots',
+    shortLabel: '4. Cubes & Roots',
+    storyHook: 'Stacking flat tile floors into a tall building creates volume—and leads to a famous hospital taxi puzzle.',
     subTabs: [
-      { id: 'scene-4', label: 'What is a Cube?', sceneIndex: 4 },
+      { id: 'building-cubes', label: 'Building Cubes', sceneIndex: 9 },
+      { id: 'cube-patterns', label: 'Cube Patterns', sceneIndex: 10 },
+      { id: 'taxicab-numbers', label: 'Taxicab Numbers', sceneIndex: 11 },
+      { id: 'cubes-odd-numbers', label: 'Cubes and Odd Numbers', sceneIndex: 12 },
+      { id: 'cube-roots', label: 'Cube Roots', sceneIndex: 13 },
+      { id: 'successive-differences', label: 'Successive Differences', sceneIndex: 14 },
     ],
   },
   {
     id: 'sec-4',
-    label: '4. Cube Roots',
-    shortLabel: '4. Cube Roots',
+    label: '5. History and Puzzles',
+    shortLabel: '5. History & Puzzles',
+    storyHook: 'To pack rubik cubes into a mystery shipping crate, you need prime factors grouped in teams of three.',
     subTabs: [
-      { id: 'scene-5', label: 'Finding Cube Roots', sceneIndex: 5 },
+      { id: 'pinch-history', label: 'A Pinch of History', sceneIndex: 15 },
+      { id: 'chapter-summary', label: 'Chapter Summary', sceneIndex: 16 },
+      { id: 'square-pairs', label: 'Square Pairs', sceneIndex: 17 },
     ],
   },
   {
     id: 'sec-5',
-    label: '5. Visualizers & Tools',
-    shortLabel: '5. Tools Lab',
+    label: '6. Practice',
+    shortLabel: '6. Practice',
+    storyHook: 'Explore interactive tools and discovery labs for squares, cubes, and prime factor trees.',
     subTabs: [
-      { id: 'dot-grid', label: 'Dot-Grid Square' },
-      { id: 'isometric-cube', label: 'Isometric Cube' },
-      { id: 'prime-factor', label: 'Prime-Factor Helper' },
+      { id: 'ncert-unsolved', label: 'NCERT Unsolved Exercises' },
+      { id: 'solved-examples', label: 'Solved Examples' },
+      { id: 'concept-clearing', label: 'Concept Clearing & In-Text' },
     ],
   },
 ];

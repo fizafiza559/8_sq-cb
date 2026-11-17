@@ -1,0 +1,252 @@
+LIVE ONLIME
+
+NCERT Solutions for Class 8 Maths Chapter 1
+A Square and A Cube
+
+Figure It Out (Pages 10-11)
+
+1. Which of the following numbers are not perfect squares?
+(i) 2032
+
+(ii) 2048
+
+(iii) 1027
+
+(iv) 1089
+
+Answer:
+
+(i) 2032 — ends with 2 > not a perfect square.
+
+(ii) 2048 — ends with 8 — not a perfect square.
+
+(iii) 1027 ends with 7 > not a perfect square.
+
+(iv) 1089 > ends with 9; check: 33? = 1089 — is a perfect square.
+
+Explanation: Squares can only end in 0, 1, 4, 5, 6, or 9. Any number ending
+in 2, 3, 7, or 8 cannot be a perfect square.
+
+2. Which one among 64A2, 108A2, 29242, 36A2 has the last digit 4?
+Answer: 108? and 292°.
+
+64? = 4096 — last digit 6
+
+108? = 11664 — last digit 4
+
+292? = 85264 — last digit 4
+
+36? = 1296 — last digit 6
+
+www.vedantu.com 1
+
+Explanation: The last digit of a square depends only on the last digit of the
+base.
+
+3. Given 125A2 = 15625, what is the value of 12642?
+
+Answer: 15876.
+Work: Using (n+1)? = n? + 2n +1 with n = 125:
+1267 = 15625 + 250 + 1 = 15876.
+
+Explanation: Consecutive squares differ by 2n + 1.|
+4. Find the length of the side of a square whose area is 441 mA2.
+
+Answer: 21 m.
+
+Explanation: If area = s?, then s = / 44] = 21.
+
+5. Find the smallest square number that is divisible by each of the
+following numbers: 4, 9, and 10.
+
+Answer: 900.
+
+Work: 4 = 22,9 =37,10=2x 5.
+
+Smallest square divisible by all has even powers of all primes: 2? x 3? x 5? =
+900.
+
+Explanation: A perfect square needs even exponents in its prime
+
+factorisation.
+
+6. Find the smallest number by which 9408 must be multiplied so that
+the product is a perfect square. Find the square root of the product.
+
+www.vedantu.com 2
+
+LIVE ONLIME
+
+Answer: Multiply by 3; the product is 28224 and /28224 = 168.
+
+Work: 9408 = 2° x 3' x 7? — to make exponents even, multiply by one more
+3.
+
+Product: 9408 x 3 = 28224 = 2° x 3? x 7? (a perfect square).
+
+/ 28224 = 2?x3x7=8x3x7=168.
+
+Explanation: Perfect squares have all prime exponents even.
+
+7. How many numbers lie between the squares of the following numbers?
+(i) 16 and 17
+(ii) 99 and 100
+
+Answer:
+
+(i) 32
+
+(ii) 198
+Explanation: For consecutive integers n and n+l, count of integers strictly
+between n? and (n+1)? is (n+1)? - n? - 1 = 2n. So for n = 16, it’s 32; for n = 99,
+it’s 198.
+
+8. In the following pattern, fill in the missing numbers:
+12 +22 +22=32
+
+22 +32+62=72
+
+32 + 42 +122 =132
+
+42+52+202=(__)2
+
+92+102+(__)2=(__)2
+
+Answer:
+
+www.vedantu.com 3
+
+Vedantin
+
+LIVE ONLINE TUTORING
+
+4? + 5? + 20? = 217
+9? + 10? + 90? = 917
+
+Explanation: The third term is the product of the two consecutive numbers
+(e.g., 4x5=20, 9x10=90), and the right side is one more than that product
+(20+1=21, 90+1=91), forming a Pythagorean-style identity.
+
+9. How many tiny squares are there in the following picture? Write the
+prime factorisation of the number of tiny squares.
+
+Answer:
+
+www.vedantu.com 4
+
+Big squares in a row = 9
+Big squares in a column = 9
+
+Tiny squares in each big square = 25
+.. Total number of tiny squares = 9 x 9 x 25 = 2025
+
+Now, the prime factorization of 2025 =3x3x3x3x5x5 = 452
+
+Figure It Out (Pages 16-17)
+1. Find the cube roots of 27000 and 10648.
+
+Answer:
+
+27000 = 27 x 1000 = (3 x 10)? > 927000 = 30.
+
+10648 = (2 x 11)? > 710648 = 22.
+
+Explanation: Break each number into a product of two perfect cubes. The
+
+cube root of a product is the product of the cube roots.
+2. What number will you multiply by 1323 to make it a cube number?
+
+Answer: Multiply by 7. The cube number obtained is 9261 (= 21°).
+Work: 1323 = 3° x 77. To make a perfect cube, every prime’s exponent must
+be a multiple of 3. Multiply by one more 7 to get 3° x 7°.
+
+3. State true or false. Explain your reasoning.
+(i) The cube of any odd number is even.
+(ii) There is no perfect cube that ends with 8.
+
+www.vedantu.com 5
+
+(iii) The cube of a 2-digit number may be a 3-digit number.
+(iv) The cube of a 2-digit number may have seven or more digits.
+(v) Cube numbers have an odd number of factors.
+
+Answer:
+
+False. Odd x odd x odd stays odd (e.g., 3* = 27).
+
+False. 2° = 8, 12° = 1728 — cubes can end in 8.
+
+False. The smallest 2-digit number is 10; 10° = 1000 (4 digits). So a 2-digit
+cube cannot be 3-digit.
+
+False. The largest 2-digit cube is 99° = 970,299 (6 digits), not 7+ digits.
+False (in general). Numbers have an odd number of factors only when
+they are perfect squares. Typical cubes like 8 (=2*) and 27 (=3*) have an
+
+even number of factors.
+
+Explanation: Use basic parity rules, last-digit checks for cubes, and
+digit-count bounds: 10° = 1000 (minimum for 2-digit bases) and 99° =
+970,299 (maximum for 2-digit bases). Factor-count parity is odd only for
+
+perfect squares.
+
+4. You are told that 1331 is a perfect cube. Can you guess without
+factorisation what its cube root is? Similarly, guess the cube roots of
+4913, 12167, and 32768.
+
+Answer: 3133] = 11, #4913 = 17, #12167 = 23, 932768 = 32.
+
+How to guess quickly:
+
+www.vedantu.com 6
+
+Step 1 (range): Compare with nearby thousand-cubes: 10°=1000,
+20°=8000, 30°=27000, 40°=64000, etc., to locate the tens digit.
+
+Step 2 (units digit rule for cubes): The last digit of a perfect cube
+determines the last digit of the base uniquely (e.g., base ending 1>cube
+ends 1; 7-3; 3-37; 2-8; 8-2; 9-9; 0-0; 44; 55; 6-6).
+
+Examples:
+
+1331 lies between 10? and 20? and ends in 1 > base ends in 1 > 11.
+
+4913 lies between 17° (=4913) and 18° (=5832); last digit 3 = base ends in 7
+=> 17.
+
+12167 is between 20% and 30%; last digit 7 > base ends in 3 > 23.
+
+32768 is between 30° and 40%; last digit 8 > base ends in 2 > 32.
+
+5. Which of the following is the greatest? Explain your reasoning.
+(i) 673 - 663
+
+(ii) 433 - 423
+
+(iii) 672 - 662
+
+(iv) 432 - 422
+
+Answer: (i) 673 - 663 is the greatest.
+Reasoning (using identities):
+For (i) and (ii): a? - b? = (a - b)(a? + ab + b?). Here, a - b = 1, so:
+(i): 67° - 66° = 67? + 67-66 + 66? = 4489 + 4422 + 4356 =
+13267.
+(ii): 43° - 42° = 432 + 43-42 + 42? = 1849 + 1806 + 1764 = 5419.
+
+www.vedantu.com 7
+
+\Wedantiu
+
+LIVE ONLINE TUTORING
+
+For (iii) and (iv): a? - b? = (a- b)(a +b) with a - b =1, so:
+
+(iii): 672 - 662 = 67 + 66 = 133.
+(iv): 43? - 42? = 43 + 42 = 85.
+
+Comparing values: 13267 > 5419 > 133 > 85, hence (i) is greatest.
+
+www.vedantu.com
+

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { chapterData, sampleRefresherClip } from './content/chapterData';
 import {
   CHAPTER_SECTIONS,
@@ -21,19 +21,22 @@ import { QuickCheck } from './components/QuickCheck';
 import { Katex } from './components/Katex';
 import { HighlightHeadline } from './components/HighlightHeadline';
 import { RefresherCard } from './components/RefresherCard';
-import {
-  FoundationDemoScene,
-  FoundationDemoInteractiveControls,
-} from './scenes/FoundationDemoScene';
-import {
-  LockerStorySection,
-  LOCKER_STORY_STEPS,
-  FACTOR_PAIRS_STEPS,
-} from './sections/LockerStorySection';
+import { FoundationDemoScene } from './scenes/FoundationDemoScene';
+import { SquareTileScene } from './scenes/SquareTileScene';
+import { OddSubtractionScene } from './scenes/OddSubtractionScene';
+import { TriangularSquareZipper } from './scenes/TriangularSquareZipper';
+import { SquareRootPrimeEstimateScene } from './scenes/SquareRootPrimeEstimateScene';
+import { CubeOddSumsAndTaxiScene } from './scenes/CubeOddSumsAndTaxiScene';
+import { DifferenceEngineTable } from './scenes/DifferenceEngineTable';
+import { HistoryVisualStory } from './scenes/HistoryVisualStory';
+import { SquarePairsPuzzle } from './scenes/SquarePairsPuzzle';
+import { LockerStorySection, FactorPairsMorph36 } from './sections/LockerStorySection';
+import { PracticeSection } from './sections/PracticeSection';
 import { DotGridSquareVisualizer } from './components/DotGridSquareVisualizer';
 import { IsometricCubeRenderer } from './components/IsometricCubeRenderer';
 import { PrimeFactorGroupingHelper } from './components/PrimeFactorGroupingHelper';
 import { COLORS } from './design/tokens';
+import { selfCheck } from './math/facts';
 
 const ALL_SUBTABS: { sectionId: SectionId; subTab: SubTabConfig }[] = CHAPTER_SECTIONS.flatMap((sec) =>
   sec.subTabs.map((subTab) => ({ sectionId: sec.id, subTab }))
@@ -44,14 +47,24 @@ const REFRESHERS: Record<string, RefresherMiniClip> = {
 };
 
 export default function App() {
+  const [activeChapter, setActiveChapter] = useState<string>('ch-2');
   const [activeSectionId, setActiveSectionId] = useState<SectionId>('sec-0');
-  const [activeSubTabId, setActiveSubTabId] = useState<SubTabId>('locker-story');
+  const [activeSubTabId, setActiveSubTabId] = useState<SubTabId>('locker-puzzle');
 
-  // Slide-based QuickCheck state for concept scenes (null = viewing scene beats)
+  // Run selfCheck on mount in development
+  useEffect(() => {
+    try {
+      selfCheck();
+    } catch (err) {
+      console.warn('selfCheck error:', err);
+    }
+  }, []);
+
+  // Slide-based QuickCheck state for scenes (null = viewing scene beats)
   const [quickCheckIndex, setQuickCheckIndex] = useState<number | null>(null);
   const [quickCheckAnswers, setQuickCheckAnswers] = useState<Record<number, number>>({});
 
-  // Module step for Section 0 story and Section 5 tool steps
+  // Module step for Section 0, Section 5, etc.
   const [moduleStep, setModuleStep] = useState(0);
 
   const chapter = chapterData;
@@ -123,32 +136,50 @@ export default function App() {
 
   // Left-rail steps
   const railSteps = useMemo<SlideStepItem[]>(() => {
-    if (activeSubTab.id === 'locker-story') {
-      return LOCKER_STORY_STEPS;
+    if (activeSubTab.id === 'locker-puzzle') {
+      return [
+        { id: 'lp-1', title: "1. Queen's Royal Decree" },
+        { id: 'lp-2', title: '2. Secret Vault & Guess' },
+        { id: 'lp-3', title: '3. Solution & Animation' },
+      ];
     }
-    if (activeSubTab.id === 'factor-pairs') {
-      return FACTOR_PAIRS_STEPS;
+    if (activeSectionId === 'sec-5') {
+      if (activeSubTab.id === 'ncert-unsolved') {
+        return [
+          { id: 'nu-1', title: 'Pages 10-11: Squares (Q1-Q5)' },
+          { id: 'nu-2', title: 'Pages 10-11: Multipliers (Q6-Q9)' },
+          { id: 'nu-3', title: 'Pages 16-17: Cubes (Q10-Q14)' },
+        ];
+      }
+      if (activeSubTab.id === 'solved-examples') {
+        return [
+          { id: 'se-1', title: 'Squares & Roots (Ex 1 to 10)' },
+          { id: 'se-2', title: 'Cubes & Roots (Ex 11 to 14)' },
+          { id: 'se-3', title: 'Triangular & Differences (Ex 15-16)' },
+        ];
+      }
+      if (activeSubTab.id === 'concept-clearing') {
+        return [
+          { id: 'cc-1', title: 'Factor Parity & Queen Passcode' },
+          { id: 'cc-2', title: 'Zeros & Parity In-Text Rules' },
+          { id: 'cc-3', title: 'Taxicab Numbers & Square Pairs' },
+        ];
+      }
+    }
+    if (activeSubTab.id === 'factor-partners') {
+      return [
+        { id: 'fp-1', title: 'Factors Division' },
+        { id: 'fp-2', title: 'Partner Pairs' },
+      ];
+    }
+    if (activeSubTab.id === 'squares-areas') {
+      return [
+        { id: 'sa-1', title: 'Equal Length and Width' },
+        { id: 'sa-2', title: 'Square Area Explorer' },
+      ];
     }
     if (isSceneSubTab) {
       return currentScene.beats.map((b) => ({ id: b.id, title: b.headline || b.narration }));
-    }
-    if (activeSubTab.id === 'dot-grid') {
-      return [
-        { id: 'dg-1', title: 'Interactive Square Grid' },
-        { id: 'dg-2', title: 'Odd Numbers Decomposition' },
-      ];
-    }
-    if (activeSubTab.id === 'isometric-cube') {
-      return [
-        { id: 'ic-1', title: 'Isometric Cube Layers' },
-        { id: 'ic-2', title: 'Volume & Cubing' },
-      ];
-    }
-    if (activeSubTab.id === 'prime-factor') {
-      return [
-        { id: 'pf-1', title: 'Prime Factorisation' },
-        { id: 'pf-2', title: 'Grouping Pairs & Triplets' },
-      ];
     }
     return [{ id: 'tool-step', title: activeSubTab.label }];
   }, [activeSubTab, currentScene.beats, isSceneSubTab]);
@@ -237,7 +268,6 @@ export default function App() {
       return false;
     }
 
-    // Story and Tools Tab module step progression
     if (moduleStep < railSteps.length - 1) {
       setModuleStep((s) => s + 1);
       return true;
@@ -266,7 +296,6 @@ export default function App() {
         timeline.goBack();
         return;
       }
-      // Step back into previous sub-tab
       if (globalSubTabIdx > 0) {
         const prevGlobal = ALL_SUBTABS[globalSubTabIdx - 1];
         setActiveSectionId(prevGlobal.sectionId);
@@ -286,7 +315,6 @@ export default function App() {
       return;
     }
 
-    // Module Tabs (Section 0 and Section 5)
     if (moduleStep > 0) {
       setModuleStep((s) => s - 1);
       return;
@@ -298,19 +326,121 @@ export default function App() {
     }
   };
 
-  const activeControlsDock =
-    isSceneSubTab && quickCheckIndex === null && currentBeat.interactive ? (
-      <FoundationDemoInteractiveControls
+  const renderSceneVisual = () => {
+    const sId = currentScene.id;
+    const subId = activeSubTab.id;
+    const bId = currentBeat?.id ?? '';
+
+    // 1. Animation 2: Factor Partners for 36 (The Lone 6x6) -> FactorPairsMorph36
+    if (sId === 'scene-1' || subId === 'factor-partners' || bId.startsWith('fp-')) {
+      return <FactorPairsMorph36 />;
+    }
+
+    // 2. Animation 3: What is a Square? (Whole 1-5, Decimal 2.5, Fraction 3/5) -> SquareTileScene
+    if (sId === 'scene-2' || subId === 'squares-areas' || bId.startsWith('sa-')) {
+      return <SquareTileScene />;
+    }
+
+    // 3. Animation 5 & Patterns: Odd Numbers Make Squares
+    if (sId === 'scene-4' || subId === 'odd-squares' || bId.startsWith('on-')) {
+      if (bId === 'on-4' || bId === 'on-5') {
+        return <OddSubtractionScene />;
+      }
+      return <DotGridSquareVisualizer initialMode="odd-borders" />;
+    }
+
+    // 4. Animation 6: Between Squares & Triangular Zipper (T_{n-1} + T_n = n^2)
+    if (sId === 'scene-5' || subId === 'between-triangular' || bId.startsWith('bt-')) {
+      if (bId === 'bt-3' || bId === 'bt-4') {
+        return <TriangularSquareZipper initialN={4} />;
+      }
+      return (
+        <FoundationDemoScene
+          t={timeline.t}
+          beatIndex={timeline.beatIndex}
+          beatId={currentBeat.id}
+          localProgress={timeline.progress}
+          params={sceneParams.params}
+          setParam={sceneParams.setParam}
+          setParams={sceneParams.setParams}
+        />
+      );
+    }
+
+    // 5. Concept of Square Root (scene-6 / roots-plus-minus) -> SquareTileScene inverseMode
+    if (sId === 'scene-6' || subId === 'roots-plus-minus' || bId.startsWith('rm-')) {
+      return <SquareTileScene inverseMode={true} />;
+    }
+
+    // 6. Animation 5 & 7: Methods for Square Roots (scene-7 / finding-roots)
+    if (sId === 'scene-7' || subId === 'finding-roots' || bId.startsWith('fr-')) {
+      if (bId === 'fr-2') {
+        return <SquareRootPrimeEstimateScene initialTab="prime-pairs" />;
+      }
+      return <OddSubtractionScene />;
+    }
+
+    // 7. Animation 7B: Estimating Roots (scene-8 / estimating-roots) -> Interval Halving for sqrt(1936)
+    if (sId === 'scene-8' || subId === 'estimating-roots' || bId.startsWith('er-')) {
+      return <SquareRootPrimeEstimateScene initialTab="estimate-1936" />;
+    }
+
+    // 8. Animation 8: Building Cubes (scene-9 / building-cubes) -> 4x4x4 Layer Isometric Cube + Explode
+    if (sId === 'scene-9' || subId === 'building-cubes' || bId.startsWith('bc-')) {
+      return <IsometricCubeRenderer initialN={4} />;
+    }
+
+    // 9. Animation 10B: Taxicab Numbers (scene-11 / taxicab-numbers) -> 1729 Balance Scale
+    if (sId === 'scene-11' || subId === 'taxicab-numbers' || bId.startsWith('tc-')) {
+      return <CubeOddSumsAndTaxiScene initialTab="taxicab" />;
+    }
+
+    // 10. Animation 10A: Cubes and Odd Numbers (scene-12 / cubes-odd-numbers) -> Consecutive Odd Sums Tape
+    if (sId === 'scene-12' || subId === 'cubes-odd-numbers' || bId.startsWith('co-')) {
+      return <CubeOddSumsAndTaxiScene initialTab="odd-sums" />;
+    }
+
+    // 11. Animation 9: Finding Cube Roots (scene-13 / cube-roots) -> PrimeFactorGroupingHelper
+    if (sId === 'scene-13' || subId === 'cube-roots' || bId.startsWith('cr-')) {
+      return <PrimeFactorGroupingHelper initialNumber={3375} />;
+    }
+
+    // 12. Animation 11: Successive Differences Engine (scene-14 / successive-differences)
+    if (sId === 'scene-14' || subId === 'successive-differences' || bId.startsWith('sd-')) {
+      return <DifferenceEngineTable initialMode="cubes" />;
+    }
+
+    // 13. Cultural History Visual Story (scene-15 / pinch-history)
+    if (sId === 'scene-15' || subId === 'pinch-history' || bId.startsWith('ph-')) {
+      return <HistoryVisualStory slideIndex={bId === 'ph-2' ? 1 : 0} />;
+    }
+
+    // 14. Square Pairs 1-17 Interactive Puzzle (scene-17 / square-pairs)
+    if (sId === 'scene-17' || subId === 'square-pairs' || bId.startsWith('sp-')) {
+      return <SquarePairsPuzzle />;
+    }
+
+    // Fallback to FoundationDemoScene
+    return (
+      <FoundationDemoScene
+        t={timeline.t}
+        beatIndex={timeline.beatIndex}
+        beatId={currentBeat.id}
+        localProgress={timeline.progress}
         params={sceneParams.params}
         setParam={sceneParams.setParam}
+        setParams={sceneParams.setParams}
       />
-    ) : undefined;
+    );
+  };
 
   return (
     <SlideShell
       sections={CHAPTER_SECTIONS}
       activeSectionId={activeSectionId}
       onSelectSection={handleSelectSection}
+      activeChapter={activeChapter}
+      onSelectChapter={setActiveChapter}
       topics={activeSection.subTabs.map((st) => ({ id: st.id, label: st.label }))}
       activeTopicId={activeSubTabId}
       onSelectTopic={handleSelectSubTab}
@@ -320,7 +450,6 @@ export default function App() {
       currentUnitIndex={currentUnitIndex}
       isLastUnit={isLastUnit}
       nextScreenLabel={nextScreenLabel}
-      controlsDock={activeControlsDock}
       isAnimating={isSceneSubTab && !inQuickCheck ? timeline.isAnimating : undefined}
       finishAnimation={isSceneSubTab && !inQuickCheck ? timeline.finishAnimation : undefined}
       onSelectStep={(idx) => {
@@ -334,26 +463,19 @@ export default function App() {
       onNext={handleTapNext}
       onBack={handleTapBack}
     >
-      {/* 0. Section 0: Queen Ratnamanjuri's 100 Lockers Story & Factor Pairs */}
-      {activeSectionId === 'sec-0' && (
+      {/* Custom Sections or Standard Scene Beats */}
+      {activeSectionId === 'sec-5' ? (
+        <PracticeSection
+          activeSubTabId={activeSubTab.id}
+          onSelectSubTab={(subId) => handleSelectSubTab(subId, 'sec-5')}
+        />
+      ) : activeSubTab.id === 'locker-puzzle' ? (
         <LockerStorySection
-          subTabId={activeSubTab.id as 'locker-story' | 'factor-pairs'}
+          subTabId="locker-story"
           stepIndex={clampedStep}
           onAdvanceStep={handleTapNext}
         />
-      )}
-
-      {/* 1. Interactive Tools Lab Screens (Section 5) */}
-      {activeSectionId === 'sec-5' && (
-        <div className="w-full max-w-4xl mx-auto py-2">
-          {activeSubTab.id === 'dot-grid' && <DotGridSquareVisualizer />}
-          {activeSubTab.id === 'isometric-cube' && <IsometricCubeRenderer />}
-          {activeSubTab.id === 'prime-factor' && <PrimeFactorGroupingHelper />}
-        </div>
-      )}
-
-      {/* 2. Concept Scene Slides OR QuickCheck Slides */}
-      {isSceneSubTab && inQuickCheck && (
+      ) : isSceneSubTab && inQuickCheck ? (
         <QuickCheck
           questions={qcQuestions}
           currentIndex={quickCheckIndex!}
@@ -371,11 +493,8 @@ export default function App() {
           }}
           onNextScene={advanceAfterQuickCheck}
         />
-      )}
-
-      {isSceneSubTab && !inQuickCheck && (
+      ) : isSceneSubTab && !inQuickCheck ? (
         <div className="w-full flex flex-col items-center gap-3 md:gap-4">
-          {/* a. HEADLINE + optional '?' Refresher icon button */}
           <div className="w-full flex flex-col items-center gap-1.5">
             <div className="flex items-center justify-center gap-2.5 max-w-[920px]">
               <HighlightHeadline
@@ -387,7 +506,6 @@ export default function App() {
               {activeRefresher && <RefresherCard clip={activeRefresher} />}
             </div>
 
-            {/* d. CAPTION: one muted line under headline when needed */}
             {currentBeat.caption && (
               <p
                 key={`cap-${currentBeat.id}`}
@@ -399,23 +517,13 @@ export default function App() {
             )}
           </div>
 
-          {/* b. VISUAL: centred scene canvas, >= 55% of stage height, unboxed */}
           <div
             data-no-nav={currentBeat.interactive ? 'true' : undefined}
-            className="w-full max-w-[780px] h-[55vh] min-h-[260px] max-h-[520px] flex items-center justify-center"
+            className="w-full max-w-[840px] flex items-center justify-center py-1"
           >
-            <FoundationDemoScene
-              t={timeline.t}
-              beatIndex={timeline.beatIndex}
-              beatId={currentBeat.id}
-              localProgress={timeline.progress}
-              params={sceneParams.params}
-              setParam={sceneParams.setParam}
-              setParams={sceneParams.setParams}
-            />
+            {renderSceneVisual()}
           </div>
 
-          {/* c. EQUATION STRIP: centred KaTeX, latest lines only, newest highlighted */}
           {visibleLatexLines.length > 0 && (
             <div className="w-full max-w-3xl mx-auto overflow-x-auto no-scrollbar py-1">
               <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1.5 math-strip font-medium">
@@ -441,6 +549,11 @@ export default function App() {
               </div>
             </div>
           )}
+        </div>
+      ) : (
+        <div className="w-full max-w-2xl mx-auto py-8 text-center">
+          <h2 className="text-title font-bold mb-2">{activeSubTab.label}</h2>
+          <p className="text-body text-slate-600">Explore this NCERT Class 8 topic using the interactive stage and steps above.</p>
         </div>
       )}
     </SlideShell>

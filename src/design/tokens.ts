@@ -18,24 +18,28 @@ export const COLORS = {
   secondaryText: '#475569',
 
   chipBlueBg: '#DFF2FE',
-  chipBlueText: '#0B6AA6',
+  chipBlueText: '#056AA6',
   chipAmberBg: '#FEF9C2',
-  chipAmberText: '#A16207',
+  chipAmberText: '#B45309',
 
-  // Fixed symbol/entity colours consistently used across tiles, number lines, and equations:
-  // number/root = blue #0788D3
-  // square area = orange #F27A00
-  // cube volume = purple #8B5CF6
-  // side length = green #16A34A
-  number: { solid: '#0788D3', tint: '#E0F2FE', text: '#0369A1' },
-  root: { solid: '#0788D3', tint: '#E0F2FE', text: '#0369A1' },
-  area: { solid: '#F27A00', tint: '#FFEDD5', text: '#C2410C' },
-  volume: { solid: '#8B5CF6', tint: '#EDE9FE', text: '#6D28D9' },
+  // Class 8 symbol/entity colours:
+  // number = green #16A34A
+  // square / area = blue #0788D3
+  // cube / volume = orange #F27A00
+  // odd numbers = purple #8B5CF6
+  // matched pair / answer / highlight = pink #DB2777
+  // lockerOpen = green #16A34A, lockerClosed = grey #94A3B8
+  number: { solid: '#16A34A', tint: '#DCFCE7', text: '#15803D' },
+  area: { solid: '#0788D3', tint: '#E0F2FE', text: '#056AA6' },
+  volume: { solid: '#F27A00', tint: '#FFEDD5', text: '#B45309' },
+  odd: { solid: '#8B5CF6', tint: '#EDE9FE', text: '#6D3FD6' },
+  pair: { solid: '#DB2777', tint: '#FCE7F3', text: '#BE185D' },
+  lockerOpen: { solid: '#16A34A', tint: '#DCFCE7', text: '#15803D' },
+  lockerClosed: { solid: '#94A3B8', tint: '#F1F5F9', text: '#64748B' },
+
+  // Compatibility aliases for existing UI components
+  root: { solid: '#0788D3', tint: '#E0F2FE', text: '#056AA6' },
   side: { solid: '#16A34A', tint: '#DCFCE7', text: '#15803D' },
-  x: { solid: '#0788D3', tint: '#E0F2FE', text: '#0369A1' },
-  a: { solid: '#F27A00', tint: '#FFEDD5', text: '#C2410C' },
-  b: { solid: '#16A34A', tint: '#DCFCE7', text: '#15803D' },
-  c: { solid: '#8B5CF6', tint: '#EDE9FE', text: '#6D28D9' },
 
   canvasBg: '#FFFFFF',
   canvasGrid: '#E3EAF8',

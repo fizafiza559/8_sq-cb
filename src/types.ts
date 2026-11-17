@@ -13,15 +13,15 @@ export interface QuickCheckQuestion {
 
 export type SymbolColorKey =
   | 'number'
-  | 'root'
-  | 'side'
   | 'area'
   | 'volume'
-  | 'primary'
-  | 'x'
-  | 'a'
-  | 'b'
-  | 'c';
+  | 'odd'
+  | 'pair'
+  | 'lockerOpen'
+  | 'lockerClosed'
+  | 'root'
+  | 'side'
+  | 'primary';
 
 export interface Beat {
   id: string;
@@ -34,12 +34,14 @@ export interface Beat {
   highlight?: string[];
   params?: Record<string, number>;
   interactive?: boolean;
+  words?: { term: string; meaning: string }[];
 }
 
 export interface Scene {
   id: string;
   title: string;
   subtitle: string;
+  storyHook?: string;
   beats: Beat[];
   quickCheck?: QuickCheckQuestion[];
   refresherId?: string;

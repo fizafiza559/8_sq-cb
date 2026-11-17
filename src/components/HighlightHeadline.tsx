@@ -21,20 +21,11 @@ function resolveColorKey(
   highlightSymbols?: string[]
 ): SymbolColorKey {
   if (focusColor) return focusColor;
-  const fw = (focusWord || '').toLowerCase();
-  if (fw.includes('square') || fw.includes('area')) return 'area';
-  if (fw.includes('cube') || fw.includes('volume')) return 'volume';
-  if (fw.includes('side') || fw.includes('length')) return 'side';
-  if (fw.includes('root') || fw.includes('number')) return 'root';
-  if (fw === 'a') return 'a';
-  if (fw === 'b') return 'b';
-  if (fw === 'c') return 'c';
-  if (fw === 'x') return 'x';
   const first = highlightSymbols?.[0] as SymbolColorKey | undefined;
   if (first && first in COLORS) {
     return first;
   }
-  return 'root';
+  return 'number';
 }
 
 export const HighlightHeadline: React.FC<HighlightHeadlineProps> = ({
@@ -45,7 +36,7 @@ export const HighlightHeadline: React.FC<HighlightHeadlineProps> = ({
   maxWidthClass = 'max-w-[900px]',
 }) => {
   const colorKey = resolveColorKey(focusColor, focusWord, highlightSymbols);
-  const colorEntry = COLORS[colorKey];
+  const colorEntry = COLORS[colorKey] || COLORS.number;
   const accentColor =
     typeof colorEntry === 'object' && colorEntry !== null && 'solid' in colorEntry
       ? colorEntry.solid

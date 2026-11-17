@@ -3,115 +3,258 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
-  Crown,
-  Gem,
   Lock,
   Unlock,
-  Key,
   Play,
   Pause,
   RotateCcw,
-  FastForward,
-  CheckCircle2,
-  XCircle,
-  HelpCircle,
-  Lightbulb,
-  History,
   Sparkles,
-  ChevronDown,
-  ChevronUp,
+  Crown,
+  Scroll,
+  HelpCircle,
+  CheckCircle2,
+  Gem,
+  KeyRound,
+  ArrowRight,
+  Grid,
 } from 'lucide-react';
 import { COLORS } from '../design/tokens';
+import { lockers, divisors, toggleCount, isSquare } from '../math/facts';
 import { Katex } from '../components/Katex';
-import { HighlightHeadline } from '../components/HighlightHeadline';
 
-export const LOCKER_STORY_STEPS = [
-  { id: 'ls-1', title: "Queen Ratnamanjuri's Will" },
-  { id: 'ls-2', title: "The Minister's 100 Rules" },
-  { id: 'ls-3', title: "Interactive 100-Locker Chamber" },
-  { id: 'ls-4', title: "Solve the Puzzle (With Hints)" },
-  { id: 'ls-5', title: "The Secret Passcode (2-3-5-7-11)" },
+export interface FactorPairsMorph36Props {
+  className?: string;
+}
+
+interface FactorPairOption {
+  rows: number;
+  cols: number;
+  label: string;
+  isSquarePair?: boolean;
+}
+
+const FACTOR_PAIR_OPTIONS_36: FactorPairOption[] = [
+  { rows: 1, cols: 36, label: '1 × 36' },
+  { rows: 2, cols: 18, label: '2 × 18' },
+  { rows: 3, cols: 12, label: '3 × 12' },
+  { rows: 4, cols: 9, label: '4 × 9' },
+  { rows: 6, cols: 6, label: '6 × 6 (Square!)', isSquarePair: true },
 ];
 
-export const FACTOR_PAIRS_STEPS = [
-  { id: 'fp-1', title: "Toggles = Factors (Odd vs Even)" },
-  { id: 'fp-2', title: "Partner Factors of Normal Numbers" },
-  { id: 'fp-3', title: "The Self-Pair (Square Numbers)" },
-  { id: 'fp-4', title: "Squares as Geometric Areas" },
-  { id: 'fp-5', title: "Figure It Out: Story Quiz" },
-];
+export const FactorPairsMorph36: React.FC<FactorPairsMorph36Props> = ({ className = '' }) => {
+  const [selectedIdx, setSelectedIdx] = useState<number>(4);
+  const current = FACTOR_PAIR_OPTIONS_36[selectedIdx];
 
-// Mathematical helpers
-function getFactors(n: number): number[] {
-  const factors: number[] = [];
-  for (let i = 1; i <= n; i++) {
-    if (n % i === 0) factors.push(i);
-  }
-  return factors;
-}
+  // Viewport geometry for 36 smoothly positioned dots
+  const canvasW = 680;
+  const canvasH = 260;
+  const padX = 28;
+  const padY = 26;
+  const availW = canvasW - padX * 2;
+  const availH = canvasH - padY * 2;
 
-function getToggledBy(locker: number, maxPerson: number): number[] {
-  const togglers: number[] = [];
-  for (let p = 1; p <= maxPerson; p++) {
-    if (locker % p === 0) togglers.push(p);
-  }
-  return togglers;
-}
+  const stepX = Math.min(44, availW / Math.max(1, current.cols));
+  const stepY = Math.min(36, availH / Math.max(1, current.rows));
+  const dotRadius =
+    current.cols >= 36 ? 6.5 : current.cols >= 18 ? 10 : current.cols >= 12 ? 12 : 14;
 
-function getFactorPairs(n: number): [number, number][] {
-  const pairs: [number, number][] = [];
-  for (let i = 1; i * i <= n; i++) {
-    if (n % i === 0) {
-      pairs.push([i, n / i]);
-    }
-  }
-  return pairs;
-}
+  const gridW = (current.cols - 1) * stepX;
+  const gridH = (current.rows - 1) * stepY;
+  const originX = (canvasW - gridW) / 2;
+  const originY = (canvasH - gridH) / 2;
 
-function isSquare(n: number): boolean {
-  const root = Math.round(Math.sqrt(n));
-  return root * root === n;
-}
+  const allFactors36 = divisors(36); // [1, 2, 3, 4, 6, 9, 12, 18, 36]
 
-function isPrime(n: number): boolean {
-  if (n < 2) return false;
-  for (let i = 2; i * i <= n; i++) {
-    if (n % i === 0) return false;
-  }
-  return true;
-}
+  return (
+    <div
+      data-no-nav="true"
+      className={`w-full max-w-4xl mx-auto rounded-3xl border bg-white p-5 sm:p-6 shadow-xs flex flex-col gap-5 ${className}`}
+      style={{ borderColor: COLORS.divider }}
+    >
+      {/* Header */}
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
+        <div>
+          <span className="text-micro font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+            <Grid className="w-3.5 h-3.5 text-orange-500" />
+            <span>Animation 2 • Why Square Numbers Have Odd Factors</span>
+          </span>
+          <h3 className="text-statement font-extrabold text-slate-900 mt-0.5">
+            Morphing All 36 Tiles into Partner Rectangles
+          </h3>
+        </div>
 
-const SQUARE_LOCKERS = [1, 4, 9, 16, 25, 36, 49, 64, 81, 100];
-const FIRST_5_PRIMES = [2, 3, 5, 7, 11];
+        <span
+          className="px-3 py-1 rounded-full text-micro font-extrabold border"
+          style={{
+            backgroundColor: current.isSquarePair ? '#FFF7ED' : '#EFF6FF',
+            borderColor: current.isSquarePair ? '#F27A00' : '#BFDBFE',
+            color: current.isSquarePair ? '#C2410C' : '#1E40AF',
+          }}
+        >
+          {current.rows} rows × {current.cols} cols = 36 tiles
+        </span>
+      </div>
 
-const PUZZLE_HINTS = [
-  {
-    level: 1,
-    title: 'Hint 1 (From the Story)',
-    content:
-      'Find out how many times each locker is toggled. What does the number of times a door is toggled depend on?',
-  },
-  {
-    level: 2,
-    title: 'Hint 2: Odd vs Even Rule',
-    content:
-      'A closed locker toggled 1 time is OPEN, 2 times is CLOSED, 3 times is OPEN, 4 times is CLOSED... Therefore, a locker remains OPEN if and only if it is toggled an ODD number of times!',
-  },
-  {
-    level: 3,
-    title: 'Hint 3: Divisors & Partner Pairs',
-    content:
-      'Person p touches Locker N only if p divides N. So the number of toggles equals the number of factors of N! Factors usually come in distinct pairs: 1 × 6 and 2 × 3 (giving an EVEN count). Does every number have an even number of factors?',
-  },
-  {
-    level: 4,
-    title: 'Hint 4: The Self-Pair & Squares',
-    content:
-      'What happens when a number has a factor paired with itself (like 2 × 2 = 4, 3 × 3 = 9, 6 × 6 = 36)? The middle factor is only counted once, giving an ODD total count of factors! The only open lockers are the SQUARE numbers!',
-  },
-];
+      {/* Factor Pair Buttons */}
+      <div className="flex flex-wrap items-center justify-center gap-2">
+        {FACTOR_PAIR_OPTIONS_36.map((opt, idx) => {
+          const isActive = idx === selectedIdx;
+          return (
+            <button
+              key={opt.label}
+              type="button"
+              onClick={() => setSelectedIdx(idx)}
+              className={`min-h-[40px] px-4 py-2 rounded-xl text-small font-bold border transition-all cursor-pointer whitespace-nowrap shrink-0 flex items-center gap-1.5 ${
+                isActive
+                  ? opt.isSquarePair
+                    ? 'bg-[#F27A00] text-white border-[#C2410C] shadow-sm scale-[1.03]'
+                    : 'bg-[#005583] text-white border-[#003F62] shadow-sm'
+                  : opt.isSquarePair
+                  ? 'bg-orange-50 text-orange-800 border-orange-300 hover:bg-orange-100'
+                  : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+              }`}
+            >
+              {opt.isSquarePair && <Sparkles className="w-3.5 h-3.5 shrink-0" />}
+              <span>{opt.label}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Morphing Dot Grid Canvas */}
+      <div
+        className="w-full rounded-2xl border p-3 flex flex-col items-center justify-center relative overflow-hidden transition-colors duration-300"
+        style={{
+          borderColor: current.isSquarePair ? '#FDBA74' : COLORS.divider,
+          backgroundColor: current.isSquarePair ? '#FFFBF5' : '#F8FAFC',
+        }}
+      >
+        <svg
+          viewBox={`0 0 ${canvasW} ${canvasH}`}
+          className="w-full h-auto max-h-[260px] select-none"
+          aria-label={`36 dots arranged as ${current.rows} by ${current.cols}`}
+        >
+          {/* Subtle bounding box around current rectangle */}
+          <rect
+            x={originX - dotRadius - 8}
+            y={originY - dotRadius - 8}
+            width={gridW + (dotRadius + 8) * 2}
+            height={gridH + (dotRadius + 8) * 2}
+            rx={14}
+            fill={current.isSquarePair ? 'rgba(242, 122, 0, 0.08)' : 'rgba(7, 136, 211, 0.05)'}
+            stroke={current.isSquarePair ? '#F27A00' : '#93C5FD'}
+            strokeWidth={current.isSquarePair ? 2.5 : 1.5}
+            strokeDasharray={current.isSquarePair ? 'none' : '6 4'}
+            style={{ transition: 'all 450ms cubic-bezier(0.22, 1, 0.36, 1)' }}
+          />
+
+          {Array.from({ length: 36 }, (_, idx) => {
+            const r = Math.floor(idx / current.cols);
+            const c = idx % current.cols;
+            const cx = originX + c * stepX;
+            const cy = originY + r * stepY;
+
+            return (
+              <g
+                key={idx}
+                style={{
+                  transform: `translate(${cx}px, ${cy}px)`,
+                  transition: `transform 480ms cubic-bezier(0.22, 1, 0.36, 1) ${(idx % 12) * 8}ms`,
+                }}
+              >
+                <circle
+                  cx={0}
+                  cy={0}
+                  r={dotRadius}
+                  fill={current.isSquarePair ? '#F27A00' : '#0788D3'}
+                  stroke={current.isSquarePair ? '#9A3412' : '#0369A1'}
+                  strokeWidth={1.5}
+                />
+                {dotRadius >= 11 && (
+                  <text
+                    x={0}
+                    y={3.5}
+                    textAnchor="middle"
+                    fill="#FFFFFF"
+                    fontSize={9}
+                    fontWeight={700}
+                  >
+                    {idx + 1}
+                  </text>
+                )}
+              </g>
+            );
+          })}
+        </svg>
+      </div>
+
+      {/* Factor Partners & Lone 6x6 Explanation Badge */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-stretch">
+        {/* All 9 Factors of 36 Strip */}
+        <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col gap-2 justify-center">
+          <span className="text-micro font-bold uppercase tracking-wider text-slate-500">
+            All Factors of 36 ({allFactors36.length} total — ODD count!)
+          </span>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {allFactors36.map((f) => {
+              const isSelectedFactor = f === current.rows || f === current.cols;
+              const isLoneSix = f === 6;
+              return (
+                <span
+                  key={f}
+                  className={`px-2.5 py-1 rounded-lg font-mono text-small font-extrabold border transition-all ${
+                    isLoneSix && current.isSquarePair
+                      ? 'bg-[#F27A00] text-white border-[#C2410C] scale-105 shadow-xs'
+                      : isSelectedFactor
+                      ? 'bg-blue-600 text-white border-blue-700'
+                      : isLoneSix
+                      ? 'bg-orange-100 text-orange-900 border-orange-300'
+                      : 'bg-white text-slate-700 border-slate-200'
+                  }`}
+                >
+                  {f}
+                </span>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Dynamic Insight Badge */}
+        <div
+          className={`p-4 rounded-2xl border flex flex-col justify-center gap-1.5 transition-all ${
+            current.isSquarePair
+              ? 'bg-orange-50 border-orange-300 text-orange-950 shadow-2xs'
+              : 'bg-blue-50/70 border-blue-200 text-blue-950'
+          }`}
+        >
+          {current.isSquarePair ? (
+            <>
+              <div className="flex items-center gap-2 font-extrabold text-small text-orange-900">
+                <Sparkles className="w-4 h-4 text-[#F27A00] shrink-0" />
+                <span>The Lone 6 × 6 Square!</span>
+              </div>
+              <p className="text-small leading-relaxed text-orange-950">
+                6 pairs with itself! No distinct partner → <strong>ODD number of factors (9 factors)</strong>. That&apos;s why Locker #36 stays OPEN!
+              </p>
+            </>
+          ) : (
+            <>
+              <div className="font-extrabold text-small text-blue-900 flex items-center gap-2">
+                <Katex latex={`${current.rows} \\times ${current.cols} = 36`} displayMode={false} />
+                <span>gives 2 distinct partners</span>
+              </div>
+              <p className="text-small leading-relaxed text-slate-700">
+                Both <strong>{current.rows}</strong> and <strong>{current.cols}</strong> flip Locker #36—those two flips cancel each other out. Tap <strong>6 × 6 (Square!)</strong> to find the lone factor!
+              </p>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 interface LockerStorySectionProps {
   subTabId: 'locker-story' | 'factor-pairs';
@@ -124,254 +267,508 @@ export const LockerStorySection: React.FC<LockerStorySectionProps> = ({
   stepIndex,
   onAdvanceStep,
 }) => {
-  // 100 Lockers interactive simulator state
-  const [currentPerson, setCurrentPerson] = useState<number>(100);
-  const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [selectedLocker, setSelectedLocker] = useState<number>(36);
-  const [filterHighlight, setFilterHighlight] = useState<'none' | 'squares' | 'primes'>('squares');
-  const [showDoorTogglesHistory, setShowDoorTogglesHistory] = useState<boolean>(false);
-  const [showDoorConceptHint, setShowDoorConceptHint] = useState<boolean>(true);
+  // Current active storyboard panel: 0 = Queen's Decree, 1 = Secret Vault & Guess, 2 = Solution Animation
+  const [panelIndex, setPanelIndex] = useState<number>(() => Math.min(2, Math.max(0, stepIndex)));
 
-  // Student Puzzle Solver State (Step 4)
-  const [predictedLockers, setPredictedLockers] = useState<Set<number>>(new Set());
-  const [revealedHintCount, setRevealedHintCount] = useState<number>(1);
-  const [showSolutionRevealed, setShowSolutionRevealed] = useState<boolean>(false);
-  const [solverFeedback, setSolverFeedback] = useState<string | null>(null);
-
-  // Factor Pairs interactive state
-  const [sideN, setSideN] = useState<number>(6);
-
-  // Quiz state
-  const [quizAnswers, setQuizAnswers] = useState<Record<number, number>>({});
-
-  // Auto-play interval for simulator
+  // Sync with prop stepIndex if prop changes
   useEffect(() => {
-    if (!isPlaying) return;
-    const timer = setInterval(() => {
-      setCurrentPerson((prev) => {
-        if (prev >= 100) {
-          setIsPlaying(false);
-          return 100;
-        }
-        return prev + 1;
-      });
-    }, 180);
-    return () => clearInterval(timer);
-  }, [isPlaying]);
+    if (stepIndex >= 0 && stepIndex <= 2) {
+      setPanelIndex(stepIndex);
+    }
+  }, [stepIndex]);
 
-  // Selected locker details
-  const selectedTogglers = useMemo(
-    () => getToggledBy(selectedLocker, currentPerson),
-    [selectedLocker, currentPerson]
-  );
-  const selectedIsOpen = selectedTogglers.length % 2 === 1;
-  const selectedAllFactors = useMemo(() => getFactors(selectedLocker), [selectedLocker]);
-  const selectedPairs = useMemo(() => getFactorPairs(selectedLocker), [selectedLocker]);
-  const selectedIsSquare = isSquare(selectedLocker);
-  const selectedIsPrime = isPrime(selectedLocker);
+  // Guessing state in Panel 1
+  const [studentGuess, setStudentGuess] = useState<string | null>(null);
+  const [guessedLockerSet, setGuessedLockerSet] = useState<Set<number>>(new Set());
 
-  // Toggle prediction in Step 4
-  const togglePrediction = (lockerNum: number) => {
-    setPredictedLockers((prev) => {
-      const next = new Set(prev);
-      if (next.has(lockerNum)) {
-        next.delete(lockerNum);
-      } else {
-        next.add(lockerNum);
+  // Simulation state in Panel 2
+  const [currentPerson, setCurrentPerson] = useState<number>(0);
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [playbackSpeed, setPlaybackSpeed] = useState<number>(1);
+  const [inspectedLocker, setInspectedLocker] = useState<number>(36);
+
+  // Timer ref for playback
+  const playTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (isPlaying) {
+      const intervalMs = Math.max(80, Math.floor(400 / playbackSpeed));
+      playTimerRef.current = window.setInterval(() => {
+        setCurrentPerson((prev) => {
+          if (prev >= 100) {
+            setIsPlaying(false);
+            return 100;
+          }
+          return prev + 1;
+        });
+      }, intervalMs);
+    } else {
+      if (playTimerRef.current !== null) {
+        clearInterval(playTimerRef.current);
+        playTimerRef.current = null;
       }
+    }
+    return () => {
+      if (playTimerRef.current !== null) {
+        clearInterval(playTimerRef.current);
+      }
+    };
+  }, [isPlaying, playbackSpeed]);
+
+  if (subTabId === 'factor-pairs') {
+    return (
+      <div className="w-full py-2 pb-10 animate-fade-rise">
+        <FactorPairsMorph36 />
+      </div>
+    );
+  }
+
+  const lockerStates = lockers(currentPerson, 100);
+  const touchedByCurrent =
+    currentPerson > 0
+      ? Array.from({ length: 100 }, (_, i) => i + 1).filter((num) => num % currentPerson === 0)
+      : [];
+
+  const handleToggleLockerGuess = (num: number) => {
+    setGuessedLockerSet((prev) => {
+      const next = new Set(prev);
+      if (next.has(num)) next.delete(num);
+      else next.add(num);
       return next;
     });
-    setSolverFeedback(null);
   };
 
-  const handleCheckPredictions = () => {
-    const correctCount = Array.from(predictedLockers).filter((n) => isSquare(n)).length;
-    const incorrectCount = predictedLockers.size - correctCount;
+  return (
+    <div className="w-full max-w-4xl mx-auto flex flex-col gap-6 py-2 pb-12 animate-fade-rise">
+      {/* Storyboard Navigation Header */}
+      <div className="w-full bg-white p-3 rounded-2xl border border-slate-200/90 shadow-2xs flex items-center justify-between gap-2 overflow-x-auto no-scrollbar">
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <button
+            type="button"
+            onClick={() => setPanelIndex(0)}
+            className={`px-3 py-2 rounded-xl text-small font-bold flex items-center gap-2 transition-all cursor-pointer ${
+              panelIndex === 0
+                ? 'bg-amber-600 text-white shadow-2xs'
+                : 'bg-slate-50 text-slate-700 hover:bg-slate-100'
+            }`}
+          >
+            <Crown className="w-4 h-4 shrink-0" />
+            <span className="whitespace-nowrap">1. Queen&apos;s Decree</span>
+          </button>
 
-    if (correctCount === 10 && incorrectCount === 0) {
-      setSolverFeedback('🎉 Outstanding! You found all 10 square numbers! You solved Queen Ratnamanjuri\'s puzzle!');
-      setShowSolutionRevealed(true);
-    } else if (correctCount > 0 && incorrectCount === 0) {
-      setSolverFeedback(`Great job! You found ${correctCount} of the 10 square lockers. Can you find the remaining ${10 - correctCount}? Use the hints above!`);
-    } else if (incorrectCount > 0) {
-      setSolverFeedback(`You found ${correctCount} square lockers, but ${incorrectCount} of your chosen lockers have an even number of factors (so they close!). Check Hint 3 & 4!`);
-    } else {
-      setSolverFeedback('Tap on numbers in the grid you predict will stay open, then click Check!');
-    }
-  };
+          <button
+            type="button"
+            onClick={() => setPanelIndex(1)}
+            className={`px-3 py-2 rounded-xl text-small font-bold flex items-center gap-2 transition-all cursor-pointer ${
+              panelIndex === 1
+                ? 'bg-blue-600 text-white shadow-2xs'
+                : 'bg-slate-50 text-slate-700 hover:bg-slate-100'
+            }`}
+          >
+            <HelpCircle className="w-4 h-4 shrink-0" />
+            <span className="whitespace-nowrap">2. Vault &amp; Guess</span>
+          </button>
 
-  // Render SubTab 1: The 100 Lockers Story
-  if (subTabId === 'locker-story') {
-    return (
-      <div className="w-full flex flex-col items-center gap-4 animate-fade-rise">
-        {/* Step 1: The Queen's Will */}
-        {stepIndex === 0 && (
-          <div className="w-full max-w-3xl flex flex-col items-center gap-5 text-center">
-            <HighlightHeadline
-              text="Queen Ratnamanjuri's Will & The 100 Relatives"
-              focusWord="Queen Ratnamanjuri's Will"
-              focusColor="root"
-            />
+          <button
+            type="button"
+            onClick={() => {
+              setPanelIndex(2);
+              if (currentPerson === 0) setCurrentPerson(100);
+            }}
+            className={`px-3 py-2 rounded-xl text-small font-bold flex items-center gap-2 transition-all cursor-pointer ${
+              panelIndex === 2
+                ? 'bg-emerald-600 text-white shadow-2xs'
+                : 'bg-slate-50 text-slate-700 hover:bg-slate-100'
+            }`}
+          >
+            <Sparkles className="w-4 h-4 shrink-0" />
+            <span className="whitespace-nowrap">3. Solution &amp; Animation</span>
+          </button>
+        </div>
 
-            {/* Ancient Scroll Card */}
-            <div
-              className="w-full p-6 md:p-8 rounded-3xl border shadow-sm flex flex-col items-center gap-4 text-left relative overflow-hidden"
-              style={{
-                backgroundColor: '#FFFDF5',
-                borderColor: '#FDE68A',
-              }}
-            >
-              <div className="flex items-center gap-3 w-full border-b pb-3" style={{ borderColor: '#FDE68A' }}>
-                <div className="p-2 rounded-xl bg-amber-100 text-amber-800">
-                  <Crown className="w-6 h-6" />
-                </div>
-                <div>
-                  <h3 className="text-title font-bold text-amber-950">The Royal Will &amp; Riddle</h3>
-                  <p className="text-small text-amber-800 font-medium">To my beloved son Khoisnam and our 99 relatives</p>
-                </div>
-              </div>
+        <span className="text-micro font-bold uppercase tracking-wider text-slate-600 px-3 py-1 rounded-lg bg-slate-50 shrink-0 border border-slate-200/60 hidden sm:block">
+          Storyboard Panel {panelIndex + 1} of 3
+        </span>
+      </div>
 
-              <blockquote className="italic text-statement text-amber-950 border-l-4 border-amber-400 pl-4 py-1 leading-relaxed">
-                “I have created a puzzle. If all 100 of you answer it at the same time, you will share the ratnas equally.
-                However, if you are the first one to solve the problem, you will get to keep the entire inheritance to yourself. Good luck.”
-              </blockquote>
-
-              <p className="text-body text-slate-700 leading-relaxed">
-                Queen Ratnamanjuri wanted her fortune of precious <strong>ratnas</strong> (gemstones) to go to her son
-                <strong> Khoisnam</strong>, but knew the relatives would pester him forever. She had trained him in puzzle-solving.
-                The royal minister escorted all 100 of them into a secret vaulted mansion chamber containing <strong>100 locked doors</strong>.
-              </p>
-
-              <div className="w-full grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-                <div className="p-3 rounded-2xl bg-white/80 border border-amber-200 flex items-center gap-3">
-                  <Gem className="w-5 h-5 text-amber-600 shrink-0" />
-                  <span className="text-ui font-semibold text-slate-800">Fortune of Ratnas</span>
-                </div>
-                <div className="p-3 rounded-2xl bg-white/80 border border-amber-200 flex items-center gap-3">
-                  <Lock className="w-5 h-5 text-blue-600 shrink-0" />
-                  <span className="text-ui font-semibold text-slate-800">100 Secret Lockers</span>
-                </div>
-                <div className="p-3 rounded-2xl bg-white/80 border border-amber-200 flex items-center gap-3">
-                  <Key className="w-5 h-5 text-emerald-600 shrink-0" />
-                  <span className="text-ui font-semibold text-slate-800">100 People Assigned</span>
-                </div>
-              </div>
-            </div>
-
-            <p className="text-small text-slate-500 font-medium">
-              Tap anywhere or press Next to discover the minister's rules.
-            </p>
-          </div>
-        )}
-
-        {/* Step 2: The Minister's 100 Rules */}
-        {stepIndex === 1 && (
-          <div className="w-full max-w-3xl flex flex-col items-center gap-5 text-center">
-            <HighlightHeadline
-              text="The Minister's Rules: Person by Person"
-              focusWord="Person by Person"
-              focusColor="number"
-            />
-
-            <p className="text-body text-slate-600 max-w-xl">
-              Each person is numbered from <strong>1 to 100</strong>. Initially, all 100 lockers are firmly closed.
-              Each person steps into the chamber one by one:
-            </p>
-
-            <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-left">
-              <div className="p-4 rounded-2xl bg-white border shadow-2xs flex items-start gap-3.5" style={{ borderColor: COLORS.divider }}>
-                <span className="h-8 w-8 rounded-full bg-blue-100 text-blue-700 font-bold flex items-center justify-center shrink-0 text-ui">1</span>
-                <div>
-                  <h4 className="text-ui font-bold text-slate-900">Person 1 opens every locker</h4>
-                  <p className="text-small text-slate-600 mt-0.5">Touches lockers 1, 2, 3, 4, 5... all 100 are now OPEN.</p>
-                </div>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-white border shadow-2xs flex items-start gap-3.5" style={{ borderColor: COLORS.divider }}>
-                <span className="h-8 w-8 rounded-full bg-blue-100 text-blue-700 font-bold flex items-center justify-center shrink-0 text-ui">2</span>
-                <div>
-                  <h4 className="text-ui font-bold text-slate-900">Person 2 toggles every 2nd locker</h4>
-                  <p className="text-small text-slate-600 mt-0.5">Closes 2, 4, 6, 8, 10... (multiples of 2).</p>
-                </div>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-white border shadow-2xs flex items-start gap-3.5" style={{ borderColor: COLORS.divider }}>
-                <span className="h-8 w-8 rounded-full bg-blue-100 text-blue-700 font-bold flex items-center justify-center shrink-0 text-ui">3</span>
-                <div>
-                  <h4 className="text-ui font-bold text-slate-900">Person 3 toggles every 3rd locker</h4>
-                  <p className="text-small text-slate-600 mt-0.5">Toggles 3, 6, 9, 12, 15... (multiples of 3).</p>
-                </div>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-white border shadow-2xs flex items-start gap-3.5" style={{ borderColor: COLORS.divider }}>
-                <span className="h-8 w-8 rounded-full bg-blue-100 text-blue-700 font-bold flex items-center justify-center shrink-0 text-ui">k</span>
-                <div>
-                  <h4 className="text-ui font-bold text-slate-900">Person k toggles every k-th locker</h4>
-                  <p className="text-small text-slate-600 mt-0.5">Opens it if closed, closes it if open.</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-statement max-w-xl text-center">
-              ✨ <strong>Khoisnam smiled:</strong> Before anyone took a single step, he already knew exactly which lockers would end up open!
-            </div>
-          </div>
-        )}
-
-        {/* Step 3: Interactive 100-Locker Chamber */}
-        {stepIndex === 2 && (
-          <div className="w-full max-w-4xl flex flex-col items-center gap-3">
-            <div className="flex flex-col items-center text-center">
-              <HighlightHeadline
-                text="Live Chamber Simulation: 100 Lockers"
-                focusWord="100 Lockers"
-                focusColor="root"
+      {/* ================================================================= */}
+      {/* PANEL 1: THE QUEEN'S ROYAL DECREE */}
+      {/* ================================================================= */}
+      {panelIndex === 0 && (
+        <div className="w-full flex flex-col gap-6 animate-fade-rise">
+          {/* Main Hero Card with User Image */}
+          <div className="w-full bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs flex flex-col md:flex-row">
+            {/* Left: Queen Court Image */}
+            <div className="md:w-1/2 relative bg-amber-950 min-h-[260px] md:min-h-[360px] overflow-hidden">
+              <img
+                src="/assets/aistudio/Gemini_Generated_Image_j5vt77j5vt77j5vt__1__8ec11c4a.png"
+                alt="Queen Ratnamanjuri reading her royal decree to Khoisnam and relatives"
+                className="w-full h-full object-cover object-center transform hover:scale-105 transition-transform duration-700"
               />
-              <p className="text-small text-slate-600 mt-1">
-                Drag the slider or tap Play to watch people toggle lockers. Click any locker to inspect its visitors and concept hints!
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent pointer-events-none" />
+              <div className="absolute bottom-3 left-4 right-4 text-white">
+                <span className="text-micro uppercase font-bold tracking-widest text-amber-300">
+                  Palace of Ratnas
+                </span>
+                <p className="text-small font-bold text-slate-100">
+                  Queen Ratnamanjuri addresses her son Khoisnam and 99 relatives.
+                </p>
+              </div>
+            </div>
+
+            {/* Right: The Queen's Will & Riddle Statement */}
+            <div className="md:w-1/2 p-6 sm:p-8 flex flex-col justify-between gap-5 bg-gradient-to-br from-amber-50/50 via-white to-amber-50/30">
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center gap-2 text-amber-800">
+                  <Scroll className="w-5 h-5 text-amber-600" />
+                  <span className="text-micro font-extrabold uppercase tracking-widest">
+                    Royal Testament &amp; Will
+                  </span>
+                </div>
+
+                <h3 className="text-title font-black text-slate-900 tracking-tight leading-tight">
+                  The Royal Decree of Queen Ratnamanjuri
+                </h3>
+
+                <blockquote className="p-4 rounded-2xl bg-amber-100/70 border border-amber-300/80 text-body text-amber-950 font-serif italic leading-relaxed relative">
+                  &ldquo;I have created a puzzle. If all 100 of you answer it at the same time, you
+                  will share the ratnas (precious stones) equally. However, if you are the first one
+                  to solve the problem, you will get to keep the entire inheritance to yourself. Good
+                  luck.&rdquo;
+                </blockquote>
+
+                <p className="text-small text-slate-700 leading-relaxed">
+                  The minister escorted young Khoisnam and his 99 relatives deep down into a secret
+                  vault containing <strong>100 locked wooden lockers</strong>.
+                </p>
+              </div>
+
+              <div className="pt-2 flex items-center justify-between">
+                <span className="text-micro text-slate-500 font-medium">
+                  Grade 8 NCERT Mathematics • Chapter 1 Opening Story
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPanelIndex(1);
+                    onAdvanceStep?.();
+                  }}
+                  className="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-small font-bold flex items-center gap-2 shadow-2xs transition-colors cursor-pointer"
+                >
+                  <span>Enter Secret Vault</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================================================================= */}
+      {/* PANEL 2: THE SECRET VAULT & STUDENT GUESSING CHALLENGE */}
+      {/* ================================================================= */}
+      {panelIndex === 1 && (
+        <div className="w-full flex flex-col gap-6 animate-fade-rise">
+          {/* Top Story Panel with Image */}
+          <div className="w-full bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs flex flex-col md:flex-row">
+            {/* Vault Image */}
+            <div className="md:w-5/12 relative bg-stone-900 min-h-[240px] md:min-h-[320px] overflow-hidden">
+              <img
+                src="/assets/aistudio/Gemini_Generated_Image_j5vt77j5vt77j5vt_bba255c4.png"
+                alt="Advisor explaining the locker rule to Prince Khoisnam"
+                className="w-full h-full object-cover object-center"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute bottom-3 left-4 right-4 text-white">
+                <span className="text-micro uppercase font-bold tracking-widest text-blue-300">
+                  The Secret Stone Vault
+                </span>
+                <p className="text-small font-bold text-slate-100">
+                  100 wooden lockers line the ancient walls, all closed.
+                </p>
+              </div>
+            </div>
+
+            {/* Minister Explanation */}
+            <div className="md:w-7/12 p-6 flex flex-col justify-between gap-4">
+              <div className="flex flex-col gap-2.5">
+                <span className="text-micro font-bold uppercase tracking-wider text-blue-600">
+                  The Royal Minister Explains The Rules
+                </span>
+                <h3 className="text-statement font-extrabold text-slate-900 leading-snug">
+                  100 People Walk in Line — How Will the Doors Move?
+                </h3>
+                <ul className="space-y-2 text-small text-slate-700">
+                  <li className="flex items-start gap-2">
+                    <span className="w-5 h-5 rounded-md bg-blue-100 text-blue-800 font-bold text-micro flex items-center justify-center shrink-0 mt-0.5">
+                      1
+                    </span>
+                    <span>
+                      <strong>Person 1</strong> opens every single locker (1 to 100).
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="w-5 h-5 rounded-md bg-blue-100 text-blue-800 font-bold text-micro flex items-center justify-center shrink-0 mt-0.5">
+                      2
+                    </span>
+                    <span>
+                      <strong>Person 2</strong> flips every 2nd locker (closes 2, 4, 6, 8...).
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="w-5 h-5 rounded-md bg-blue-100 text-blue-800 font-bold text-micro flex items-center justify-center shrink-0 mt-0.5">
+                      k
+                    </span>
+                    <span>
+                      <strong>Person k</strong> flips every k-th locker (k, 2k, 3k, 4k...).
+                    </span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-blue-50/80 border border-blue-200 text-small text-blue-950 font-medium">
+                💡 <strong>Key Clue:</strong> If a locker is flipped an <em>odd</em> number of times,
+                it remains <strong>OPEN</strong>. If flipped an <em>even</em> number of times, it ends
+                up <strong>CLOSED</strong>!
+              </div>
+            </div>
+          </div>
+
+          {/* Student Prediction Challenge */}
+          <div className="w-full bg-white p-6 rounded-3xl border border-slate-200 shadow-xs flex flex-col gap-5">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+              <div>
+                <span className="text-micro font-bold uppercase tracking-wider text-amber-700 flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                  <span>Student Challenge</span>
+                </span>
+                <h4 className="text-statement font-extrabold text-slate-900 mt-0.5">
+                  Make Your Prediction: Which Lockers Stay Open?
+                </h4>
+              </div>
+              <span className="text-micro text-slate-500">Pick a conjecture to test</span>
+            </div>
+
+            {/* Prediction Choices */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {[
+                {
+                  id: 'evens',
+                  label: 'All Even Lockers (2, 4, 6, 8...)',
+                  desc: 'Because half the people flip evens.',
+                  isCorrect: false,
+                },
+                {
+                  id: 'primes',
+                  label: 'Only Prime Lockers (2, 3, 5, 7...)',
+                  desc: 'Because primes have few divisors.',
+                  isCorrect: false,
+                },
+                {
+                  id: 'squares',
+                  label: 'Perfect Square Lockers (1, 4, 9, 16, 25, 36, 49, 64, 81, 100)',
+                  desc: 'Because they have an ODD number of factors!',
+                  isCorrect: true,
+                },
+                {
+                  id: 'odds',
+                  label: 'All Odd Lockers (1, 3, 5, 7...)',
+                  desc: 'Because person 1 opened them.',
+                  isCorrect: false,
+                },
+              ].map((opt) => {
+                const isSelected = studentGuess === opt.id;
+                return (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => setStudentGuess(opt.id)}
+                    className={`p-4 rounded-2xl border text-left transition-all cursor-pointer flex flex-col gap-1.5 ${
+                      isSelected
+                        ? opt.isCorrect
+                          ? 'bg-emerald-50 border-emerald-500 ring-2 ring-emerald-500/30'
+                          : 'bg-amber-50 border-amber-400 ring-2 ring-amber-400/30'
+                        : 'bg-slate-50/70 hover:bg-slate-100/80 border-slate-200'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-small font-extrabold text-slate-900">{opt.label}</span>
+                      {isSelected && (
+                        <span className="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-micro">
+                          ✓
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-micro text-slate-500">{opt.desc}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Interactive Quick Guesser Grid */}
+            <div className="flex flex-col gap-2 pt-2">
+              <div className="flex items-center justify-between text-small">
+                <span className="font-semibold text-slate-700">
+                  Or tap individual lockers to guess which ones open:
+                </span>
+                <span className="text-micro font-bold text-blue-600">
+                  {guessedLockerSet.size} selected
+                </span>
+              </div>
+
+              <div className="grid grid-cols-10 gap-1 w-full max-w-[620px] mx-auto py-2">
+                {Array.from({ length: 50 }, (_, i) => i + 1).map((num) => {
+                  const isPicked = guessedLockerSet.has(num);
+                  return (
+                    <button
+                      key={num}
+                      type="button"
+                      onClick={() => handleToggleLockerGuess(num)}
+                      className={`aspect-square rounded-md text-micro font-bold border transition-colors cursor-pointer flex items-center justify-center ${
+                        isPicked
+                          ? 'bg-blue-600 text-white border-blue-700 shadow-2xs scale-105'
+                          : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                      }`}
+                    >
+                      {num}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="text-center text-micro text-slate-600">
+                (Showing first 50 lockers above • Click numbers to toggle your guess)
               </p>
             </div>
 
-            {/* Controls Bar */}
-            <div
-              className="w-full p-3.5 rounded-2xl bg-white border flex flex-wrap items-center justify-between gap-3 shadow-xs"
-              style={{ borderColor: COLORS.divider }}
-            >
-              <div className="flex items-center gap-2">
+            {/* Bottom Action */}
+            <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
+              {studentGuess ? (
+                <div className="flex items-center gap-2 text-small">
+                  <CheckCircle2
+                    className={`w-4 h-4 ${
+                      studentGuess === 'squares' ? 'text-emerald-600' : 'text-amber-600'
+                    }`}
+                  />
+                  <span className="font-medium text-slate-800">
+                    {studentGuess === 'squares'
+                      ? 'Incredible intuition! You spotted the mathematical secret.'
+                      : 'Interesting theory! Let’s run the royal animation to test it.'}
+                  </span>
+                </div>
+              ) : (
+                <span className="text-small text-slate-500">
+                  Pick a prediction or proceed to see the full animation!
+                </span>
+              )}
+
+              <button
+                type="button"
+                onClick={() => {
+                  setPanelIndex(2);
+                  setCurrentPerson(0);
+                  setIsPlaying(true);
+                  onAdvanceStep?.();
+                }}
+                className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-small font-bold flex items-center gap-2 shadow-2xs transition-colors cursor-pointer"
+              >
+                <span>Run Royal Simulation</span>
+                <Play className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================================================================= */}
+      {/* PANEL 3: THE SOLUTION ANIMATION & GOLDEN TREASURE REVEALED */}
+      {/* ================================================================= */}
+      {panelIndex === 2 && (
+        <div className="w-full flex flex-col gap-6 animate-fade-rise">
+          {/* Top Storyboard Panel with Solution Image */}
+          <div className="w-full bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs flex flex-col md:flex-row">
+            {/* Treasure Image */}
+            <div className="md:w-5/12 relative bg-amber-950 min-h-[240px] md:min-h-[300px] overflow-hidden">
+              <img
+                src="/assets/aistudio/Gemini_Generated_Image_j5vt77j5vt77j5vt__2__ad378f1a.png"
+                alt="Prince Khoisnam reveals the open lockers with ratnas treasure"
+                className="w-full h-full object-cover object-center"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute bottom-3 left-4 right-4 text-white">
+                <span className="text-micro uppercase font-bold tracking-widest text-amber-300">
+                  The Treasure Revealed
+                </span>
+                <p className="text-small font-bold text-slate-100">
+                  Khoisnam smiles as exactly 10 lockers open to reveal glittering ratnas!
+                </p>
+              </div>
+            </div>
+
+            {/* Explanation & Passcode Card */}
+            <div className="md:w-7/12 p-6 flex flex-col justify-between gap-4">
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2 text-emerald-700">
+                  <Gem className="w-4 h-4 text-emerald-600" />
+                  <span className="text-micro font-bold uppercase tracking-wider">
+                    The 10 Open Lockers
+                  </span>
+                </div>
+
+                <h3 className="text-statement font-extrabold text-slate-900 leading-snug">
+                  Why Do Exactly 10 Lockers Stay Open?
+                </h3>
+
+                <p className="text-small text-slate-700 leading-relaxed">
+                  Locker #L is flipped once by each of its <strong>divisors</strong>. Normal numbers
+                  have divisors in <em>distinct pairs</em> (like 1×12, 2×6, 3×4 for 12), so their
+                  factor count is <strong>even</strong> (Closed).
+                </p>
+
+                <p className="text-small text-slate-700 leading-relaxed">
+                  Only <strong>square numbers</strong> have a factor multiplied by itself (like 6×6
+                  for 36), which has no distinct partner. Thus square numbers have an{' '}
+                  <strong className="text-amber-700 font-bold">ODD number of factors</strong> and stay{' '}
+                  <strong className="text-emerald-700 font-bold">OPEN</strong>!
+                </p>
+              </div>
+
+              {/* Passcode Box */}
+              <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200/80 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5">
+                  <KeyRound className="w-5 h-5 text-amber-700 shrink-0" />
+                  <div>
+                    <span className="text-micro font-bold uppercase tracking-wider text-amber-800">
+                      The Safe Passcode
+                    </span>
+                    <p className="text-small text-amber-950 font-bold">
+                      First five lockers touched twice (Primes):{' '}
+                      <span className="font-mono text-emerald-800 font-black">2 - 3 - 5 - 7 - 11</span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Interactive Simulation Controls */}
+          <div
+            className="w-full bg-white p-6 rounded-3xl border shadow-xs flex flex-col gap-5"
+            style={{ borderColor: COLORS.divider }}
+          >
+            {/* Control Bar */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+              <div className="flex items-center gap-3">
                 <button
                   type="button"
                   onClick={() => setIsPlaying((p) => !p)}
-                  className="px-3.5 py-1.5 rounded-xl text-ui font-bold flex items-center gap-1.5 cursor-pointer text-white shadow-xs transition-colors"
-                  style={{ backgroundColor: COLORS.primary }}
+                  className={`px-4 py-2 rounded-xl text-small font-bold flex items-center gap-2 cursor-pointer transition-all ${
+                    isPlaying
+                      ? 'bg-amber-600 text-white shadow-2xs'
+                      : 'bg-emerald-600 text-white shadow-2xs hover:bg-emerald-700'
+                  }`}
                 >
                   {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-                  <span>{isPlaying ? 'Pause' : 'Auto Play'}</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsPlaying(false);
-                    setCurrentPerson((p) => Math.min(100, p + 1));
-                  }}
-                  disabled={currentPerson >= 100}
-                  className="px-3 py-1.5 rounded-xl border bg-slate-50 hover:bg-slate-100 text-ui font-semibold text-slate-700 disabled:opacity-40 cursor-pointer"
-                  style={{ borderColor: COLORS.divider }}
-                >
-                  +1 Person
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsPlaying(false);
-                    setCurrentPerson(100);
-                  }}
-                  className="px-3 py-1.5 rounded-xl border bg-slate-50 hover:bg-slate-100 text-ui font-semibold text-slate-700 cursor-pointer flex items-center gap-1"
-                  style={{ borderColor: COLORS.divider }}
-                >
-                  <FastForward className="w-3.5 h-3.5" />
-                  <span>All 100</span>
+                  <span>{isPlaying ? 'Pause Simulation' : 'Play Walkers'}</span>
                 </button>
 
                 <button
@@ -380,19 +777,43 @@ export const LockerStorySection: React.FC<LockerStorySectionProps> = ({
                     setIsPlaying(false);
                     setCurrentPerson(0);
                   }}
-                  className="p-1.5 rounded-xl border bg-slate-50 hover:bg-slate-100 text-slate-600 cursor-pointer"
-                  style={{ borderColor: COLORS.divider }}
+                  className="p-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-600 cursor-pointer"
                   title="Reset to 0"
                 >
                   <RotateCcw className="w-4 h-4" />
                 </button>
+
+                <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
+                  {[1, 2, 5].map((spd) => (
+                    <button
+                      key={spd}
+                      type="button"
+                      onClick={() => setPlaybackSpeed(spd)}
+                      className={`px-2 py-0.5 rounded-lg text-micro font-bold cursor-pointer transition-colors ${
+                        playbackSpeed === spd
+                          ? 'bg-white text-slate-900 shadow-2xs'
+                          : 'text-slate-500 hover:text-slate-800'
+                      }`}
+                    >
+                      {spd}x
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              {/* Slider for Current Person */}
-              <div className="flex items-center gap-3">
-                <span className="text-small font-semibold text-slate-700">
-                  After Person <strong>{currentPerson}</strong>:
+              {/* Status Indicator */}
+              <div className="flex items-center gap-2">
+                <span className="text-small text-slate-600">Person Walking:</span>
+                <span className="font-mono text-statement font-black text-blue-900 bg-blue-50 px-3 py-1 rounded-xl border border-blue-200">
+                  {currentPerson === 0 ? 'None (Start)' : `${currentPerson} / 100`}
                 </span>
+              </div>
+            </div>
+
+            {/* Scrubber Slider & Quick Jump Presets */}
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-4">
+                <span className="text-micro font-bold text-slate-500 shrink-0">Person 0</span>
                 <input
                   type="range"
                   min={0}
@@ -402,61 +823,72 @@ export const LockerStorySection: React.FC<LockerStorySectionProps> = ({
                     setIsPlaying(false);
                     setCurrentPerson(parseInt(e.target.value, 10));
                   }}
-                  className="w-32 sm:w-44 accent-[#005583] cursor-pointer"
+                  className="flex-1 accent-emerald-600 cursor-pointer h-2 bg-slate-200 rounded-lg"
                 />
+                <span className="text-micro font-bold text-slate-500 shrink-0">Person 100</span>
               </div>
 
-              {/* Filter Pills */}
-              <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl">
-                <button
-                  type="button"
-                  onClick={() => setFilterHighlight((f) => (f === 'squares' ? 'none' : 'squares'))}
-                  className={`px-2.5 py-1 rounded-lg text-micro font-bold cursor-pointer transition-colors ${filterHighlight === 'squares' ? 'bg-amber-500 text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900'
+              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+                {[
+                  { label: 'Person 0 (Reset)', val: 0 },
+                  { label: 'Person 1 (Open All)', val: 1 },
+                  { label: 'Person 2 (Evens)', val: 2 },
+                  { label: 'Person 3', val: 3 },
+                  { label: 'Person 4', val: 4 },
+                  { label: 'Person 10', val: 10 },
+                  { label: 'All 100 (Final)', val: 100 },
+                ].map((preset) => (
+                  <button
+                    key={preset.val}
+                    type="button"
+                    onClick={() => {
+                      setIsPlaying(false);
+                      setCurrentPerson(preset.val);
+                    }}
+                    className={`px-2.5 py-1 rounded-lg text-micro font-bold shrink-0 border cursor-pointer transition-colors ${
+                      currentPerson === preset.val
+                        ? 'bg-blue-600 text-white border-blue-700 shadow-2xs'
+                        : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border-slate-200'
                     }`}
-                >
-                  Squares (Open)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setFilterHighlight((f) => (f === 'primes' ? 'none' : 'primes'))}
-                  className={`px-2.5 py-1 rounded-lg text-micro font-bold cursor-pointer transition-colors ${filterHighlight === 'primes' ? 'bg-blue-600 text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900'
-                    }`}
-                >
-                  Primes (2 Toggles)
-                </button>
+                  >
+                    {preset.label}
+                  </button>
+                ))}
               </div>
             </div>
 
-            {/* 10x10 Locker Grid */}
-            <div
-              className="w-full bg-white p-3 rounded-2xl border shadow-xs flex flex-col items-center"
-              style={{ borderColor: COLORS.divider }}
-            >
-              <div className="grid grid-cols-10 gap-1 sm:gap-1.5 w-full max-w-[680px]">
-                {Array.from({ length: 100 }, (_, i) => i + 1).map((lockerNum) => {
-                  const toggles = getToggledBy(lockerNum, currentPerson).length;
-                  const open = toggles % 2 === 1;
-                  const isSelected = selectedLocker === lockerNum;
-                  const isSq = isSquare(lockerNum);
-                  const isPr = isPrime(lockerNum);
+            {/* 100 Locker Interactive Grid */}
+            <div className="w-full flex flex-col items-center gap-3">
+              <div className="grid grid-cols-10 gap-1.5 w-full max-w-[680px]">
+                {Array.from({ length: 100 }, (_, i) => i + 1).map((num) => {
+                  const isOpen = lockerStates[num - 1];
+                  const isTouched = touchedByCurrent.includes(num);
+                  const isSq = isSquare(num);
+                  const isInspected = inspectedLocker === num;
 
-                  const highlighted =
-                    filterHighlight === 'squares' ? isSq : filterHighlight === 'primes' ? isPr : false;
+                  let cellStyle = 'bg-slate-100 text-slate-500 border-slate-200';
+                  if (isOpen) {
+                    if (isSq && currentPerson === 100) {
+                      cellStyle =
+                        'bg-amber-300 text-amber-950 border-amber-500 ring-2 ring-amber-400 font-black shadow-sm';
+                    } else {
+                      cellStyle =
+                        'bg-emerald-100 text-emerald-950 border-emerald-300 shadow-2xs font-bold';
+                    }
+                  }
 
                   return (
                     <button
-                      key={lockerNum}
+                      key={num}
                       type="button"
-                      onClick={() => setSelectedLocker(lockerNum)}
-                      className={`relative aspect-square rounded-lg flex flex-col items-center justify-center font-bold transition-all cursor-pointer select-none text-[10px] sm:text-xs border ${isSelected ? 'ring-2 ring-offset-1 ring-blue-500 scale-105 z-10' : ''
-                        } ${open
-                          ? 'bg-amber-100 text-amber-900 border-amber-300 shadow-2xs font-extrabold'
-                          : 'bg-slate-100 text-slate-500 border-slate-200'
-                        } ${highlighted ? 'ring-2 ring-amber-500 ring-offset-1 scale-105 font-black' : ''}`}
+                      onClick={() => setInspectedLocker(num)}
+                      className={`relative aspect-square rounded-lg flex flex-col items-center justify-center font-bold text-xs border transition-all cursor-pointer ${cellStyle} ${
+                        isTouched ? 'ring-2 ring-pink-500 ring-offset-1 scale-105' : ''
+                      } ${isInspected ? 'ring-2 ring-blue-600 ring-offset-2' : ''}`}
                     >
-                      <span>{lockerNum}</span>
-                      {open ? (
-                        <Unlock className="w-2.5 h-2.5 text-amber-600 mt-0.5" />
+                      <span>{num}</span>
+                      {isOpen ? (
+                        <Unlock className="w-2.5 h-2.5 text-emerald-700 mt-0.5" />
                       ) : (
                         <Lock className="w-2.5 h-2.5 text-slate-400 mt-0.5" />
                       )}
@@ -464,668 +896,85 @@ export const LockerStorySection: React.FC<LockerStorySectionProps> = ({
                   );
                 })}
               </div>
-            </div>
 
-            {/* Selected Locker Inspector Card with Door Toggles and Concept Hint */}
-            <div
-              className="w-full max-w-4xl p-4 rounded-2xl bg-white border flex flex-col gap-3.5 shadow-2xs"
-              style={{ borderColor: COLORS.divider }}
-            >
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                          <div className="flex items-center gap-3.5">
-                            <div
-                              className={`p-3 rounded-2xl flex items-center justify-center ${selectedIsOpen ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600'
-                                }`}
-                            >
-                              {selectedIsOpen ? <Unlock className="w-6 h-6" /> : <Lock className="w-6 h-6" />}
-                            </div>
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <h4 className="text-statement font-bold text-slate-900">Locker #{selectedLocker}</h4>
-                                <span
-                                  className={`px-2.5 py-0.5 rounded-full text-micro font-bold ${selectedIsOpen
-                                      ? 'bg-amber-200 text-amber-900'
-                                      : 'bg-slate-200 text-slate-700'
-                                    }`}
-                                >
-                                  {selectedIsOpen ? 'OPEN' : 'CLOSED'}
-                                </span>
-                      {selectedIsSquare && (
-                        <span className="px-2 py-0.5 rounded-full text-micro font-bold bg-orange-100 text-orange-800">
-                          Square ({Math.round(Math.sqrt(selectedLocker))}²)
-                        </span>
-                      )}
-                      {selectedIsPrime && (
-                        <span className="px-2 py-0.5 rounded-full text-micro font-bold bg-blue-100 text-blue-800">
-                          Prime (Passcode)
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-small text-slate-600 mt-1">
-                      Toggled <strong>{selectedTogglers.length} times</strong> so far by:{' '}
-                      <span className="font-mono font-semibold text-blue-800">
-                        {selectedTogglers.length > 0 ? selectedTogglers.join(', ') : 'None'}
-                      </span>
-                    </p>
+              {/* Legend */}
+              <div className="flex flex-wrap items-center justify-center gap-4 text-small text-slate-600 pt-2">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-3.5 h-3.5 rounded-md bg-amber-300 border border-amber-500 inline-block"></span>
+                  <span className="font-bold text-amber-900">10 Open Squares (Treasure)</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-3.5 h-3.5 rounded-md bg-emerald-100 border border-emerald-300 inline-block"></span>
+                  <span>Open Locker</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-3.5 h-3.5 rounded-md bg-slate-100 border border-slate-200 inline-block"></span>
+                  <span>Closed Locker</span>
+                </div>
+                {touchedByCurrent.length > 0 && (
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-3.5 h-3.5 rounded-md ring-2 ring-pink-500 inline-block"></span>
+                    <span className="text-pink-700 font-medium">Flipped by Person {currentPerson}</span>
                   </div>
-                            </div>
-
-                            <div className="flex items-center gap-2">
-                              <button
-                                type="button"
-                                onClick={() => setShowDoorTogglesHistory((prev) => !prev)}
-                                className="px-3 py-1.5 rounded-xl border bg-slate-50 hover:bg-slate-100 text-micro font-semibold text-slate-700 flex items-center gap-1.5 cursor-pointer"
-                                style={{ borderColor: COLORS.divider }}
-                              >
-                                <History className="w-3.5 h-3.5 text-slate-500" />
-                                <span>{showDoorTogglesHistory ? 'Hide Toggles' : 'View Toggle History'}</span>
-                              </button>
-
-                              <button
-                                type="button"
-                                onClick={() => setShowDoorConceptHint((prev) => !prev)}
-                                className="px-3 py-1.5 rounded-xl border bg-amber-50 hover:bg-amber-100 text-micro font-semibold text-amber-900 flex items-center gap-1.5 cursor-pointer border-amber-200"
-                              >
-                                <Lightbulb className="w-3.5 h-3.5 text-amber-600" />
-                                <span>{showDoorConceptHint ? 'Hide Concept' : 'Why this door?'}</span>
-                              </button>
-                            </div>
-                          </div>
-
-                              {/* Expandable Step-by-Step Toggle Sequence */}
-                              {showDoorTogglesHistory && (
-                                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 animate-fade-rise">
-                                  <div className="text-micro font-bold text-slate-700 mb-1.5 flex items-center gap-1">
-                                    <History className="w-3.5 h-3.5" />
-                                    <span>Sequential Door Toggles for Locker #{selectedLocker}:</span>
-                                  </div>
-                                  <div className="flex flex-wrap gap-1.5">
-                                    {selectedTogglers.map((p, idx) => {
-                                      const isNowOpen = idx % 2 === 0;
-                                      return (
-                                        <div
-                                          key={p}
-                                          className={`px-2 py-1 rounded-lg text-micro font-medium flex items-center gap-1 border ${isNowOpen
-                                              ? 'bg-amber-100/70 border-amber-200 text-amber-950 font-semibold'
-                                              : 'bg-slate-200/70 border-slate-300 text-slate-700'
-                                            }`}
-                                        >
-                                          <span className="font-bold">P{p}:</span>
-                                          <span>{isNowOpen ? 'Opens 🔓' : 'Closes 🔒'}</span>
-                                        </div>
-                                      );
-                                    })}
-                                  </div>
-                                </div>
-              )}
-
-                            {/* Concept Hint Box for Selected Door */}
-                            {showDoorConceptHint && (
-                              <div
-                                className="p-3 rounded-xl border text-small leading-relaxed animate-fade-rise"
-                                style={{
-                                  backgroundColor: selectedIsSquare ? '#FEF3C7' : '#EFF6FF',
-                                  borderColor: selectedIsSquare ? '#FDE68A' : '#BFDBFE',
-                                  color: selectedIsSquare ? '#78350F' : '#1E3A8A',
-                                }}
-                              >
-                                <div className="flex items-start gap-2">
-                                  <Lightbulb className="w-4 h-4 shrink-0 mt-0.5" />
-                                  <div>
-                                    <strong>Concept insight for Locker #{selectedLocker}:</strong>{' '}
-                                    {selectedIsSquare ? (
-                                      <span>
-                                        Notice its factor pairs:{' '}
-                                        <span className="font-mono font-bold">
-                                          {selectedPairs.map(([a, b]) => `${a}×${b}`).join(', ')}
-                                        </span>
-                                        . Because{' '}
-                                        <strong>
-                                          {Math.round(Math.sqrt(selectedLocker))} × {Math.round(Math.sqrt(selectedLocker))} = {selectedLocker}
-                                        </strong>
-                                        , it pairs with itself! That means it has an <strong>ODD</strong> number of factors (
-                                        {selectedAllFactors.length} toggles). Since every open/close alternates, an ODD number of
-                                        toggles guarantees it <strong>stays OPEN</strong>!
-                                      </span>
-                                    ) : (
-                                      <span>
-                                        Notice its factor pairs:{' '}
-                                        <span className="font-mono font-bold">
-                                          {selectedPairs.map(([a, b]) => `${a}×${b}`).join(', ')}
-                                        </span>
-                                        . Every factor has a distinct partner, so they always come in pairs of 2. That gives an{' '}
-                                        <strong>EVEN</strong> number of factors ({selectedAllFactors.length} toggles). An EVEN number
-                                        of toggles guarantees it <strong>ends up CLOSED</strong>!
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-        )}
-
-                        {/* Step 4: Interactive Student Puzzle Challenge (with Progressive Hints!) */}
-                        {stepIndex === 3 && (
-                            <div className="w-full max-w-4xl flex flex-col items-center gap-4 text-center">
-                              <HighlightHeadline
-                                text="Can You Solve Queen Ratnamanjuri's Puzzle?"
-                                focusWord="Solve Queen Ratnamanjuri's Puzzle"
-                                focusColor="root"
-                              />
-
-                                <p className="text-body text-slate-600 max-w-xl">
-                                  Queen Ratnamanjuri promised the entire inheritance to whoever figures it out first.
-                                  Before revealing Khoisnam's answer, <strong>can you find the open lockers yourself?</strong>
-                                </p>
-
-                                    {/* Progressive Hints Accordion */ }
-                                    <div className="w-full bg-white p-4 rounded-3xl border shadow-xs flex flex-col gap-2.5 text-left" style={{ borderColor: COLORS.divider }}>
-                                      <div className="flex items-center justify-between">
-                                        <span className="text-ui font-bold text-slate-800 flex items-center gap-2">
-                                          <Lightbulb className="w-4 h-4 text-amber-500" />
-                                          <span>Progressive Concept Hints ({revealedHintCount} of {PUZZLE_HINTS.length} Unlocked)</span>
-                                        </span>
-                                        {revealedHintCount < PUZZLE_HINTS.length && (
-                                          <button
-                                            type="button"
-                                            onClick={() => setRevealedHintCount((c) => Math.min(PUZZLE_HINTS.length, c + 1))}
-                                            className="px-3 py-1 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-micro cursor-pointer shadow-2xs transition-colors"
-                                          >
-                                            Unlock Next Hint (+1)
-                                          </button>
-                                        )}
-                                      </div>
-
-                                      <div className="space-y-2 mt-1">
-                                        {PUZZLE_HINTS.slice(0, revealedHintCount).map((hint) => (
-                                          <div
-                                            key={hint.level}
-                                            className="p-3 rounded-2xl bg-amber-50/70 border border-amber-200 text-small text-slate-800 leading-relaxed animate-fade-rise"
-                                          >
-                                            <strong className="text-amber-900 block mb-0.5">{hint.title}:</strong>
-                                            <span>{hint.content}</span>
-                                          </div>
-                                        ))}
-                                      </div>
-                                    </div>
-
-                                    {/* Interactive Guessing / Testing Chamber */ }
-            <div className="w-full bg-white p-4 rounded-3xl border shadow-xs flex flex-col items-center gap-3" style={{ borderColor: COLORS.divider }}>
-              <div className="flex flex-col sm:flex-row items-center justify-between w-full gap-2 text-left">
-                <div>
-                  <h4 className="text-statement font-bold text-slate-900">Tap to Select Your Predicted Open Lockers</h4>
-                  <p className="text-small text-slate-600">
-                    Which locker numbers will have an odd number of factors? (Click to mark)
-                  </p>
-                </div>
-                <div className="text-right">
-                  <span className="text-small font-bold text-blue-900 px-3 py-1 rounded-full bg-blue-100">
-                    Selected: {predictedLockers.size} / 10 Open Lockers
-                  </span>
-                </div>
-              </div>
-
-              {/* 10x10 Tap-to-Predict Grid */}
-              <div className="grid grid-cols-10 gap-1 sm:gap-1.5 w-full max-w-[640px]">
-                {Array.from({ length: 100 }, (_, i) => i + 1).map((num) => {
-                  const isPredicted = predictedLockers.has(num);
-                  const isSq = isSquare(num);
-                  const isRevealedSquare = showSolutionRevealed && isSq;
-
-                  return (
-                    <button
-                      key={num}
-                      type="button"
-                      onClick={() => togglePrediction(num)}
-                      className={`relative aspect-square rounded-lg flex flex-col items-center justify-center font-bold transition-all cursor-pointer select-none text-[10px] sm:text-xs border ${
-                        isRevealedSquare
-                          ? 'bg-amber-300 text-amber-950 border-amber-500 ring-2 ring-amber-400 font-black scale-105 shadow-xs'
-                          : isPredicted
-                          ? 'bg-blue-600 text-white border-blue-700 shadow-xs scale-105'
-                          : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border-slate-200'
-                      }`}
-                    >
-                      <span>{num}</span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Feedback Alert if tested */}
-              {solverFeedback && (
-                <div className="w-full p-3 rounded-2xl bg-blue-50 border border-blue-200 text-blue-950 font-semibold text-small animate-fade-rise">
-                  {solverFeedback}
-                </div>
-              )}
-
-              {/* Buttons: Check My Prediction OR Reveal Khoisnam's Solution */}
-              <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={handleCheckPredictions}
-                  className="px-5 py-2.5 rounded-full text-ui font-bold text-white shadow-xs hover:opacity-95 cursor-pointer transition-all"
-                  style={{ backgroundColor: COLORS.primary }}
-                >
-                  Check My Prediction
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPredictedLockers(new Set(SQUARE_LOCKERS));
-                    setShowSolutionRevealed(true);
-                    setRevealedHintCount(4);
-                  }}
-                  className="px-5 py-2.5 rounded-full border bg-amber-50 hover:bg-amber-100 text-amber-900 font-bold text-ui cursor-pointer border-amber-200 shadow-2xs"
-                >
-                  Reveal Khoisnam's Solution
-                </button>
-
-                {predictedLockers.size > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setPredictedLockers(new Set());
-                      setShowSolutionRevealed(false);
-                      setSolverFeedback(null);
-                    }}
-                    className="p-2 rounded-full border bg-white hover:bg-slate-100 text-slate-600 cursor-pointer"
-                    title="Clear selections"
-                  >
-                    <RotateCcw className="w-4 h-4" />
-                  </button>
                 )}
               </div>
+            </div>
 
-              {/* Revealed Solution Card */}
-              {showSolutionRevealed && (
-                <div className="w-full mt-2 p-5 rounded-2xl bg-amber-50 border border-amber-200 text-center animate-fade-rise">
-                  <h4 className="text-statement font-extrabold text-amber-950 mb-2">
-                    ✨ Exactly 10 Lockers Remain Open:
-                  </h4>
-                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 max-w-xl mx-auto">
-                    {SQUARE_LOCKERS.map((num) => {
-                      const root = Math.round(Math.sqrt(num));
-                      return (
-                        <div key={num} className="p-2 rounded-xl bg-white border border-amber-300 font-bold text-amber-950 shadow-2xs">
-                          <span className="text-ui font-black">#{num}</span>
-                          <span className="block text-[11px] text-amber-700">{root}² ({root}×{root})</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                  <p className="text-small text-amber-900 mt-3 max-w-lg mx-auto">
-                    Only these numbers have a factor multiplied by itself, producing an <strong>odd number of factors</strong>.
-                  </p>
+            {/* Individual Locker Inspector Card */}
+            <div
+              className={`p-5 rounded-2xl border flex flex-col gap-3 mt-2 ${
+                toggleCount(inspectedLocker) % 2 === 1
+                  ? 'bg-amber-50/80 border-amber-300 text-amber-950'
+                  : 'bg-slate-50 border-slate-200 text-slate-800'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-statement font-extrabold text-slate-900">
+                    Inspecting Locker #{inspectedLocker}
+                  </span>
+                  {isSquare(inspectedLocker) && (
+                    <span className="px-2.5 py-0.5 rounded-full text-micro font-black bg-amber-200 text-amber-900 border border-amber-300">
+                      PERFECT SQUARE ({Math.round(Math.sqrt(inspectedLocker))}²)
+                    </span>
+                  )}
                 </div>
-              )}
+
+                <span
+                  className={`px-3 py-1 rounded-full text-micro font-bold ${
+                    toggleCount(inspectedLocker) % 2 === 1
+                      ? 'bg-emerald-200 text-emerald-950 border border-emerald-300'
+                      : 'bg-slate-200 text-slate-700'
+                  }`}
+                >
+                  {toggleCount(inspectedLocker) % 2 === 1 ? 'REMAINS OPEN 🔓' : 'REMAINS CLOSED 🔒'}
+                </span>
+              </div>
+
+              <p className="text-body leading-relaxed">
+                Flipped by <strong>{toggleCount(inspectedLocker)} persons</strong> (its factors):{' '}
+                <span className="font-mono font-bold text-blue-900">
+                  {divisors(inspectedLocker).join(', ')}
+                </span>
+              </p>
+
+              <p className="text-small opacity-90 leading-relaxed">
+                {toggleCount(inspectedLocker) % 2 === 1
+                  ? `Because ${inspectedLocker} is a square (${Math.round(
+                      Math.sqrt(inspectedLocker)
+                    )} × ${Math.round(
+                      Math.sqrt(inspectedLocker)
+                    )}), it has an ODD count of divisors (${toggleCount(
+                      inspectedLocker
+                    )} factors). An odd number of flips leaves the locker OPEN!`
+                  : `Because ${inspectedLocker} is not a square, its divisors come in complete distinct pairs. ${toggleCount(
+                      inspectedLocker
+                    )} is an EVEN number of flips, so it returns to CLOSED.`}
+              </p>
             </div>
           </div>
-        )}
-
-                                {/* Step 5: The Secret Passcode */}
-                                {stepIndex === 4 && (
-                                  <div className="w-full max-w-3xl flex flex-col items-center gap-5 text-center">
-                                    <HighlightHeadline
-                                      text="The Secret Passcode: Touched Exactly Twice"
-                                      focusWord="Touched Exactly Twice"
-                                      focusColor="root"
-                                    />
-
-                                    <div
-                                      className="w-full p-6 md:p-8 rounded-3xl border bg-white shadow-sm flex flex-col items-center gap-5"
-                                      style={{ borderColor: COLORS.divider }}
-                                    >
-                                      <p className="text-statement text-slate-700 max-w-xl">
-                                        Inside the 10 open lockers, Khoisnam gathered word clues that read:
-                                      </p>
-
-                                      <blockquote className="text-headline text-blue-950 font-bold bg-blue-50 border border-blue-200 px-6 py-3 rounded-2xl shadow-inner">
-                                        “The passcode consists of the first five locker numbers that were touched exactly twice.”
-                                      </blockquote>
-
-                                      <div className="flex flex-wrap items-center justify-center gap-3">
-                                        {FIRST_5_PRIMES.map((p) => (
-                                          <div
-                                            key={p}
-                                            className="h-14 w-14 rounded-2xl bg-blue-600 text-white font-black text-title flex items-center justify-center shadow-sm"
-                                          >
-                                            {p}
-                                          </div>
-                                        ))}
-                                      </div>
-
-                                      <div className="text-body text-slate-600 max-w-lg leading-relaxed">
-                                        A locker was touched <strong>exactly twice</strong> if and only if its only factors are <strong>1</strong> and <strong>itself</strong>.
-                                        These are the <strong>prime numbers</strong>!
-                                        <div className="mt-2 text-ui font-bold text-emerald-700">
-                                          Safe Passcode: 2 – 3 – 5 – 7 – 11 🔓
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                              );
-  }
-
-                              // Render SubTab 2: Factor Pairs & Squares
-                              return (
-                              <div className="w-full flex flex-col items-center gap-4 animate-fade-rise">
-                                {/* Step 1: Toggles = Factors */}
-                                {stepIndex === 0 && (
-                                  <div className="w-full max-w-3xl flex flex-col items-center gap-5 text-center">
-                                    <HighlightHeadline
-                                      text="The Golden Rule: Odd vs Even Toggles"
-                                      focusWord="Odd vs Even"
-                                      focusColor="root"
-                                    />
-
-                                    <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
-                                      <div className="p-5 rounded-3xl bg-white border shadow-2xs flex flex-col gap-3" style={{ borderColor: COLORS.divider }}>
-                                        <div className="flex items-center gap-2.5 text-blue-700 font-bold text-statement">
-                                          <Lock className="w-5 h-5" />
-                                          <span>Even Number of Toggles</span>
-                                        </div>
-                                        <p className="text-body text-slate-600">
-                                          Starts <strong>Closed</strong> → Person 1 Opens → Person 2 Closes → Person 3 Opens → Person 4 Closes...
-                                        </p>
-                                        <div className="p-3 rounded-xl bg-slate-100 font-bold text-slate-800 text-ui">
-                                          Result: Ends CLOSED 🔒
-                                        </div>
-                                        <span className="text-small text-slate-500">Every factor has a separate partner factor.</span>
-                                      </div>
-
-                                      <div className="p-5 rounded-3xl bg-amber-50 border border-amber-200 shadow-2xs flex flex-col gap-3">
-                                        <div className="flex items-center gap-2.5 text-amber-800 font-bold text-statement">
-                                          <Unlock className="w-5 h-5 text-amber-600" />
-                                          <span>Odd Number of Toggles</span>
-                                        </div>
-                                        <p className="text-body text-slate-700">
-                                          Starts <strong>Closed</strong> → Opens (1) → Closes (2) → Opens (3) → Closes (4) → <strong>Opens (5)</strong>!
-                                        </p>
-                                        <div className="p-3 rounded-xl bg-amber-200 font-bold text-amber-900 text-ui">
-                                          Result: Ends OPEN 🔑
-                                        </div>
-                                        <span className="text-small text-amber-800">One factor is paired with itself, leaving an odd count!</span>
-                                      </div>
-                                    </div>
-                                  </div>
-                                )}
-
-                                {/* Step 2: Partner Factors of Normal Numbers */}
-                                {stepIndex === 1 && (
-                                  <div className="w-full max-w-3xl flex flex-col items-center gap-5 text-center">
-                                    <HighlightHeadline
-                                      text="Partner Factors: Why Normal Numbers are Even"
-                                      focusWord="Partner Factors"
-                                      focusColor="number"
-                                    />
-
-                                    <p className="text-body text-slate-600 max-w-xl">
-                                      Each factor of a number has a <strong>partner factor</strong> so that their product yields the number:
-                                    </p>
-
-                                    <div className="w-full p-6 rounded-3xl bg-white border shadow-2xs flex flex-col items-center gap-4" style={{ borderColor: COLORS.divider }}>
-                                      <div className="flex items-center gap-3">
-                                        <span className="text-title font-extrabold text-blue-900">Examining Locker #6:</span>
-                                      </div>
-
-                                      <div className="grid grid-cols-2 gap-4 w-full max-w-md">
-                                        <div className="p-3.5 rounded-2xl bg-blue-50 border border-blue-200 text-center">
-                                          <div className="text-statement font-bold text-blue-900">1 × 6 = 6</div>
-                                          <div className="text-small text-blue-700 mt-1">Partner pair: 1 &amp; 6</div>
-                                        </div>
-                                        <div className="p-3.5 rounded-2xl bg-blue-50 border border-blue-200 text-center">
-                                          <div className="text-statement font-bold text-blue-900">2 × 3 = 6</div>
-                                          <div className="text-small text-blue-700 mt-1">Partner pair: 2 &amp; 3</div>
-                                        </div>
-                                      </div>
-
-                                      <p className="text-body text-slate-700 max-w-lg">
-                                        Factors of 6 are <strong>1, 2, 3, and 6</strong> (total <strong>4 factors</strong>).
-                                        Because factors come in 2 pairs of distinct numbers, the count is <strong>4 (an even number)</strong>.
-                                        Person 1 opens, Person 2 closes, Person 3 opens, Person 6 closes. It ends <strong>CLOSED</strong>.
-                                      </p>
-                                    </div>
-                                  </div>
-                                )}
-
-                                {/* Step 3: The Self-Pair (Square Numbers) */}
-                                {stepIndex === 2 && (
-                                  <div className="w-full max-w-3xl flex flex-col items-center gap-5 text-center">
-                                    <HighlightHeadline
-                                      text="The Self-Pair: The Secret of 36 (and all Squares)"
-                                      focusWord="Secret of 36"
-                                      focusColor="area"
-                                    />
-
-                                    <div className="w-full p-6 rounded-3xl bg-white border shadow-2xs flex flex-col items-center gap-4" style={{ borderColor: COLORS.divider }}>
-                                      <span className="text-title font-bold text-slate-900">Factor Pairs of 36:</span>
-
-                                      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 w-full max-w-2xl">
-                                        <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-center">
-                                          <span className="text-ui font-semibold text-slate-700">1 × 36</span>
-                                        </div>
-                                        <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-center">
-                                          <span className="text-ui font-semibold text-slate-700">2 × 18</span>
-                                        </div>
-                                        <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-center">
-                                          <span className="text-ui font-semibold text-slate-700">3 × 12</span>
-                                        </div>
-                                        <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-center">
-                                          <span className="text-ui font-semibold text-slate-700">4 × 9</span>
-                                        </div>
-                                        <div className="p-2.5 rounded-xl bg-orange-100 border border-orange-300 text-center font-bold text-orange-900 shadow-2xs">
-                                          <span>6 × 6</span>
-                                          <span className="block text-[10px] text-orange-700">Self-Pair!</span>
-                                        </div>
-                                      </div>
-
-                                      <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-left text-body text-slate-800 leading-relaxed max-w-xl">
-                                        Every factor of 36 has a distinct partner, <strong>except 6</strong>!
-                                        The factor 6 pairs with itself (6 × 6 = 36), so it only gets listed <strong>once</strong> in the factor list:
-                                        <div className="font-mono font-bold text-blue-900 my-1">
-                                          {'{ 1, 2, 3, 4, 6, 9, 12, 18, 36 }'} → 9 factors (ODD!)
-                                        </div>
-                                        An odd number of toggles guarantees that Locker 36 ends up <strong>OPEN</strong>!
-                                      </div>
-                                    </div>
-                                  </div>
-                                )}
-
-                                {/* Step 4: Squares as Tile Areas */}
-                                {stepIndex === 3 && (
-                                  <div className="w-full max-w-3xl flex flex-col items-center gap-4 text-center">
-                                    <HighlightHeadline
-                                      text="Why are they called 'Square' Numbers?"
-                                      focusWord="'Square' Numbers"
-                                      focusColor="area"
-                                    />
-
-                                    <p className="text-body text-slate-600 max-w-xl">
-                                      A square of side length <em>n</em> contains exactly <span style={{ color: COLORS.area.solid }}>n × n = n²</span> unit squares of area.
-                                    </p>
-
-                                    <div className="w-full p-5 rounded-3xl bg-white border shadow-2xs flex flex-col items-center gap-4" style={{ borderColor: COLORS.divider }}>
-                                      <div className="flex items-center gap-3">
-                                        <label htmlFor="area-slider" className="text-ui font-bold text-slate-800">
-                                          Side length (n): <span className="text-emerald-700 text-title font-extrabold">{sideN}</span>
-                                        </label>
-                                        <input
-                                          id="area-slider"
-                                          type="range"
-                                          min={1}
-                                          max={10}
-                                          value={sideN}
-                                          onChange={(e) => setSideN(parseInt(e.target.value, 10))}
-                                          className="w-40 accent-[#16A34A] cursor-pointer"
-                                        />
-                                      </div>
-
-                                      {/* SVG Square Tile Area Visualizer */}
-                                      <div className="flex items-center justify-center p-3 rounded-2xl bg-slate-50 border border-slate-200">
-                                        <svg width={Math.min(260, sideN * 26)} height={Math.min(260, sideN * 26)} className="transition-all">
-                                          {Array.from({ length: sideN }).map((_, row) =>
-                                            Array.from({ length: sideN }).map((_, col) => {
-                                              const tileSize = Math.min(26, 260 / sideN);
-                                              return (
-                                                <rect
-                                                  key={`${row}-${col}`}
-                                                  x={col * tileSize + 1}
-                                                  y={row * tileSize + 1}
-                                                  width={tileSize - 2}
-                                                  height={tileSize - 2}
-                                                  rx={3}
-                                                  fill={COLORS.area.solid}
-                                                  fillOpacity={0.85}
-                                                  stroke="#EA580C"
-                                                  strokeWidth={1}
-                                                />
-                                              );
-                                            })
-                                          )}
-                                        </svg>
-                                      </div>
-
-                                      <div className="text-statement font-bold text-slate-900">
-                                        Area = <span style={{ color: COLORS.side.solid }}>{sideN}</span> ×{' '}
-                                        <span style={{ color: COLORS.side.solid }}>{sideN}</span> ={' '}
-                                        <span style={{ color: COLORS.area.solid }}>{sideN * sideN} unit squares</span> ({sideN}²)
-                                      </div>
-
-                                      {/* Fractions and decimals box */}
-                                      <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
-                                        <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 text-small text-slate-700">
-                                          <strong>Fraction square:</strong>
-                                          <div className="mt-1">
-                                            <Katex latex="\\left(\\frac{3}{5}\\right)^2 = \\frac{3}{5} \\times \\frac{3}{5} = \\frac{9}{25}" />
-                                          </div>
-                                        </div>
-                                        <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 text-small text-slate-700">
-                                          <strong>Decimal square:</strong>
-                                          <div className="mt-1">
-                                            <Katex latex="(2.5)^2 = 2.5 \\times 2.5 = 6.25" />
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                )}
-
-                                {/* Step 5: Story Quiz */}
-                                {stepIndex === 4 && (
-                                  <div className="w-full max-w-2xl flex flex-col items-center gap-5 text-center">
-                                    <HighlightHeadline
-                                      text="Figure It Out: Story Mastery Quiz"
-                                      focusWord="Mastery Quiz"
-                                      focusColor="root"
-                                    />
-
-                                    <div className="w-full flex flex-col gap-4 text-left">
-                                      {/* Q1 */}
-                                      <div className="p-5 rounded-2xl bg-white border shadow-2xs" style={{ borderColor: COLORS.divider }}>
-                                        <h4 className="text-ui font-bold text-slate-900 mb-2.5">
-                                          1. Why does Locker #49 remain open at the very end?
-                                        </h4>
-                                        <div className="space-y-1.5">
-                                          {[
-                                            'Because 49 is an odd number',
-                                            'Because 7 × 7 = 49 gives it an odd number of factors (3 factors: 1, 7, 49)',
-                                            'Because Person 49 opens it and nobody touches it again',
-                                          ].map((opt, optIdx) => {
-                                            const isSelected = quizAnswers[0] === optIdx;
-                                            const isCorrect = optIdx === 1;
-                                            return (
-                                              <button
-                                                key={opt}
-                                                type="button"
-                                                onClick={() => setQuizAnswers((prev) => ({ ...prev, [0]: optIdx }))}
-                                                className={`w-full p-3 rounded-xl border text-small text-left flex items-center justify-between cursor-pointer transition-colors ${isSelected
-                                                    ? isCorrect
-                                                      ? 'bg-emerald-50 border-emerald-400 text-emerald-950 font-semibold'
-                                                      : 'bg-red-50 border-red-300 text-red-950'
-                                                    : 'bg-slate-50/70 hover:bg-slate-100 border-slate-200 text-slate-800'
-                                                  }`}
-                                              >
-                                                <span>{opt}</span>
-                                                {isSelected && (isCorrect ? <CheckCircle2 className="w-4 h-4 text-emerald-600" /> : <XCircle className="w-4 h-4 text-red-500" />)}
-                                              </button>
-                                            );
-                                          })}
-                                        </div>
-                                      </div>
-
-                                      {/* Q2 */}
-                                      <div className="p-5 rounded-2xl bg-white border shadow-2xs" style={{ borderColor: COLORS.divider }}>
-                                        <h4 className="text-ui font-bold text-slate-900 mb-2.5">
-                                          2. How many people toggle Locker #12, and what is its final state?
-                                        </h4>
-                                        <div className="space-y-1.5">
-                                          {[
-                                            '6 people (1, 2, 3, 4, 6, 12) → ends CLOSED (even count)',
-                                            '5 people → ends OPEN',
-                                            '12 people → ends CLOSED',
-                                          ].map((opt, optIdx) => {
-                                            const isSelected = quizAnswers[1] === optIdx;
-                                            const isCorrect = optIdx === 0;
-                                            return (
-                                              <button
-                                                key={opt}
-                                                type="button"
-                                                onClick={() => setQuizAnswers((prev) => ({ ...prev, [1]: optIdx }))}
-                                                className={`w-full p-3 rounded-xl border text-small text-left flex items-center justify-between cursor-pointer transition-colors ${isSelected
-                                                    ? isCorrect
-                                                      ? 'bg-emerald-50 border-emerald-400 text-emerald-950 font-semibold'
-                                                      : 'bg-red-50 border-red-300 text-red-950'
-                                                    : 'bg-slate-50/70 hover:bg-slate-100 border-slate-200 text-slate-800'
-                                                  }`}
-                                              >
-                                                <span>{opt}</span>
-                                                {isSelected && (isCorrect ? <CheckCircle2 className="w-4 h-4 text-emerald-600" /> : <XCircle className="w-4 h-4 text-red-500" />)}
-                                              </button>
-                                            );
-                                          })}
-                                        </div>
-                                      </div>
-
-                                      {/* Q3 */}
-                                      <div className="p-5 rounded-2xl bg-white border shadow-2xs" style={{ borderColor: COLORS.divider }}>
-                                        <h4 className="text-ui font-bold text-slate-900 mb-2.5">
-                                          3. What were the first five lockers touched exactly twice (the safe passcode)?
-                                        </h4>
-                                        <div className="space-y-1.5">
-                                          {[
-                                            '1, 4, 9, 16, 25 (Squares)',
-                                            '2, 3, 5, 7, 11 (Prime Numbers)',
-                                            '2, 4, 6, 8, 10 (Even Numbers)',
-                                          ].map((opt, optIdx) => {
-                                            const isSelected = quizAnswers[2] === optIdx;
-                                            const isCorrect = optIdx === 1;
-                                            return (
-                                              <button
-                                                key={opt}
-                                                type="button"
-                                                onClick={() => setQuizAnswers((prev) => ({ ...prev, [2]: optIdx }))}
-                                                className={`w-full p-3 rounded-xl border text-small text-left flex items-center justify-between cursor-pointer transition-colors ${isSelected
-                                                    ? isCorrect
-                                                      ? 'bg-emerald-50 border-emerald-400 text-emerald-950 font-semibold'
-                                                      : 'bg-red-50 border-red-300 text-red-950'
-                                                    : 'bg-slate-50/70 hover:bg-slate-100 border-slate-200 text-slate-800'
-                                                  }`}
-                                              >
-                                                <span>{opt}</span>
-                                                {isSelected && (isCorrect ? <CheckCircle2 className="w-4 h-4 text-emerald-600" /> : <XCircle className="w-4 h-4 text-red-500" />)}
-                                              </button>
-                                            );
-                                          })}
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                              );
+        </div>
+      )}
+    </div>
+  );
 };

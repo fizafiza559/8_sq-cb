@@ -4,7 +4,7 @@
  */
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ChevronRight, Eye, EyeOff, Info, Maximize2, Minimize2 } from 'lucide-react';
+import { ChevronRight, Eye, EyeOff, Info, Maximize2, Minimize2, Sparkles } from 'lucide-react';
 import { COLORS } from '../design/tokens';
 import { SectionConfig, SectionId } from '../content/sections';
 import { RevealUnit, useTapNavigator } from './useTapNavigator';
@@ -24,6 +24,9 @@ interface SlideShellProps {
   sections: SectionConfig[];
   activeSectionId: SectionId;
   onSelectSection: (sectionId: SectionId) => void;
+
+  activeChapter?: string;
+  onSelectChapter?: (chapterId: string) => void;
 
   topics?: SlideTopicTab[];
   activeTopicId?: string;
@@ -56,6 +59,8 @@ export const SlideShell: React.FC<SlideShellProps> = ({
   sections,
   activeSectionId,
   onSelectSection,
+  activeChapter = 'ch-2',
+  onSelectChapter,
   topics,
   activeTopicId,
   onSelectTopic,
@@ -82,9 +87,23 @@ export const SlideShell: React.FC<SlideShellProps> = ({
   // Hover or long-press step title tooltip state
   const [tooltip, setTooltip] = useState<{ text: string; top: number; left: number } | null>(null);
   const [mobileDotTitle, setMobileDotTitle] = useState<string | null>(null);
+  const [chapterMenuOpen, setChapterMenuOpen] = useState(false);
+  const chapterMenuRef = useRef<HTMLDivElement>(null);
   const longPressTimerRef = useRef<number | null>(null);
   const infoBtnRef = useRef<HTMLButtonElement>(null);
   const wasIndexOpenRef = useRef(false);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (chapterMenuRef.current && !chapterMenuRef.current.contains(e.target as Node)) {
+        setChapterMenuOpen(false);
+      }
+    };
+    if (chapterMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [chapterMenuOpen]);
 
   const activeSection = sections.find((s) => s.id === activeSectionId) || sections[0];
   const totalSteps = Math.max(1, steps.length);
@@ -260,10 +279,75 @@ export const SlideShell: React.FC<SlideShellProps> = ({
               NCERT
             </span>
             <span className="shrink-0 opacity-60">&gt;</span>
-            <span className="hidden lg:inline shrink-0">Class 8</span>
-            <span className="hidden lg:inline shrink-0 opacity-60">&gt;</span>
-            <span className="hidden xl:inline shrink-0">Squares & Cubes</span>
-            <span className="hidden md:inline xl:hidden shrink-0">Ch 1</span>
+            <span className="hidden sm:inline shrink-0">Class 8</span>
+            <span className="hidden sm:inline shrink-0 opacity-60">&gt;</span>
+
+            {/* Chapter Switcher Pill & Dropdown */}
+            <div ref={chapterMenuRef} className="relative inline-block shrink-0">
+              <button
+                type="button"
+                onClick={() => setChapterMenuOpen((o) => !o)}
+                className="px-2.5 py-1 rounded-full text-micro font-bold border flex items-center gap-1 transition-all cursor-pointer shadow-2xs hover:bg-slate-50"
+                style={{
+                  color: COLORS.primary,
+                  borderColor: COLORS.divider,
+                  backgroundColor: '#FFFFFF',
+                }}
+                aria-expanded={chapterMenuOpen}
+                aria-label="Switch chapter"
+              >
+                <span>{activeChapter === 'ch-1' ? 'Ch 1: Linear Equations' : 'Ch 2: Squares & Cubes'}</span>
+                <span className="text-[10px] opacity-75">▾</span>
+              </button>
+
+              {chapterMenuOpen && (
+                <div
+                  className="absolute left-0 mt-1.5 w-64 rounded-2xl border bg-white shadow-lg p-1.5 z-50 animate-fade-rise flex flex-col gap-1"
+                  style={{ borderColor: COLORS.divider }}
+                >
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onSelectChapter?.('ch-1');
+                      setChapterMenuOpen(false);
+                    }}
+                    className={`px-3 py-2 rounded-xl text-left text-small transition-colors cursor-pointer flex items-center justify-between ${
+                      activeChapter === 'ch-1'
+                        ? 'bg-blue-50 text-blue-900 font-bold'
+                        : 'hover:bg-slate-50 text-slate-700'
+                    }`}
+                  >
+                    <span>Chapter 1: Linear Equations in One Variable</span>
+                    {activeChapter === 'ch-1' && (
+                      <span className="text-micro text-blue-600 font-bold px-1.5 py-0.5 rounded-md bg-blue-100">
+                        Active
+                      </span>
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onSelectChapter?.('ch-2');
+                      setChapterMenuOpen(false);
+                    }}
+                    className={`px-3 py-2 rounded-xl text-left text-small transition-colors cursor-pointer flex items-center justify-between ${
+                      activeChapter === 'ch-2' || !activeChapter
+                        ? 'bg-blue-50 text-blue-900 font-bold'
+                        : 'hover:bg-slate-50 text-slate-700'
+                    }`}
+                  >
+                    <span>Chapter 2: Squares &amp; Cubes</span>
+                    {(activeChapter === 'ch-2' || !activeChapter) && (
+                      <span className="text-micro text-blue-600 font-bold px-1.5 py-0.5 rounded-md bg-blue-100">
+                        Active
+                      </span>
+                    )}
+                  </button>
+                </div>
+              )}
+            </div>
+
             <span className="hidden md:inline shrink-0 opacity-60">&gt;</span>
             <span className="truncate font-medium max-w-[82px] sm:max-w-[140px]" style={{ color: COLORS.headingText }}>
               {activeSection.shortLabel.replace(/^\d+\.\s*/, '')}
@@ -405,6 +489,15 @@ export const SlideShell: React.FC<SlideShellProps> = ({
 
           {/* Centered stage content */}
           <div className="flex-1 w-full max-w-5xl mx-auto px-4 md:px-8 py-3 md:py-5 flex flex-col items-center">
+            {activeSection.storyHook && (
+              <div
+                className="mb-3 px-3.5 py-1 rounded-full border bg-white/95 shadow-2xs text-micro font-medium text-slate-600 italic flex items-center gap-1.5 max-w-2xl text-center animate-fade-rise"
+                style={{ borderColor: COLORS.divider }}
+              >
+                <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                <span>{activeSection.storyHook}</span>
+              </div>
+            )}
             <div className="w-full min-w-0 my-auto flex flex-col items-center">
               {children}
             </div>
