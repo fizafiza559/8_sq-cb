@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { COLORS } from '../design/tokens';
 import {
   Calculator,
@@ -16,6 +16,7 @@ import {
 
 export interface PrimeFactorGroupingHelperProps {
   initialNumber?: number;
+  beatIndex?: number;
   className?: string;
 }
 
@@ -61,6 +62,7 @@ function computePrimeFactorLadder(n: number): { factors: number[]; steps: Factor
 
 export const PrimeFactorGroupingHelper: React.FC<PrimeFactorGroupingHelperProps> = ({
   initialNumber = 3375,
+  beatIndex,
   className = '',
 }) => {
   const [inputVal, setInputVal] = useState<string>(String(initialNumber));
@@ -69,6 +71,13 @@ export const PrimeFactorGroupingHelper: React.FC<PrimeFactorGroupingHelperProps>
     from: number;
     action: string;
   } | null>(null);
+
+  useEffect(() => {
+    if (beatIndex === undefined) return;
+    setPreviousIncomplete(null);
+    setGroupMode('cube');
+    setInputVal(beatIndex === 0 ? '216' : '3375');
+  }, [beatIndex]);
 
   const num = Math.max(2, Math.min(999999, parseInt(inputVal, 10) || 12));
   const { factors, steps } = computePrimeFactorLadder(num);
@@ -117,35 +126,31 @@ export const PrimeFactorGroupingHelper: React.FC<PrimeFactorGroupingHelperProps>
   return (
     <div
       data-no-nav="true"
-      className={`w-full max-w-4xl mx-auto rounded-3xl border bg-white p-5 md:p-6 shadow-xs flex flex-col gap-5 ${className}`}
-      style={{ borderColor: COLORS.divider }}
+      className={`w-full max-w-4xl mx-auto rounded-3xl border border-slate-200/80 bg-white p-5 sm:p-7 shadow-xs flex flex-col gap-5 ${className}`}
     >
       {/* Header */}
-      <div
-        className="flex flex-wrap items-center justify-between gap-3 border-b pb-4"
-        style={{ borderColor: COLORS.divider }}
-      >
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
         <div>
           <span className="text-micro font-bold uppercase tracking-wider text-slate-500">
-            Animation 9 • Prime Triplets for Cubes
+            Prime Triplets for Cubes
           </span>
           <h3 className="text-statement font-extrabold flex items-center gap-2 mt-0.5" style={{ color: COLORS.headingText }}>
-            <Calculator className="w-5 h-5 text-[#005583]" />
+            <Calculator className="w-5 h-5 text-[#005583] shrink-0" />
             <span>Group Prime Factors in Teams of Three</span>
           </h3>
         </div>
 
         {/* Group Mode Switcher */}
-        <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-100 border border-slate-200">
+        <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-100/90">
           <button
             type="button"
             onClick={() => {
               setPreviousIncomplete(null);
               setGroupMode('square');
             }}
-            className={`px-3 py-1.5 rounded-lg text-micro font-bold transition-all cursor-pointer whitespace-nowrap ${
+            className={`min-h-[38px] px-3 py-1.5 rounded-lg text-micro font-bold transition-all cursor-pointer whitespace-nowrap ${
               groupMode === 'square'
-                ? 'bg-white text-orange-600 shadow-xs'
+                ? 'bg-white text-orange-600 shadow-2xs'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
@@ -157,9 +162,9 @@ export const PrimeFactorGroupingHelper: React.FC<PrimeFactorGroupingHelperProps>
               setPreviousIncomplete(null);
               setGroupMode('cube');
             }}
-            className={`px-3 py-1.5 rounded-lg text-micro font-bold transition-all cursor-pointer whitespace-nowrap ${
+            className={`min-h-[38px] px-3 py-1.5 rounded-lg text-micro font-bold transition-all cursor-pointer whitespace-nowrap ${
               groupMode === 'cube'
-                ? 'bg-white text-purple-700 shadow-xs'
+                ? 'bg-white text-purple-700 shadow-2xs'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
@@ -178,10 +183,10 @@ export const PrimeFactorGroupingHelper: React.FC<PrimeFactorGroupingHelperProps>
             onClick={() => selectNumber(p.num, null)}
             className={`min-h-[36px] px-3 py-1 rounded-xl text-micro font-bold border transition-all cursor-pointer whitespace-nowrap ${
               num === p.num
-                ? 'bg-[#005583] text-white border-[#003F62] shadow-xs'
+                ? 'bg-[#005583] text-white border-[#003F62] shadow-2xs'
                 : p.num === 500 || p.num === 3375
-                ? 'bg-purple-50 text-purple-900 border-purple-200 hover:bg-purple-100'
-                : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                ? 'bg-purple-50 text-purple-900 border-purple-200/80 hover:bg-purple-100'
+                : 'bg-slate-50 text-slate-700 border-slate-200/80 hover:bg-slate-100'
             }`}
           >
             {p.label}
@@ -190,7 +195,7 @@ export const PrimeFactorGroupingHelper: React.FC<PrimeFactorGroupingHelperProps>
       </div>
 
       {/* Manual Input Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-2xl border bg-slate-50 border-slate-200">
+      <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 sm:px-4 rounded-2xl bg-slate-50/80">
         <div className="flex items-center gap-3">
           <label htmlFor="num-input" className="text-small font-bold text-slate-700 whitespace-nowrap">
             Number to Check:
@@ -246,7 +251,7 @@ export const PrimeFactorGroupingHelper: React.FC<PrimeFactorGroupingHelperProps>
         </div>
 
         {/* Visual Boxed Groups */}
-        <div className="flex items-center gap-3 flex-wrap p-4 rounded-2xl bg-slate-50/50 border border-slate-200">
+        <div className="flex items-center gap-3 flex-wrap p-4 rounded-2xl bg-slate-50/75">
           {Object.entries(factorCounts).map(([factorStr, count]) => {
             const factor = parseInt(factorStr, 10);
             const fullGroupsCount = Math.floor(count / groupSize);
@@ -312,7 +317,7 @@ export const PrimeFactorGroupingHelper: React.FC<PrimeFactorGroupingHelperProps>
       {!isAlreadyPerfect ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Multiply Card */}
-          <div className="p-4 rounded-2xl border bg-emerald-50/70 border-emerald-200 flex flex-col justify-between gap-3 shadow-2xs">
+          <div className="p-4 sm:p-5 rounded-2xl bg-emerald-50/60 flex flex-col justify-between gap-3">
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-2 text-emerald-800 font-bold text-small">
                 <Sparkles className="w-4 h-4 text-emerald-600" />
@@ -335,17 +340,17 @@ export const PrimeFactorGroupingHelper: React.FC<PrimeFactorGroupingHelperProps>
                   action: `before × ${multiplier}`,
                 })
               }
-              className="min-h-[40px] w-full px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-small font-bold flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
+              className="min-h-[42px] w-full px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-small font-bold flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
             >
               <span>
                 Make it a {groupMode} by multiplying (× {multiplier})
               </span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4 shrink-0" />
             </button>
           </div>
 
           {/* Divide Card */}
-          <div className="p-4 rounded-2xl border bg-purple-50/70 border-purple-200 flex flex-col justify-between gap-3 shadow-2xs">
+          <div className="p-4 sm:p-5 rounded-2xl bg-purple-50/60 flex flex-col justify-between gap-3">
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-2 text-purple-800 font-bold text-small">
                 <Sparkles className="w-4 h-4 text-purple-600" />
@@ -368,17 +373,17 @@ export const PrimeFactorGroupingHelper: React.FC<PrimeFactorGroupingHelperProps>
                   action: `before ÷ ${divider}`,
                 })
               }
-              className="min-h-[40px] w-full px-4 py-2 rounded-xl bg-purple-700 hover:bg-purple-800 text-white text-small font-bold flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
+              className="min-h-[42px] w-full px-4 py-2 rounded-xl bg-purple-700 hover:bg-purple-800 text-white text-small font-bold flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
             >
               <span>
                 Make it a {groupMode} by dividing (÷ {divider})
               </span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4 shrink-0" />
             </button>
           </div>
         </div>
       ) : (
-        <div className="p-4 rounded-2xl border bg-emerald-50 border-emerald-300 text-center space-y-1 animate-fade-rise">
+        <div className="p-4 rounded-2xl bg-emerald-50/75 text-center space-y-1 animate-fade-rise">
           <div className="text-body font-extrabold text-emerald-900">
             One from each {groupMode === 'square' ? 'pair' : 'triplet'}:{' '}
             {Object.entries(factorCounts)
@@ -395,12 +400,12 @@ export const PrimeFactorGroupingHelper: React.FC<PrimeFactorGroupingHelperProps>
       )}
 
       {/* Step-by-Step Division Ladder */}
-      <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+      <div className="p-4 rounded-2xl bg-slate-50/80 space-y-2">
         <span className="text-micro font-bold text-slate-700">Prime Division Steps:</span>
         <div className="flex items-center gap-2 flex-wrap font-mono text-small font-bold text-slate-800">
           {steps.map((st, i) => (
             <div key={i} className="flex items-center gap-1.5">
-              <span className="px-2 py-0.5 rounded bg-white border border-slate-200">
+              <span className="px-2 py-0.5 rounded bg-white border border-slate-200/80">
                 {st.quotient} ÷ <span className="text-rose-600 font-bold">{st.divisor}</span>
               </span>
               {i < steps.length - 1 && <ArrowRight className="w-3.5 h-3.5 text-slate-400" />}

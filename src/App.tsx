@@ -14,21 +14,22 @@ import {
 } from './content/sections';
 import { RefresherMiniClip, Scene } from './types';
 import { useTimeline } from './engine/useTimeline';
-import { useSceneParams } from './engine/useSceneParams';
 import { SlideShell, SlideStepItem } from './engine/SlideShell';
 import { RevealUnit } from './engine/useTapNavigator';
 import { QuickCheck } from './components/QuickCheck';
 import { Katex } from './components/Katex';
 import { HighlightHeadline } from './components/HighlightHeadline';
 import { RefresherCard } from './components/RefresherCard';
-import { FoundationDemoScene } from './scenes/FoundationDemoScene';
 import { SquareTileScene } from './scenes/SquareTileScene';
+import { LastDigitPatternsScene } from './scenes/LastDigitPatternsScene';
 import { OddSubtractionScene } from './scenes/OddSubtractionScene';
 import { TriangularSquareZipper } from './scenes/TriangularSquareZipper';
 import { SquareRootPrimeEstimateScene } from './scenes/SquareRootPrimeEstimateScene';
+import { CubePatternsScene } from './scenes/CubePatternsScene';
 import { CubeOddSumsAndTaxiScene } from './scenes/CubeOddSumsAndTaxiScene';
 import { DifferenceEngineTable } from './scenes/DifferenceEngineTable';
 import { HistoryVisualStory } from './scenes/HistoryVisualStory';
+import { ChapterSummaryScene } from './scenes/ChapterSummaryScene';
 import { SquarePairsPuzzle } from './scenes/SquarePairsPuzzle';
 import { LockerStorySection, FactorPairsMorph36 } from './sections/LockerStorySection';
 import { PracticeSection } from './sections/PracticeSection';
@@ -63,6 +64,7 @@ export default function App() {
   // Slide-based QuickCheck state for scenes (null = viewing scene beats)
   const [quickCheckIndex, setQuickCheckIndex] = useState<number | null>(null);
   const [quickCheckAnswers, setQuickCheckAnswers] = useState<Record<number, number>>({});
+  const [quickCheckSolutionSteps, setQuickCheckSolutionSteps] = useState<Record<number, number>>({});
 
   // Module step for Section 0, Section 5, etc.
   const [moduleStep, setModuleStep] = useState(0);
@@ -83,10 +85,9 @@ export default function App() {
   const isSceneSubTab = activeSubTab.sceneIndex !== undefined;
   const currentScene: Scene = chapter.scenes[activeSceneIndex] || chapter.scenes[0];
 
-  // Stable timeline & scene parameter hooks
+  // Stable timeline hook
   const timeline = useTimeline(currentScene.beats.length);
   const { setT: setTimelineT } = timeline;
-  const sceneParams = useSceneParams(currentScene, timeline.beatIndex, timeline.progress);
   const pendingBeatRef = useRef<number | null>(null);
 
   useLayoutEffect(() => {
@@ -100,6 +101,7 @@ export default function App() {
     pendingBeatRef.current = null;
     setQuickCheckIndex(null);
     setQuickCheckAnswers({});
+    setQuickCheckSolutionSteps({});
     setModuleStep(0);
     timeline.setT(0);
   };
@@ -123,6 +125,7 @@ export default function App() {
   const advanceAfterQuickCheck = () => {
     setQuickCheckIndex(null);
     setQuickCheckAnswers({});
+    setQuickCheckSolutionSteps({});
     const subIdx = activeSection.subTabs.findIndex((st) => st.id === activeSubTab.id);
     if (subIdx >= 0 && subIdx < activeSection.subTabs.length - 1) {
       handleSelectSubTab(activeSection.subTabs[subIdx + 1].id);
@@ -209,6 +212,7 @@ export default function App() {
     setActiveSubTabId(entry.subTab.id);
     setQuickCheckIndex(null);
     setQuickCheckAnswers({});
+    setQuickCheckSolutionSteps({});
     setModuleStep(0);
     timeline.setT(0);
   };
@@ -241,6 +245,19 @@ export default function App() {
   const handleTapNext = (): boolean => {
     if (inQuickCheck) {
       if (quickCheckIndex! < qcQuestions.length) {
+        const activeQ = qcQuestions[quickCheckIndex!];
+        const hasAnswered = quickCheckAnswers[quickCheckIndex!] !== undefined;
+        const totalSolSteps = activeQ?.solutionSteps?.length || 1;
+        const currentSolStep = quickCheckSolutionSteps[quickCheckIndex!] ?? 1;
+
+        if (hasAnswered && currentSolStep < totalSolSteps) {
+          setQuickCheckSolutionSteps((prev) => ({
+            ...prev,
+            [quickCheckIndex!]: currentSolStep + 1,
+          }));
+          return true;
+        }
+
         setQuickCheckIndex((idx) => (idx === null ? 0 : Math.min(qcQuestions.length, idx + 1)));
         return true;
       }
@@ -258,6 +275,7 @@ export default function App() {
       }
       if (qcQuestions.length > 0) {
         setQuickCheckAnswers({});
+        setQuickCheckSolutionSteps({});
         setQuickCheckIndex(0);
         return true;
       }
@@ -330,108 +348,102 @@ export default function App() {
     const sId = currentScene.id;
     const subId = activeSubTab.id;
     const bId = currentBeat?.id ?? '';
+    const beatIdx = timeline.beatIndex;
 
-    // 1. Animation 2: Factor Partners for 36 (The Lone 6x6) -> FactorPairsMorph36
+    // 1. Factor Partners (scene-1) -> FactorPairsMorph36
     if (sId === 'scene-1' || subId === 'factor-partners' || bId.startsWith('fp-')) {
-      return <FactorPairsMorph36 />;
+      return <FactorPairsMorph36 beatIndex={beatIdx} />;
     }
 
-    // 2. Animation 3: What is a Square? (Whole 1-5, Decimal 2.5, Fraction 3/5) -> SquareTileScene
+    // 2. Squares as Areas (scene-2) -> SquareTileScene (Whole 1-5, Decimal 2.5, Fraction 3/5)
     if (sId === 'scene-2' || subId === 'squares-areas' || bId.startsWith('sa-')) {
-      return <SquareTileScene />;
+      return <SquareTileScene beatIndex={beatIdx} />;
     }
 
-    // 3. Animation 5 & Patterns: Odd Numbers Make Squares
+    // 3. Last Digits, Zeros & Parity (scene-3) -> LastDigitPatternsScene
+    if (sId === 'scene-3' || subId === 'last-digits' || bId.startsWith('ld-')) {
+      return <LastDigitPatternsScene beatIndex={beatIdx} />;
+    }
+
+    // 4. Odd Numbers Make Squares (scene-4) -> DotGridSquareVisualizer / OddSubtractionScene
     if (sId === 'scene-4' || subId === 'odd-squares' || bId.startsWith('on-')) {
       if (bId === 'on-4' || bId === 'on-5') {
-        return <OddSubtractionScene />;
+        return <OddSubtractionScene beatIndex={bId === 'on-4' ? 0 : 1} />;
       }
-      return <DotGridSquareVisualizer initialMode="odd-borders" />;
+      return <DotGridSquareVisualizer initialMode="odd-borders" beatIndex={beatIdx} />;
     }
 
-    // 4. Animation 6: Between Squares & Triangular Zipper (T_{n-1} + T_n = n^2)
+    // 5. Between Squares & Triangular (scene-5) -> Immediately loads TriangularSquareZipper on step 0!
     if (sId === 'scene-5' || subId === 'between-triangular' || bId.startsWith('bt-')) {
-      if (bId === 'bt-3' || bId === 'bt-4') {
-        return <TriangularSquareZipper initialN={4} />;
-      }
-      return (
-        <FoundationDemoScene
-          t={timeline.t}
-          beatIndex={timeline.beatIndex}
-          beatId={currentBeat.id}
-          localProgress={timeline.progress}
-          params={sceneParams.params}
-          setParam={sceneParams.setParam}
-          setParams={sceneParams.setParams}
-        />
-      );
+      return <TriangularSquareZipper initialN={4} beatIndex={beatIdx} />;
     }
 
-    // 5. Concept of Square Root (scene-6 / roots-plus-minus) -> SquareTileScene inverseMode
+    // 6. Roots and Plus-Minus (scene-6) -> SquareTileScene inverseMode
     if (sId === 'scene-6' || subId === 'roots-plus-minus' || bId.startsWith('rm-')) {
-      return <SquareTileScene inverseMode={true} />;
+      return <SquareTileScene inverseMode={true} beatIndex={beatIdx} />;
     }
 
-    // 6. Animation 5 & 7: Methods for Square Roots (scene-7 / finding-roots)
+    // 7. Finding Roots (scene-7) -> OddSubtractionScene & SquareRootPrimeEstimateScene
     if (sId === 'scene-7' || subId === 'finding-roots' || bId.startsWith('fr-')) {
       if (bId === 'fr-2') {
-        return <SquareRootPrimeEstimateScene initialTab="prime-pairs" />;
+        return <SquareRootPrimeEstimateScene initialTab="prime-pairs" beatIndex={0} />;
       }
-      return <OddSubtractionScene />;
+      return <OddSubtractionScene beatIndex={0} />;
     }
 
-    // 7. Animation 7B: Estimating Roots (scene-8 / estimating-roots) -> Interval Halving for sqrt(1936)
+    // 8. Estimating Roots (scene-8) -> SquareRootPrimeEstimateScene (1936 interval)
     if (sId === 'scene-8' || subId === 'estimating-roots' || bId.startsWith('er-')) {
-      return <SquareRootPrimeEstimateScene initialTab="estimate-1936" />;
+      return <SquareRootPrimeEstimateScene initialTab="estimate-1936" beatIndex={beatIdx} />;
     }
 
-    // 8. Animation 8: Building Cubes (scene-9 / building-cubes) -> 4x4x4 Layer Isometric Cube + Explode
+    // 9. Building Cubes (scene-9) -> IsometricCubeRenderer
     if (sId === 'scene-9' || subId === 'building-cubes' || bId.startsWith('bc-')) {
-      return <IsometricCubeRenderer initialN={4} />;
+      return <IsometricCubeRenderer initialN={4} beatIndex={beatIdx} />;
     }
 
-    // 9. Animation 10B: Taxicab Numbers (scene-11 / taxicab-numbers) -> 1729 Balance Scale
+    // 10. Cube Patterns (scene-10) -> CubePatternsScene (0-9 ending digits & trailing zeros)
+    if (sId === 'scene-10' || subId === 'cube-patterns' || bId.startsWith('cp-')) {
+      return <CubePatternsScene beatIndex={beatIdx} />;
+    }
+
+    // 11. Taxicab Numbers (scene-11) -> CubeOddSumsAndTaxiScene (1729, 4104, 13832)
     if (sId === 'scene-11' || subId === 'taxicab-numbers' || bId.startsWith('tc-')) {
-      return <CubeOddSumsAndTaxiScene initialTab="taxicab" />;
+      return <CubeOddSumsAndTaxiScene initialTab="taxicab" beatIndex={beatIdx} />;
     }
 
-    // 10. Animation 10A: Cubes and Odd Numbers (scene-12 / cubes-odd-numbers) -> Consecutive Odd Sums Tape
+    // 12. Cubes and Odd Numbers (scene-12) -> CubeOddSumsAndTaxiScene (odd sums tape)
     if (sId === 'scene-12' || subId === 'cubes-odd-numbers' || bId.startsWith('co-')) {
-      return <CubeOddSumsAndTaxiScene initialTab="odd-sums" />;
+      return <CubeOddSumsAndTaxiScene initialTab="odd-sums" beatIndex={beatIdx} />;
     }
 
-    // 11. Animation 9: Finding Cube Roots (scene-13 / cube-roots) -> PrimeFactorGroupingHelper
+    // 13. Cube Roots (scene-13) -> PrimeFactorGroupingHelper
     if (sId === 'scene-13' || subId === 'cube-roots' || bId.startsWith('cr-')) {
-      return <PrimeFactorGroupingHelper initialNumber={3375} />;
+      return <PrimeFactorGroupingHelper initialNumber={3375} beatIndex={beatIdx} />;
     }
 
-    // 12. Animation 11: Successive Differences Engine (scene-14 / successive-differences)
+    // 14. Successive Differences (scene-14) -> DifferenceEngineTable
     if (sId === 'scene-14' || subId === 'successive-differences' || bId.startsWith('sd-')) {
-      return <DifferenceEngineTable initialMode="cubes" />;
+      return <DifferenceEngineTable initialMode="cubes" beatIndex={beatIdx} />;
     }
 
-    // 13. Cultural History Visual Story (scene-15 / pinch-history)
+    // 15. A Pinch of History (scene-15) -> HistoryVisualStory
     if (sId === 'scene-15' || subId === 'pinch-history' || bId.startsWith('ph-')) {
       return <HistoryVisualStory slideIndex={bId === 'ph-2' ? 1 : 0} />;
     }
 
-    // 14. Square Pairs 1-17 Interactive Puzzle (scene-17 / square-pairs)
-    if (sId === 'scene-17' || subId === 'square-pairs' || bId.startsWith('sp-')) {
-      return <SquarePairsPuzzle />;
+    // 16. Chapter Summary (scene-16) -> Interactive Square vs Cube Summary
+    if (sId === 'scene-16' || subId === 'chapter-summary' || bId.startsWith('cs-')) {
+      return (
+        <ChapterSummaryScene
+          beatIndex={beatIdx}
+          onJumpToSquarePairs={() => handleSelectSubTab('square-pairs', 'sec-4')}
+          onJumpToPractice={() => handleSelectSubTab('ncert-unsolved', 'sec-5')}
+        />
+      );
     }
 
-    // Fallback to FoundationDemoScene
-    return (
-      <FoundationDemoScene
-        t={timeline.t}
-        beatIndex={timeline.beatIndex}
-        beatId={currentBeat.id}
-        localProgress={timeline.progress}
-        params={sceneParams.params}
-        setParam={sceneParams.setParam}
-        setParams={sceneParams.setParams}
-      />
-    );
+    // 17. Square Pairs (scene-17) -> SquarePairsPuzzle
+    return <SquarePairsPuzzle />;
   };
 
   return (
@@ -480,23 +492,37 @@ export default function App() {
           questions={qcQuestions}
           currentIndex={quickCheckIndex!}
           answers={quickCheckAnswers}
-          onSelectOption={(qIdx, optIdx) =>
-            setQuickCheckAnswers((prev) => ({ ...prev, [qIdx]: optIdx }))
-          }
+          solutionStepsRevealed={quickCheckSolutionSteps}
+          onSelectOption={(qIdx, optIdx) => {
+            setQuickCheckAnswers((prev) => ({ ...prev, [qIdx]: optIdx }));
+            setQuickCheckSolutionSteps((prev) => ({ ...prev, [qIdx]: 1 }));
+          }}
+          onRevealNextStep={(qIdx) => {
+            const total = qcQuestions[qIdx]?.solutionSteps?.length || 1;
+            setQuickCheckSolutionSteps((prev) => ({
+              ...prev,
+              [qIdx]: Math.min(total, (prev[qIdx] ?? 1) + 1),
+            }));
+          }}
+          onRevealAllSteps={(qIdx) => {
+            const total = qcQuestions[qIdx]?.solutionSteps?.length || 1;
+            setQuickCheckSolutionSteps((prev) => ({ ...prev, [qIdx]: total }));
+          }}
           onNext={() =>
             setQuickCheckIndex((idx) => (idx === null ? 0 : Math.min(qcQuestions.length, idx + 1)))
           }
           onReviewScene={() => {
             setQuickCheckIndex(null);
             setQuickCheckAnswers({});
+            setQuickCheckSolutionSteps({});
             timeline.setT(0);
           }}
           onNextScene={advanceAfterQuickCheck}
         />
       ) : isSceneSubTab && !inQuickCheck ? (
-        <div className="w-full flex flex-col items-center gap-3 md:gap-4">
-          <div className="w-full flex flex-col items-center gap-1.5">
-            <div className="flex items-center justify-center gap-2.5 max-w-[920px]">
+        <div className="w-full flex flex-col items-center gap-4 md:gap-6">
+          <div className="w-full flex flex-col items-center gap-2 px-1">
+            <div className="flex flex-wrap items-center justify-center gap-2.5 max-w-[900px]">
               <HighlightHeadline
                 text={currentBeat.headline || currentBeat.narration}
                 focusWord={currentBeat.focusWord}
@@ -509,7 +535,7 @@ export default function App() {
             {currentBeat.caption && (
               <p
                 key={`cap-${currentBeat.id}`}
-                className="text-small text-center max-w-2xl leading-relaxed animate-fade-rise"
+                className="text-small sm:text-body text-center max-w-2xl leading-relaxed animate-fade-rise"
                 style={{ color: COLORS.mutedText }}
               >
                 {currentBeat.caption}
@@ -519,14 +545,14 @@ export default function App() {
 
           <div
             data-no-nav={currentBeat.interactive ? 'true' : undefined}
-            className="w-full max-w-[840px] flex items-center justify-center py-1"
+            className="w-full max-w-[880px] flex items-center justify-center transition-opacity duration-200 ease-out"
           >
             {renderSceneVisual()}
           </div>
 
           {visibleLatexLines.length > 0 && (
             <div className="w-full max-w-3xl mx-auto overflow-x-auto no-scrollbar py-1">
-              <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1.5 math-strip font-medium">
+              <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 math-strip font-medium">
                 {visibleLatexLines.map((line, i) => {
                   const isNewest = i === visibleLatexLines.length - 1;
                   const formattedLine =

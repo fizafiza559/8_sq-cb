@@ -17,11 +17,13 @@ import {
 
 export interface SquareRootPrimeEstimateSceneProps {
   initialTab?: 'prime-pairs' | 'estimate-1936';
+  beatIndex?: number;
   className?: string;
 }
 
 export const SquareRootPrimeEstimateScene: React.FC<SquareRootPrimeEstimateSceneProps> = ({
   initialTab = 'prime-pairs',
+  beatIndex,
   className = '',
 }) => {
   const [activeTab, setActiveTab] = useState<'prime-pairs' | 'estimate-1936'>(initialTab);
@@ -34,6 +36,21 @@ export const SquareRootPrimeEstimateScene: React.FC<SquareRootPrimeEstimateScene
   useEffect(() => {
     setActiveTab(initialTab);
   }, [initialTab]);
+
+  useEffect(() => {
+    if (beatIndex === undefined) return;
+    if (initialTab === 'estimate-1936') {
+      if (beatIndex === 0) {
+        setEstStep(1);
+        setCandidateRoot(40);
+      } else {
+        setEstStep(4);
+        setCandidateRoot(44);
+      }
+    } else {
+      setPairsLocked(true);
+    }
+  }, [beatIndex, initialTab]);
 
   const targetNum = 1936;
   const candidateSq = candidateRoot * candidateRoot;
@@ -50,17 +67,13 @@ export const SquareRootPrimeEstimateScene: React.FC<SquareRootPrimeEstimateScene
   return (
     <div
       data-no-nav="true"
-      className={`w-full max-w-4xl mx-auto rounded-3xl border bg-white p-5 sm:p-6 shadow-xs flex flex-col gap-5 ${className}`}
-      style={{ borderColor: COLORS.divider }}
+      className={`w-full max-w-4xl mx-auto rounded-3xl border border-slate-200/80 bg-white p-5 sm:p-7 shadow-xs flex flex-col gap-5 ${className}`}
     >
       {/* Header & Mode Switcher */}
-      <div
-        className="flex flex-wrap items-center justify-between gap-3 border-b pb-4"
-        style={{ borderColor: COLORS.divider }}
-      >
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
         <div>
           <span className="text-micro font-bold uppercase tracking-wider text-slate-500">
-            Animation 7 • Finding &amp; Estimating Square Roots
+            Finding &amp; Estimating Square Roots
           </span>
           <h3 className="text-statement font-extrabold text-slate-900 mt-0.5">
             {activeTab === 'prime-pairs'
@@ -69,7 +82,7 @@ export const SquareRootPrimeEstimateScene: React.FC<SquareRootPrimeEstimateScene
           </h3>
         </div>
 
-        <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-100 border border-slate-200">
+        <div className="flex flex-wrap items-center gap-1 p-1 rounded-xl bg-slate-100/90">
           <button
             type="button"
             onClick={() => setActiveTab('prime-pairs')}
@@ -102,7 +115,7 @@ export const SquareRootPrimeEstimateScene: React.FC<SquareRootPrimeEstimateScene
       {/* ================================================================= */}
       {activeTab === 'prime-pairs' && (
         <div className="flex flex-col gap-5 animate-fade-rise">
-          <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+          <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 sm:px-4 rounded-2xl bg-slate-50/80">
             <p className="text-small font-medium text-slate-700">
               Every prime factor must find a matching partner. Tap the button to lock pairs together!
             </p>
@@ -122,8 +135,8 @@ export const SquareRootPrimeEstimateScene: React.FC<SquareRootPrimeEstimateScene
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* 324: All Factors Paired */}
-            <div className="p-5 rounded-2xl border border-emerald-300 bg-emerald-50/50 flex flex-col gap-4">
-              <div className="flex items-center justify-between">
+            <div className="p-5 rounded-2xl bg-emerald-50/50 flex flex-col gap-4">
+              <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <span className="px-3 py-1 rounded-xl bg-emerald-600 text-white font-mono font-extrabold text-body">
                     324
@@ -132,14 +145,14 @@ export const SquareRootPrimeEstimateScene: React.FC<SquareRootPrimeEstimateScene
                     All Factors Paired!
                   </span>
                 </div>
-                <span className="px-2.5 py-1 rounded-full text-micro font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1">
+                <span className="px-2.5 py-1 rounded-full text-micro font-bold bg-emerald-100 text-emerald-800 flex items-center gap-1 shrink-0">
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   <span>Square</span>
                 </span>
               </div>
 
               {/* Prime Tree / Pairs Visualization */}
-              <div className="p-4 rounded-2xl bg-white border border-emerald-200 flex flex-col items-center gap-3">
+              <div className="p-4 rounded-2xl bg-white border border-emerald-100 flex flex-col items-center gap-3">
                 <div className="text-micro font-bold uppercase tracking-wider text-slate-500">
                   324 = 2 × 2 × 3 × 3 × 3 × 3
                 </div>
@@ -182,8 +195,8 @@ export const SquareRootPrimeEstimateScene: React.FC<SquareRootPrimeEstimateScene
             </div>
 
             {/* 156: Lonely Factors Left Over */}
-            <div className="p-5 rounded-2xl border border-amber-300 bg-amber-50/50 flex flex-col gap-4">
-              <div className="flex items-center justify-between">
+            <div className="p-5 rounded-2xl bg-amber-50/50 flex flex-col gap-4">
+              <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <span className="px-3 py-1 rounded-xl bg-amber-600 text-white font-mono font-extrabold text-body">
                     156
@@ -192,13 +205,13 @@ export const SquareRootPrimeEstimateScene: React.FC<SquareRootPrimeEstimateScene
                     Factors Left Alone!
                   </span>
                 </div>
-                <span className="px-2.5 py-1 rounded-full text-micro font-bold bg-amber-100 text-amber-900 border border-amber-300 flex items-center gap-1">
+                <span className="px-2.5 py-1 rounded-full text-micro font-bold bg-amber-100 text-amber-900 flex items-center gap-1 shrink-0">
                   <AlertCircle className="w-3.5 h-3.5" />
                   <span>Not a Square</span>
                 </span>
               </div>
 
-              <div className="p-4 rounded-2xl bg-white border border-amber-200 flex flex-col items-center gap-3">
+              <div className="p-4 rounded-2xl bg-white border border-amber-100 flex flex-col items-center gap-3">
                 <div className="text-micro font-bold uppercase tracking-wider text-slate-500">
                   156 = 2 × 2 × 3 × 13
                 </div>
@@ -222,22 +235,22 @@ export const SquareRootPrimeEstimateScene: React.FC<SquareRootPrimeEstimateScene
                   </div>
 
                   {/* Lonely 3 */}
-                  <div className="px-3 py-2 rounded-2xl border-2 border-dashed border-amber-500 bg-amber-100/80 flex flex-col items-center gap-1">
+                  <div className="px-3 py-2 rounded-2xl border-2 border-dashed border-amber-400 bg-amber-50/90 flex flex-col items-center gap-1">
                     <span className="w-8 h-8 rounded-full bg-amber-600 text-white font-mono font-black text-small flex items-center justify-center">
                       3
                     </span>
                     <span className="text-[11px] font-extrabold text-amber-950 whitespace-nowrap">
-                      Lonely Factor — No Partner
+                      Lonely Factor
                     </span>
                   </div>
 
                   {/* Lonely 13 */}
-                  <div className="px-3 py-2 rounded-2xl border-2 border-dashed border-amber-500 bg-amber-100/80 flex flex-col items-center gap-1">
+                  <div className="px-3 py-2 rounded-2xl border-2 border-dashed border-amber-400 bg-amber-50/90 flex flex-col items-center gap-1">
                     <span className="w-8 h-8 rounded-full bg-amber-600 text-white font-mono font-black text-small flex items-center justify-center">
                       13
                     </span>
                     <span className="text-[11px] font-extrabold text-amber-950 whitespace-nowrap">
-                      Lonely Factor — No Partner
+                      Lonely Factor
                     </span>
                   </div>
                 </div>
@@ -289,7 +302,7 @@ export const SquareRootPrimeEstimateScene: React.FC<SquareRootPrimeEstimateScene
           </div>
 
           {/* Interactive Number Line Bracket: 40^2 (1600) to 50^2 (2500) */}
-          <div className="p-5 rounded-2xl border bg-slate-50/70 border-slate-200 flex flex-col gap-4">
+          <div className="p-4 sm:p-5 rounded-2xl bg-slate-50/75 flex flex-col gap-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2 text-small font-extrabold text-slate-900">
                 <Target className="w-4 h-4 text-blue-600" />
@@ -346,7 +359,7 @@ export const SquareRootPrimeEstimateScene: React.FC<SquareRootPrimeEstimateScene
               </div>
 
               {/* Interactive Range & Discrete Quick Buttons 40..50 */}
-              <div className="grid grid-cols-11 gap-1 mt-6">
+              <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-11 gap-1.5 mt-6">
                 {Array.from({ length: 11 }, (_, i) => 40 + i).map((val) => {
                   const sq = val * val;
                   const active = candidateRoot === val;
@@ -356,14 +369,14 @@ export const SquareRootPrimeEstimateScene: React.FC<SquareRootPrimeEstimateScene
                       key={val}
                       type="button"
                       onClick={() => setCandidateRoot(val)}
-                      className={`py-2 px-1 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center ${
+                      className={`min-h-[48px] py-2 px-1 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center tabular-nums ${
                         active
                           ? val === 44
                             ? 'bg-emerald-600 text-white border-emerald-700 shadow-xs scale-105'
                             : 'bg-[#005583] text-white border-[#003F62] shadow-xs'
                           : endsInSix
-                          ? 'bg-orange-50 text-orange-950 border-orange-300 hover:bg-orange-100'
-                          : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
+                          ? 'bg-orange-50 text-orange-950 border-orange-200 hover:bg-orange-100'
+                          : 'bg-white text-slate-700 border-slate-200/80 hover:bg-slate-100'
                       }`}
                     >
                       <span className="text-micro font-black">{val}</span>
@@ -377,7 +390,7 @@ export const SquareRootPrimeEstimateScene: React.FC<SquareRootPrimeEstimateScene
             </div>
 
             {/* Step Explanation Card */}
-            <div className="p-4 rounded-2xl bg-white border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="p-4 rounded-2xl bg-white border border-slate-200/70 flex flex-col sm:flex-row items-center justify-between gap-3">
               <div className="text-small text-slate-800 leading-relaxed">
                 {estStep === 1 && (
                   <span>

@@ -19,6 +19,7 @@ import {
 export interface OddSubtractionSceneProps {
   className?: string;
   initialStep?: number;
+  beatIndex?: number;
 }
 
 interface SubStep {
@@ -49,12 +50,19 @@ const STEPS_38: SubStep[] = [
 export const OddSubtractionScene: React.FC<OddSubtractionSceneProps> = ({
   className = '',
   initialStep = 0,
+  beatIndex,
 }) => {
   const [currentStep, setCurrentStep] = useState<number>(initialStep);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const timerRef = useRef<number | null>(null);
 
   const maxSteps = 7;
+
+  useEffect(() => {
+    if (beatIndex === undefined) return;
+    setIsPlaying(false);
+    setCurrentStep(beatIndex === 0 ? 5 : 7);
+  }, [beatIndex]);
 
   useEffect(() => {
     if (isPlaying) {
@@ -94,17 +102,13 @@ export const OddSubtractionScene: React.FC<OddSubtractionSceneProps> = ({
   return (
     <div
       data-no-nav="true"
-      className={`w-full max-w-4xl mx-auto flex flex-col gap-5 bg-white p-4 sm:p-6 rounded-3xl border shadow-xs ${className}`}
-      style={{ borderColor: COLORS.divider }}
+      className={`w-full max-w-4xl mx-auto flex flex-col gap-5 bg-white p-5 sm:p-7 rounded-3xl border border-slate-200/80 shadow-xs ${className}`}
     >
       {/* Header & Controls */}
-      <div
-        className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b pb-3.5"
-        style={{ borderColor: COLORS.divider }}
-      >
+      <div className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
         <div>
           <span className="text-micro font-bold uppercase tracking-wider text-slate-500">
-            Animation 5 • Repeated Odd Subtraction Test
+            Repeated Odd Subtraction Test
           </span>
           <h3 className="text-statement font-extrabold text-slate-900 mt-0.5">
             Subtract 1, 3, 5, 7, 9... Side by Side: 25 vs 38
@@ -184,7 +188,7 @@ export const OddSubtractionScene: React.FC<OddSubtractionSceneProps> = ({
             )}
           </div>
 
-          <div className="flex flex-col gap-1.5 min-h-[245px]">
+          <div className="flex flex-col gap-1.5 min-h-[140px] md:min-h-[245px]">
             {currentStep === 0 ? (
               <div className="my-auto text-center p-5 text-small text-slate-500">
                 Tap <strong>Step Subtraction</strong> or <strong>Auto-Play</strong> to subtract 1, 3, 5, 7, 9...
@@ -272,7 +276,7 @@ export const OddSubtractionScene: React.FC<OddSubtractionSceneProps> = ({
             )}
           </div>
 
-          <div className="flex flex-col gap-1.5 min-h-[245px]">
+          <div className="flex flex-col gap-1.5 min-h-[140px] md:min-h-[245px]">
             {currentStep === 0 ? (
               <div className="my-auto text-center p-5 text-small text-slate-500">
                 Watch what happens when we subtract 1, 3, 5, 7, 9, 11, 13 from 38!
@@ -339,7 +343,7 @@ export const OddSubtractionScene: React.FC<OddSubtractionSceneProps> = ({
       </div>
 
       {/* Summary Footer */}
-      <div className="w-full p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-start gap-3">
+      <div className="w-full p-4 rounded-2xl bg-slate-50/80 flex items-start gap-3">
         <Sparkles className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
         <p className="text-small font-medium text-slate-800 leading-relaxed">
           If subtracting 1, 3, 5, 7... stops cleanly at <strong>0</strong>, the number is a perfect square—and the number of steps is its <strong>square root</strong>!

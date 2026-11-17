@@ -10,6 +10,7 @@ import { Box, Layers, Plus, Minus, Play, Pause, Maximize2, Minimize2 } from 'luc
 
 export interface IsometricCubeRendererProps {
   initialN?: number;
+  beatIndex?: number;
   className?: string;
   onNChange?: (n: number) => void;
 }
@@ -55,6 +56,7 @@ function getCubeFaces(
 
 export const IsometricCubeRenderer: React.FC<IsometricCubeRendererProps> = ({
   initialN = 4,
+  beatIndex,
   className = '',
   onNChange,
 }) => {
@@ -63,6 +65,20 @@ export const IsometricCubeRenderer: React.FC<IsometricCubeRendererProps> = ({
   const [explodeLayers, setExplodeLayers] = useState<boolean>(false);
   const [isAutoStacking, setIsAutoStacking] = useState<boolean>(false);
   const stackTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (beatIndex === undefined) return;
+    setIsAutoStacking(false);
+    if (beatIndex === 0) {
+      setN(3);
+      setVisibleLayers(3);
+      setExplodeLayers(false);
+    } else {
+      setN(4);
+      setVisibleLayers(4);
+      setExplodeLayers(true);
+    }
+  }, [beatIndex]);
 
   useEffect(() => {
     if (isAutoStacking) {
@@ -124,25 +140,21 @@ export const IsometricCubeRenderer: React.FC<IsometricCubeRendererProps> = ({
   return (
     <div
       data-no-nav="true"
-      className={`w-full max-w-4xl mx-auto rounded-3xl border bg-white p-5 md:p-6 shadow-xs flex flex-col gap-5 ${className}`}
-      style={{ borderColor: COLORS.divider }}
+      className={`w-full max-w-4xl mx-auto rounded-3xl border border-slate-200/80 bg-white p-5 sm:p-7 shadow-xs flex flex-col gap-5 ${className}`}
     >
       {/* Header */}
-      <div
-        className="flex flex-wrap items-center justify-between gap-3 border-b pb-4"
-        style={{ borderColor: COLORS.divider }}
-      >
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
         <div>
           <span className="text-micro font-bold uppercase tracking-wider text-slate-500">
-            Animation 8 • 3D Isometric Volume Builder
+            3D Isometric Volume Builder
           </span>
           <h3 className="text-statement font-extrabold flex items-center gap-2 mt-0.5" style={{ color: COLORS.headingText }}>
-            <Box className="w-5 h-5 text-purple-600" />
+            <Box className="w-5 h-5 text-purple-600 shrink-0" />
             <span>Building {n} × {n} × {n} Layer by Layer ({totalVolume} Cubes)</span>
           </h3>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={() => setExplodeLayers((e) => !e)}
@@ -175,7 +187,7 @@ export const IsometricCubeRenderer: React.FC<IsometricCubeRendererProps> = ({
       </div>
 
       {/* Controls Bar */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-200">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-2xl bg-slate-50/80">
         {/* Edge Length Controller */}
         <div className="flex items-center justify-between md:justify-start gap-3">
           <span className="text-small font-bold whitespace-nowrap" style={{ color: COLORS.headingText }}>
@@ -251,16 +263,15 @@ export const IsometricCubeRenderer: React.FC<IsometricCubeRendererProps> = ({
 
       {/* 3D Isometric SVG Canvas */}
       <div
-        className="w-full flex items-center justify-center rounded-2xl border bg-white overflow-hidden relative"
+        className="w-full flex items-center justify-center rounded-2xl border border-slate-100 bg-white overflow-hidden relative"
         style={{
-          borderColor: COLORS.divider,
           backgroundImage: `radial-gradient(${COLORS.canvasGrid} 1.5px, transparent 1.5px)`,
           backgroundSize: '20px 20px',
         }}
       >
         <svg
           viewBox={`0 0 ${viewWidth} ${viewHeight}`}
-          className="w-full h-auto max-h-[420px] select-none"
+          className="w-full h-auto max-h-[300px] sm:max-h-[420px] select-none"
         >
           {/* Left Badge */}
           <g transform="translate(22, 22)">
@@ -369,8 +380,8 @@ export const IsometricCubeRenderer: React.FC<IsometricCubeRendererProps> = ({
       </div>
 
       {/* Formula Strip */}
-      <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-center space-y-1">
-        <div className="text-lg font-bold" style={{ color: COLORS.volume.text }}>
+      <div className="p-4 rounded-2xl bg-slate-50/80 text-center space-y-1">
+        <div className="text-body sm:text-statement font-bold overflow-x-auto" style={{ color: COLORS.volume.text }}>
           <Katex
             latex={`\\text{Volume} = ${n} \\times ${n} \\times ${n} = ${n}^3 = ${totalVolume} \\quad (${Array.from({ length: visibleLayers }, (_, i) => (i + 1) * perLayer).join(' \\to ')})`}
             displayMode={false}

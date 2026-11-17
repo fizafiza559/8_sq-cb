@@ -3,12 +3,19 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+export interface QuickCheckStep {
+  title?: string;
+  latex?: string;
+  text: string;
+}
+
 export interface QuickCheckQuestion {
   prompt: string;
   latex?: string[];
   options: string[];
   correctIndex: number;
   explanation: string;
+  solutionSteps?: QuickCheckStep[];
 }
 
 export type SymbolColorKey =

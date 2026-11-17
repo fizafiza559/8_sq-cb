@@ -10,16 +10,33 @@ import { Sparkles, Play, RotateCcw, ArrowRight } from 'lucide-react';
 
 export interface TriangularSquareZipperProps {
   initialN?: 3 | 4;
+  beatIndex?: number;
   className?: string;
 }
 
 export const TriangularSquareZipper: React.FC<TriangularSquareZipperProps> = ({
   initialN = 4,
+  beatIndex,
   className = '',
 }) => {
   const [n, setN] = useState<3 | 4>(initialN);
   const [zipPercent, setZipPercent] = useState<number>(0);
   const [isAnimating, setIsAnimating] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (beatIndex === undefined) return;
+    setIsAnimating(false);
+    if (beatIndex <= 1) {
+      setN(3);
+      setZipPercent(beatIndex === 0 ? 0 : 100);
+    } else if (beatIndex === 2) {
+      setN(4);
+      setZipPercent(0);
+    } else {
+      setN(4);
+      setZipPercent(100);
+    }
+  }, [beatIndex]);
 
   useEffect(() => {
     if (!isAnimating) return;
@@ -111,15 +128,14 @@ export const TriangularSquareZipper: React.FC<TriangularSquareZipperProps> = ({
   return (
     <div
       data-no-nav="true"
-      className={`w-full max-w-4xl mx-auto rounded-3xl border bg-white p-5 sm:p-6 shadow-xs flex flex-col gap-5 ${className}`}
-      style={{ borderColor: COLORS.divider }}
+      className={`w-full max-w-4xl mx-auto rounded-3xl border border-slate-200/80 bg-white p-5 sm:p-7 shadow-xs flex flex-col gap-5 ${className}`}
     >
       {/* Header & Presets */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
         <div>
           <span className="text-micro font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
             <Sparkles className="w-3.5 h-3.5 text-[#F27A00]" />
-            <span>Animation 6 • Triangular Staircase Zipper</span>
+            <span>Triangular Staircase Zipper</span>
           </span>
           <h3 className="text-statement font-extrabold text-slate-900 mt-0.5">
             Two Neighboring Triangular Numbers Zip Into a Square!
@@ -160,10 +176,11 @@ export const TriangularSquareZipper: React.FC<TriangularSquareZipperProps> = ({
       </div>
 
       {/* Interactive Slider & Zip Button */}
-      <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row items-center gap-4">
-        <div className="flex-1 w-full flex items-center gap-3">
+      <div className="p-4 rounded-2xl bg-slate-50/80 flex flex-col sm:flex-row items-center gap-4">
+        <div className="flex-1 w-full flex items-center gap-2.5 sm:gap-3">
           <span className="text-micro font-bold text-slate-600 shrink-0 whitespace-nowrap">
-            Separate (0%)
+            <span className="hidden sm:inline">Separate (0%)</span>
+            <span className="sm:hidden">0%</span>
           </span>
           <input
             type="range"
@@ -179,7 +196,8 @@ export const TriangularSquareZipper: React.FC<TriangularSquareZipperProps> = ({
             className="flex-1 accent-[#F27A00] cursor-pointer h-2.5 bg-slate-200 rounded-lg"
           />
           <span className="text-micro font-bold text-slate-600 shrink-0 whitespace-nowrap">
-            Interlocked Square (100%)
+            <span className="hidden sm:inline">Interlocked (100%)</span>
+            <span className="sm:hidden">100%</span>
           </span>
         </div>
 
@@ -324,7 +342,7 @@ export const TriangularSquareZipper: React.FC<TriangularSquareZipperProps> = ({
       </div>
 
       {/* Live Equation Footer */}
-      <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div className="p-4 rounded-2xl bg-slate-50/80 flex flex-col sm:flex-row items-center justify-between gap-3">
         <div className="flex items-center gap-2 text-small font-bold text-slate-800">
           <span className="inline-flex items-center gap-1.5">
             <span className="w-3 h-3 rounded-full bg-[#0788D3]" />

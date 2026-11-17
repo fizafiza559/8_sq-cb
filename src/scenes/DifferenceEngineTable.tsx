@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { COLORS } from '../design/tokens';
 import { Katex } from '../components/Katex';
 import { successiveDifferences } from '../math/facts';
@@ -11,11 +11,13 @@ import { ChevronDown, RotateCcw, Sparkles, GitCommitHorizontal } from 'lucide-re
 
 export interface DifferenceEngineTableProps {
   initialMode?: 'squares' | 'cubes';
+  beatIndex?: number;
   className?: string;
 }
 
 export const DifferenceEngineTable: React.FC<DifferenceEngineTableProps> = ({
   initialMode = 'cubes',
+  beatIndex,
   className = '',
 }) => {
   const [mode, setMode] = useState<'squares' | 'cubes'>(initialMode);
@@ -26,6 +28,18 @@ export const DifferenceEngineTable: React.FC<DifferenceEngineTableProps> = ({
     level: 1,
     idx: 1,
   });
+
+  useEffect(() => {
+    if (beatIndex === undefined) return;
+    if (beatIndex === 0) {
+      setMode('cubes');
+      setRevealedLevel(3);
+    } else {
+      setMode('squares');
+      setRevealedLevel(2);
+    }
+    setFocusedNode({ level: 1, idx: 1 });
+  }, [beatIndex]);
 
   // Compute sequence directly via math formulas (Accuracy Rule)
   const baseSequence = useMemo(
@@ -103,19 +117,13 @@ export const DifferenceEngineTable: React.FC<DifferenceEngineTableProps> = ({
   return (
     <div
       data-no-nav="true"
-      className={`w-full max-w-4xl mx-auto rounded-3xl border bg-white p-4 sm:p-6 shadow-xs flex flex-col gap-5 ${className}`}
-      style={{ borderColor: COLORS.divider }}
+      className={`w-full max-w-4xl mx-auto rounded-3xl border border-slate-200/80 bg-white p-5 sm:p-7 shadow-xs flex flex-col gap-5 ${className}`}
     >
       {/* Header & Mode Controls */}
-      <div
-        className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b pb-4"
-        style={{ borderColor: COLORS.divider }}
-      >
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100 pb-4">
         <div>
           <div className="flex items-center gap-2 text-micro text-slate-500 font-semibold">
             <GitCommitHorizontal className="w-3.5 h-3.5 text-[#005583]" />
-            <span>Animation 11</span>
-            <span aria-hidden="true">·</span>
             <span>Successive Differences Engine</span>
           </div>
           <h3 className="text-statement font-extrabold text-slate-900 mt-0.5">
@@ -125,7 +133,7 @@ export const DifferenceEngineTable: React.FC<DifferenceEngineTableProps> = ({
 
         <div className="flex flex-wrap items-center gap-2">
           {/* Mode Segmented Toggle */}
-          <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-100 border border-slate-200">
+          <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-100/90">
             <button
               type="button"
               onClick={() => handleModeChange('squares')}
@@ -153,7 +161,7 @@ export const DifferenceEngineTable: React.FC<DifferenceEngineTableProps> = ({
       </div>
 
       {/* Step & Term Count Controls */}
-      <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+      <div className="p-3.5 sm:px-4 rounded-2xl bg-slate-50/80 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3 flex-wrap">
           <span className="text-small font-bold text-slate-700 whitespace-nowrap">
             Terms shown:
@@ -214,8 +222,12 @@ export const DifferenceEngineTable: React.FC<DifferenceEngineTableProps> = ({
       </div>
 
       {/* Live Subtraction Tree (Pyramid Rows) */}
-      <div className="w-full overflow-x-auto pb-1">
-        <div className="min-w-[500px] flex flex-col gap-3 p-3 sm:p-4 rounded-2xl border border-slate-200 bg-slate-50/40">
+      <div className="w-full flex flex-col gap-1.5">
+        <span className="sm:hidden text-[11px] font-medium text-slate-400 text-center">
+          Swipe horizontally to view full pyramid ↔
+        </span>
+        <div className="w-full overflow-x-auto pb-1">
+          <div className="min-w-[500px] flex flex-col gap-3 p-3 sm:p-4 rounded-2xl bg-slate-50/60">
           {levels.slice(0, revealedLevel + 1).map((row, levelIdx) => {
             const meta = levelMeta(levelIdx);
             const isConstantRow = levelIdx === maxLevels;
@@ -276,13 +288,14 @@ export const DifferenceEngineTable: React.FC<DifferenceEngineTableProps> = ({
               </div>
             );
           })}
+          </div>
         </div>
       </div>
 
       {/* Interactive Subtraction Inspector & Formula Banner */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-stretch">
         {/* Clicked Subtraction Detail */}
-        <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col justify-center gap-1">
+        <div className="p-4 rounded-2xl bg-slate-50/80 flex flex-col justify-center gap-1">
           <span className="text-micro font-bold text-slate-500">
             Tap any difference box to check it
           </span>
@@ -292,7 +305,7 @@ export const DifferenceEngineTable: React.FC<DifferenceEngineTableProps> = ({
               <span className="text-slate-400">−</span>
               <span>{inspectedDetail.leftParent}</span>
               <span className="text-slate-400">=</span>
-              <span className="px-2 py-0.5 rounded-lg bg-white border border-slate-300 text-[#005583]">
+              <span className="px-2 py-0.5 rounded-lg bg-white border border-slate-200 text-[#005583]">
                 {inspectedDetail.diffVal}
               </span>
             </div>
@@ -304,7 +317,7 @@ export const DifferenceEngineTable: React.FC<DifferenceEngineTableProps> = ({
         </div>
 
         {/* Formula Summary */}
-        <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200 flex flex-col justify-center gap-1.5">
+        <div className="p-4 rounded-2xl bg-emerald-50/60 flex flex-col justify-center gap-1.5">
           <div className="flex items-center gap-1.5 text-small font-extrabold text-emerald-900">
             <Sparkles className="w-4 h-4 text-emerald-600 shrink-0" />
             <span>

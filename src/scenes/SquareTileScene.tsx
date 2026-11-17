@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { COLORS } from '../design/tokens';
 import { Katex } from '../components/Katex';
 import { Grid, Layers, Sparkles } from 'lucide-react';
@@ -12,6 +12,7 @@ export interface SquareTileSceneProps {
   inverseMode?: boolean;
   initialMode?: 'integer' | 'decimal' | 'fraction';
   initialN?: number;
+  beatIndex?: number;
   className?: string;
 }
 
@@ -21,23 +22,31 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
   inverseMode = false,
   initialMode = 'integer',
   initialN = 4,
+  beatIndex,
   className = '',
 }) => {
   const [mode, setMode] = useState<'integer' | 'decimal' | 'fraction'>(initialMode);
   const [n, setN] = useState<number>(Math.max(1, Math.min(5, initialN)));
   const [activePiece, setActivePiece] = useState<HighlightPiece>(null);
 
+  useEffect(() => {
+    if (beatIndex === undefined) return;
+    if (inverseMode) {
+      setMode('integer');
+      setN(beatIndex === 0 ? 4 : 5);
+    } else {
+      setMode('integer');
+      setN(beatIndex === 0 ? 4 : 5);
+    }
+  }, [beatIndex, inverseMode]);
+
   return (
     <div
       data-no-nav="true"
-      className={`w-full max-w-3xl mx-auto flex flex-col items-center gap-4 bg-white p-4 sm:p-6 rounded-3xl border shadow-xs ${className}`}
-      style={{ borderColor: COLORS.divider }}
+      className={`w-full max-w-3xl mx-auto flex flex-col items-center gap-5 bg-white p-5 sm:p-7 rounded-3xl border border-slate-200/80 shadow-xs ${className}`}
     >
       {/* Top Mode Toggle Bar */}
-      <div
-        className="w-full flex flex-col sm:flex-row items-center justify-between gap-3 border-b pb-3"
-        style={{ borderColor: COLORS.divider }}
-      >
+      <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-3 border-b border-slate-100 pb-4">
         <div className="flex items-center gap-2 text-small font-semibold text-slate-600">
           <span>{inverseMode ? 'Area to Side Explorer' : 'Square Area Modes'}</span>
           {inverseMode && (
@@ -49,11 +58,11 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
         </div>
 
         {/* 3 Mode Selector Pills */}
-        <div className="flex flex-wrap items-center justify-center gap-1.5 bg-slate-100 p-1 rounded-xl">
+        <div className="flex flex-wrap items-center justify-center gap-1 bg-slate-100/90 p-1 rounded-xl">
           <button
             type="button"
             onClick={() => setMode('integer')}
-            className={`px-3 py-1.5 rounded-lg text-micro font-bold cursor-pointer transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
+            className={`min-h-[38px] px-3 py-1.5 rounded-lg text-micro font-bold cursor-pointer transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
               mode === 'integer'
                 ? 'bg-white text-slate-900 shadow-2xs'
                 : 'text-slate-600 hover:text-slate-900'
@@ -66,7 +75,7 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
           <button
             type="button"
             onClick={() => setMode('decimal')}
-            className={`px-3 py-1.5 rounded-lg text-micro font-bold cursor-pointer transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
+            className={`min-h-[38px] px-3 py-1.5 rounded-lg text-micro font-bold cursor-pointer transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
               mode === 'decimal'
                 ? 'bg-white text-slate-900 shadow-2xs'
                 : 'text-slate-600 hover:text-slate-900'
@@ -79,7 +88,7 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
           <button
             type="button"
             onClick={() => setMode('fraction')}
-            className={`px-3 py-1.5 rounded-lg text-micro font-bold cursor-pointer transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
+            className={`min-h-[38px] px-3 py-1.5 rounded-lg text-micro font-bold cursor-pointer transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
               mode === 'fraction'
                 ? 'bg-white text-slate-900 shadow-2xs'
                 : 'text-slate-600 hover:text-slate-900'
@@ -94,7 +103,7 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
       {/* Mode 1: Whole Numbers (1-5) */}
       {mode === 'integer' && (
         <div className="w-full flex flex-col items-center gap-4 animate-fade-rise">
-          <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-50 p-3.5 rounded-2xl border border-slate-200">
+          <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-50/80 p-3.5 sm:px-4 rounded-2xl">
             <div className="flex items-center gap-3">
               <label
                 htmlFor="tile-n-slider"
@@ -139,12 +148,10 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
           </div>
 
           {/* SVG Tile Grid */}
-          <div className="relative flex items-center justify-center p-3 bg-slate-50/60 rounded-2xl border border-slate-200/80 min-h-[250px] w-full">
+          <div className="relative flex items-center justify-center p-3 bg-slate-50/50 rounded-2xl min-h-[210px] sm:min-h-[240px] w-full overflow-hidden">
             <svg
-              width="360"
-              height="240"
               viewBox="0 0 360 240"
-              className="overflow-visible select-none"
+              className="w-full max-w-[360px] h-auto overflow-visible select-none"
             >
               {(() => {
                 const tileSize = Math.min(38, 175 / Math.max(1, n));
@@ -257,7 +264,7 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
           </div>
 
           {/* Formula Strip */}
-          <div className="w-full flex items-center justify-center p-3 rounded-2xl bg-blue-50/70 border border-blue-200/70">
+          <div className="w-full flex items-center justify-center p-3.5 rounded-2xl bg-blue-50/60">
             {inverseMode ? (
               <div className="text-body font-medium text-slate-800 flex flex-wrap items-center justify-center gap-2">
                 <span>
@@ -280,7 +287,7 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
       {/* Mode 2: Decimal Preset (2.5 x 2.5 = 6.25) */}
       {mode === 'decimal' && (
         <div className="w-full flex flex-col items-center gap-4 animate-fade-rise">
-          <div className="w-full flex items-center justify-between text-small text-slate-600 px-1">
+          <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-small text-slate-600 px-1">
             <span className="font-bold text-slate-900">
               Geometric Dissection of (2 + 0.5)²
             </span>
@@ -290,12 +297,10 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
           </div>
 
           {/* Visual SVG Decomposition of (2 + 0.5) x (2 + 0.5) */}
-          <div className="relative flex items-center justify-center p-3 bg-slate-50/60 rounded-2xl border border-slate-200/80 min-h-[250px] w-full">
+          <div className="relative flex items-center justify-center p-3 bg-slate-50/50 rounded-2xl min-h-[210px] sm:min-h-[245px] w-full overflow-hidden">
             <svg
-              width="360"
-              height="245"
               viewBox="0 0 360 245"
-              className="overflow-visible select-none"
+              className="w-full max-w-[360px] h-auto overflow-visible select-none"
             >
               {(() => {
                 const scale = 68;
@@ -485,12 +490,12 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
           </div>
 
           {/* Interactive Sum Equation */}
-          <div className="w-full p-4 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col items-center gap-2.5">
+          <div className="w-full p-4 rounded-2xl bg-slate-50/80 flex flex-col items-center gap-2.5">
             <div className="flex flex-wrap items-center justify-center gap-1.5 text-small font-bold tabular-nums">
               <button
                 type="button"
                 onClick={() => setActivePiece(activePiece === 'main' ? null : 'main')}
-                className={`px-2.5 py-1 rounded-lg border cursor-pointer transition-all ${
+                className={`min-h-[36px] px-2.5 py-1 rounded-lg border cursor-pointer transition-all ${
                   activePiece === 'main'
                     ? 'bg-sky-200 border-sky-500 text-sky-950 scale-105'
                     : 'bg-sky-50 border-sky-200 text-sky-800 hover:bg-sky-100'
@@ -502,7 +507,7 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
               <button
                 type="button"
                 onClick={() => setActivePiece(activePiece === 'right' ? null : 'right')}
-                className={`px-2.5 py-1 rounded-lg border cursor-pointer transition-all ${
+                className={`min-h-[36px] px-2.5 py-1 rounded-lg border cursor-pointer transition-all ${
                   activePiece === 'right'
                     ? 'bg-emerald-200 border-emerald-500 text-emerald-950 scale-105'
                     : 'bg-emerald-50 border-emerald-200 text-emerald-800 hover:bg-emerald-100'
@@ -514,7 +519,7 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
               <button
                 type="button"
                 onClick={() => setActivePiece(activePiece === 'bottom' ? null : 'bottom')}
-                className={`px-2.5 py-1 rounded-lg border cursor-pointer transition-all ${
+                className={`min-h-[36px] px-2.5 py-1 rounded-lg border cursor-pointer transition-all ${
                   activePiece === 'bottom'
                     ? 'bg-emerald-200 border-emerald-500 text-emerald-950 scale-105'
                     : 'bg-emerald-50 border-emerald-200 text-emerald-800 hover:bg-emerald-100'
@@ -526,7 +531,7 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
               <button
                 type="button"
                 onClick={() => setActivePiece(activePiece === 'corner' ? null : 'corner')}
-                className={`px-2.5 py-1 rounded-lg border cursor-pointer transition-all ${
+                className={`min-h-[36px] px-2.5 py-1 rounded-lg border cursor-pointer transition-all ${
                   activePiece === 'corner'
                     ? 'bg-amber-200 border-amber-500 text-amber-950 scale-105'
                     : 'bg-amber-50 border-amber-200 text-amber-800 hover:bg-amber-100'
@@ -544,7 +549,7 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
       {/* Mode 3: Fraction Preset ((3/5)^2 = 9/25 = 0.36) */}
       {mode === 'fraction' && (
         <div className="w-full flex flex-col items-center gap-4 animate-fade-rise">
-          <div className="w-full flex items-center justify-between text-small text-slate-600 px-1">
+          <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-small text-slate-600 px-1">
             <span className="font-bold text-slate-900">
               Fraction Square: 3/5 of a 1 × 1 Unit Square
             </span>
@@ -554,12 +559,10 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
           </div>
 
           {/* SVG 5x5 Grid showing 3x3 highlighted in vivid orange #F27A00 */}
-          <div className="relative flex items-center justify-center p-3 bg-slate-50/60 rounded-2xl border border-slate-200/80 min-h-[250px] w-full">
+          <div className="relative flex items-center justify-center p-3 bg-slate-50/50 rounded-2xl min-h-[210px] sm:min-h-[245px] w-full overflow-hidden">
             <svg
-              width="360"
-              height="245"
               viewBox="0 0 360 245"
-              className="overflow-visible select-none"
+              className="w-full max-w-[360px] h-auto overflow-visible select-none"
             >
               {(() => {
                 const subSize = 36;
@@ -678,7 +681,7 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
           </div>
 
           {/* Fraction Breakdown Equation */}
-          <div className="w-full p-4 rounded-2xl bg-orange-50/70 border border-orange-200 flex items-center justify-center overflow-x-auto">
+          <div className="w-full p-4 rounded-2xl bg-orange-50/60 flex items-center justify-center overflow-x-auto">
             <Katex
               latex={`\\text{Side} = \\frac{3}{5} \\implies \\text{Area} = \\frac{3}{5} \\times \\frac{3}{5} = \\frac{9}{25} = 0.36`}
               displayMode={false}

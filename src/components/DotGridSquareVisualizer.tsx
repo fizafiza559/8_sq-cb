@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { COLORS } from '../design/tokens';
 import { Katex } from './Katex';
 import { Layers, Grid, Sparkles, Plus, Minus } from 'lucide-react';
@@ -11,6 +11,7 @@ import { Layers, Grid, Sparkles, Plus, Minus } from 'lucide-react';
 export interface DotGridSquareVisualizerProps {
   initialN?: number;
   initialMode?: 'square' | 'odd-borders';
+  beatIndex?: number;
   className?: string;
   onNChange?: (n: number) => void;
 }
@@ -31,12 +32,19 @@ const L_LAYER_COLORS = [
 export const DotGridSquareVisualizer: React.FC<DotGridSquareVisualizerProps> = ({
   initialN = 4,
   initialMode = 'square',
+  beatIndex,
   className = '',
   onNChange,
 }) => {
   const [n, setN] = useState<number>(initialN);
   const [mode, setMode] = useState<'square' | 'odd-borders'>(initialMode);
   const [hoveredLayer, setHoveredLayer] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (beatIndex === undefined) return;
+    setMode('odd-borders');
+    setN(Math.min(6, Math.max(3, 3 + beatIndex)));
+  }, [beatIndex]);
 
   const handleNChange = (newN: number) => {
     const clamped = Math.max(1, Math.min(10, newN));
@@ -59,28 +67,28 @@ export const DotGridSquareVisualizer: React.FC<DotGridSquareVisualizerProps> = (
 
   return (
     <div
-      className={`w-full max-w-3xl mx-auto rounded-3xl border bg-white p-5 md:p-6 shadow-sm flex flex-col gap-5 ${className}`}
-      style={{ borderColor: COLORS.divider }}
+      data-no-nav="true"
+      className={`w-full max-w-3xl mx-auto rounded-3xl border border-slate-200/80 bg-white p-5 sm:p-7 shadow-xs flex flex-col gap-5 ${className}`}
     >
       {/* Header & Mode Switcher */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b pb-4" style={{ borderColor: COLORS.divider }}>
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
         <div>
-          <h3 className="text-xl font-bold flex items-center gap-2" style={{ color: COLORS.headingText }}>
+          <h3 className="text-statement font-extrabold flex items-center gap-2" style={{ color: COLORS.headingText }}>
             <Grid className="w-5 h-5 text-[#005583]" />
             Dot-Grid Square Visualizer
           </h3>
-          <p className="text-micro font-medium" style={{ color: COLORS.mutedText }}>
-            Class 8 NCERT Ganita Prakash: Geometric representation of squares and odd numbers
+          <p className="text-micro font-medium mt-0.5" style={{ color: COLORS.mutedText }}>
+            Build squares tile by tile or peel back L-shaped odd borders
           </p>
         </div>
 
         {/* Mode Toggle */}
-        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-100 border border-slate-200">
+        <div className="flex flex-wrap items-center gap-1 p-1 rounded-xl bg-slate-100/90">
           <button
             type="button"
             onClick={() => setMode('square')}
-            className={`px-3 py-1.5 rounded-lg text-micro font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
-              mode === 'square' ? 'bg-white text-[#005583] shadow-xs' : 'text-slate-600 hover:text-slate-900'
+            className={`min-h-[38px] px-3 py-1.5 rounded-lg text-micro font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+              mode === 'square' ? 'bg-white text-[#005583] shadow-2xs' : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             <Grid className="w-3.5 h-3.5" />
@@ -89,8 +97,8 @@ export const DotGridSquareVisualizer: React.FC<DotGridSquareVisualizerProps> = (
           <button
             type="button"
             onClick={() => setMode('odd-borders')}
-            className={`px-3 py-1.5 rounded-lg text-micro font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
-              mode === 'odd-borders' ? 'bg-white text-[#005583] shadow-xs' : 'text-slate-600 hover:text-slate-900'
+            className={`min-h-[38px] px-3 py-1.5 rounded-lg text-micro font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+              mode === 'odd-borders' ? 'bg-white text-[#005583] shadow-2xs' : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             <Layers className="w-3.5 h-3.5" />
@@ -100,22 +108,23 @@ export const DotGridSquareVisualizer: React.FC<DotGridSquareVisualizerProps> = (
       </div>
 
       {/* Interactive Controls Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 p-3 rounded-2xl bg-slate-50 border border-slate-200">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-4 p-3.5 sm:px-4 rounded-2xl bg-slate-50/80">
+        <div className="flex flex-wrap items-center gap-3">
           <span className="text-ui font-bold" style={{ color: COLORS.headingText }}>
             Side length (<span style={{ color: COLORS.side.solid }}>n</span>):
           </span>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <button
               type="button"
               onClick={() => handleNChange(n - 1)}
               disabled={n <= 1}
-              className="w-8 h-8 rounded-lg border bg-white flex items-center justify-center font-bold text-slate-700 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-100 cursor-pointer"
+              className="w-9 h-9 rounded-lg border border-slate-200/80 bg-white flex items-center justify-center font-bold text-slate-700 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-100 cursor-pointer"
+              aria-label="Decrease side length"
             >
               <Minus className="w-4 h-4" />
             </button>
             <span
-              className="w-10 text-center text-ui font-extrabold px-2 py-1 rounded-md"
+              className="w-10 text-center text-ui font-extrabold px-2 py-1.5 rounded-lg tabular-nums"
               style={{ backgroundColor: COLORS.side.tint, color: COLORS.side.text }}
             >
               {n}
@@ -124,7 +133,8 @@ export const DotGridSquareVisualizer: React.FC<DotGridSquareVisualizerProps> = (
               type="button"
               onClick={() => handleNChange(n + 1)}
               disabled={n >= 10}
-              className="w-8 h-8 rounded-lg border bg-white flex items-center justify-center font-bold text-slate-700 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-100 cursor-pointer"
+              className="w-9 h-9 rounded-lg border border-slate-200/80 bg-white flex items-center justify-center font-bold text-slate-700 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-100 cursor-pointer"
+              aria-label="Increase side length"
             >
               <Plus className="w-4 h-4" />
             </button>
@@ -145,7 +155,7 @@ export const DotGridSquareVisualizer: React.FC<DotGridSquareVisualizerProps> = (
             Total Area (<span style={{ color: COLORS.area.solid }}>n²</span>):
           </span>
           <span
-            className="px-3.5 py-1 rounded-full text-title font-extrabold shadow-2xs"
+            className="px-3.5 py-1 rounded-full text-title font-extrabold tabular-nums"
             style={{ backgroundColor: COLORS.area.tint, color: COLORS.area.text }}
           >
             {n * n}
@@ -155,16 +165,15 @@ export const DotGridSquareVisualizer: React.FC<DotGridSquareVisualizerProps> = (
 
       {/* SVG Canvas Area */}
       <div
-        className="w-full flex items-center justify-center rounded-2xl border bg-white overflow-hidden"
+        className="w-full flex items-center justify-center rounded-2xl border border-slate-100 bg-white overflow-hidden"
         style={{
-          borderColor: COLORS.divider,
           backgroundImage: `radial-gradient(${COLORS.canvasGrid} 1.5px, transparent 1.5px)`,
           backgroundSize: '20px 20px',
         }}
       >
         <svg
           viewBox={`0 0 ${viewWidth} ${viewHeight}`}
-          className="w-full h-auto max-h-[380px] select-none"
+          className="w-full h-auto max-h-[300px] sm:max-h-[380px] select-none"
         >
           {/* Top Dimension Marker: Side length n (Green #16A34A) */}
           <g transform={`translate(${startX}, ${startY - 18})`}>
@@ -347,18 +356,18 @@ export const DotGridSquareVisualizer: React.FC<DotGridSquareVisualizerProps> = (
       </div>
 
       {/* Formula Strip */}
-      <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-center">
+      <div className="p-4 rounded-2xl bg-slate-50/80 text-center">
         {mode === 'square' ? (
-          <div className="text-lg font-bold" style={{ color: COLORS.area.text }}>
+          <div className="text-statement font-bold" style={{ color: COLORS.area.text }}>
             <Katex latex={`\\text{Area} = \\text{side}^2 = ${n}^2 = ${n * n}`} displayMode={false} />
           </div>
         ) : (
           <div className="space-y-1">
-            <div className="text-base sm:text-lg font-bold overflow-x-auto py-1" style={{ color: COLORS.primary }}>
+            <div className="text-body sm:text-statement font-bold overflow-x-auto py-1" style={{ color: COLORS.primary }}>
               <Katex latex={oddSumFormula} displayMode={false} />
             </div>
             <p className="text-micro font-medium" style={{ color: COLORS.mutedText }}>
-              Sum of the first {n} consecutive odd numbers always produces a perfect square {n}²!
+              Sum of the first {n} odd numbers always makes {n}²!
             </p>
           </div>
         )}

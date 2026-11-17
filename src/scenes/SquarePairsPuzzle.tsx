@@ -185,58 +185,54 @@ export const SquarePairsPuzzle: React.FC<SquarePairsPuzzleProps> = ({
   return (
     <div
       data-no-nav="true"
-      className={`w-full max-w-4xl mx-auto rounded-3xl border bg-white p-4 sm:p-6 shadow-xs flex flex-col gap-5 ${className}`}
-      style={{ borderColor: COLORS.divider }}
+      className={`w-full max-w-4xl mx-auto rounded-3xl border border-slate-200/80 bg-white p-5 sm:p-7 shadow-2xs flex flex-col gap-5 ${className}`}
     >
       {/* Header & Progress */}
-      <div
-        className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b pb-4"
-        style={{ borderColor: COLORS.divider }}
-      >
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
         <div>
           <div className="flex items-center gap-2 text-micro text-slate-500 font-semibold">
             <span>Challenge Game</span>
             <span aria-hidden="true">·</span>
             <span>Sums Must Be 4, 9, 16, or 25</span>
           </div>
-          <h3 className="text-statement font-extrabold text-slate-900 mt-0.5">
+          <h3 className="text-statement font-bold text-slate-900 mt-0.5">
             Square Pairs 1–17 Puzzle
           </h3>
         </div>
 
-        <div className="flex items-center gap-3 text-small font-bold tabular-nums">
+        <div className="flex items-center gap-3 text-small font-semibold tabular-nums">
           <span className="text-slate-600">
-            Cards: <strong className="text-slate-900">{placedCount}/17</strong>
+            Placed <strong className="text-slate-900">{placedCount}/17</strong>
           </span>
-          <span aria-hidden="true" className="text-slate-300">|</span>
+          <span aria-hidden="true" className="text-slate-300">·</span>
           <span className="text-emerald-700">
-            Green Links: <strong>{validPairsCount}/16</strong>
+            Green Links <strong>{validPairsCount}/16</strong>
           </span>
         </div>
       </div>
 
-      {/* Action Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-2">
+      {/* Unified Action Toolbar */}
+      <div className="flex flex-wrap items-center justify-between gap-2.5">
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={() => setShowEndpointHint((h) => !h)}
-            className={`min-h-[40px] px-3.5 py-2 rounded-xl text-small font-bold border flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+            className={`min-h-[42px] px-3.5 py-2 rounded-xl text-small font-bold border flex items-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
               showEndpointHint
                 ? 'bg-amber-100 text-amber-950 border-amber-400'
-                : 'bg-amber-50 text-amber-900 border-amber-200 hover:bg-amber-100'
+                : 'bg-amber-50/80 text-amber-900 border-amber-200/80 hover:bg-amber-100'
             }`}
           >
-            <Lightbulb className="w-4 h-4 text-amber-600" />
-            <span>{showEndpointHint ? 'Hide Endpoint Hint' : 'Hint (16 & 17)'}</span>
+            <Lightbulb className="w-4 h-4 text-amber-600 shrink-0" />
+            <span>{showEndpointHint ? 'Hide Hint' : 'Hint (16 & 17)'}</span>
           </button>
 
           <button
             type="button"
             onClick={handleShowSolution}
-            className="min-h-[40px] px-3.5 py-2 rounded-xl text-small font-bold border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 flex items-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0"
+            className="min-h-[42px] px-3.5 py-2 rounded-xl text-small font-bold border border-slate-200/80 bg-slate-50/80 hover:bg-slate-100 text-slate-700 flex items-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0"
           >
-            <Wand2 className="w-4 h-4 text-purple-600" />
+            <Wand2 className="w-4 h-4 text-purple-600 shrink-0" />
             <span>Example Path</span>
           </button>
         </div>
@@ -245,17 +241,18 @@ export const SquarePairsPuzzle: React.FC<SquarePairsPuzzleProps> = ({
           <button
             type="button"
             onClick={handleAutoCheck}
-            className="min-h-[40px] px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-small font-bold flex items-center gap-1.5 shadow-2xs cursor-pointer whitespace-nowrap shrink-0"
+            className="min-h-[42px] px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-small font-bold flex items-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0"
           >
-            <CheckCircle2 className="w-4 h-4" />
+            <CheckCircle2 className="w-4 h-4 shrink-0" />
             <span>Check Sequence</span>
           </button>
 
           <button
             type="button"
             onClick={handleReset}
-            className="min-h-[40px] w-10 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 flex items-center justify-center cursor-pointer shrink-0"
+            className="min-h-[42px] w-11 rounded-xl border border-slate-200/80 bg-white hover:bg-slate-50 text-slate-600 flex items-center justify-center cursor-pointer shrink-0"
             title="Clear Board"
+            aria-label="Clear Board"
           >
             <RotateCcw className="w-4 h-4" />
           </button>
@@ -264,31 +261,29 @@ export const SquarePairsPuzzle: React.FC<SquarePairsPuzzleProps> = ({
 
       {/* Endpoint Hint Box */}
       {showEndpointHint && (
-        <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-300 text-small text-amber-950 flex items-start gap-2.5 animate-fade-rise">
+        <div className="p-4 rounded-2xl bg-amber-50/75 border border-amber-200/80 text-small text-amber-950 flex items-start gap-2.5 animate-fade-rise">
           <Sparkles className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-          <div>
-            <strong>Endpoint Secret:</strong> Look at <strong>16</strong> and <strong>17</strong>!
-            <br />
-            17 can only pair with <strong>8</strong> (17 + 8 = 25), and 16 can only pair with{' '}
-            <strong>9</strong> (16 + 9 = 25). Since each has only <strong>1</strong> partner, 16 and 17 MUST sit at the two ends!
+          <div className="leading-relaxed">
+            <strong>Endpoint Secret:</strong> 17 only pairs with <strong>8</strong> (17 + 8 = 25), and 16 only pairs with{' '}
+            <strong>9</strong> (16 + 9 = 25). Since each has just <strong>1</strong> partner, 16 and 17 sit at the two ends!
           </div>
         </div>
       )}
 
       {/* Sequence Board (17 Slots with Neighbor Bridge Badges) */}
-      <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col gap-3">
+      <div className="p-4 sm:p-5 rounded-2xl bg-slate-50/75 flex flex-col gap-3.5">
         <div className="flex flex-wrap items-center justify-between gap-2 text-micro text-slate-500 font-medium">
           <span>
-            Tap cards below to fill slots · Tap two slots to swap · Drag cards on desktop
+            Tap cards below to fill · Tap two slots to swap · Drag on desktop
           </span>
           {selectedSlotIdx !== null && (
             <span className="font-bold text-[#005583]">
-              Slot #{selectedSlotIdx + 1} selected — tap another slot to swap or tap again to remove
+              Slot #{selectedSlotIdx + 1} selected — tap another slot to swap, or tap again to remove
             </span>
           )}
         </div>
 
-        <div className="flex flex-wrap items-center gap-y-3 gap-x-1">
+        <div className="flex flex-wrap items-center gap-y-2.5 gap-x-1.5">
           {slots.map((val, idx) => {
             const isSelected = selectedSlotIdx === idx;
             const isEndpoint = idx === 0 || idx === TOTAL_CARDS - 1;
@@ -308,14 +303,14 @@ export const SquarePairsPuzzle: React.FC<SquarePairsPuzzleProps> = ({
                   onClick={() => handleSlotTap(idx)}
                   className={`min-w-[44px] min-h-[48px] px-2 rounded-xl border-2 font-mono text-small font-black tabular-nums transition-all cursor-pointer flex flex-col items-center justify-center relative ${
                     isSelected
-                      ? 'bg-[#005583] text-white border-[#003F62] ring-2 ring-sky-300 scale-105'
+                      ? 'bg-[#005583] text-white border-[#003F62] ring-2 ring-sky-300'
                       : val !== null
                       ? showEndpointHint && (val === 16 || val === 17)
-                        ? 'bg-amber-100 text-amber-950 border-amber-500 shadow-2xs'
-                        : 'bg-white text-slate-900 border-slate-300 shadow-2xs hover:border-[#005583]'
+                        ? 'bg-amber-100 text-amber-950 border-amber-500'
+                        : 'bg-white text-slate-900 border-slate-300/90 hover:border-[#005583]'
                       : isEndpoint && showEndpointHint
                       ? 'bg-amber-50/70 text-amber-800 border-dashed border-amber-400'
-                      : 'bg-slate-100/70 text-slate-400 border-dashed border-slate-300 hover:border-slate-400'
+                      : 'bg-white/70 text-slate-400 border-dashed border-slate-300/90 hover:border-slate-400'
                   }`}
                 >
                   <span>{val !== null ? val : idx + 1}</span>
@@ -329,12 +324,12 @@ export const SquarePairsPuzzle: React.FC<SquarePairsPuzzleProps> = ({
                 {/* Bridge Between Adjacent Slots */}
                 {bridge && (
                   <div
-                    className={`px-1.5 py-0.5 rounded-md text-[11px] font-mono font-extrabold tabular-nums border transition-all ${
+                    className={`px-1.5 py-0.5 rounded-md text-[11px] font-mono font-bold tabular-nums border transition-colors ${
                       bridge.sum === null
                         ? 'border-transparent text-slate-300'
                         : bridge.valid
-                        ? 'bg-emerald-100 text-emerald-900 border-emerald-400 shadow-2xs'
-                        : 'bg-rose-50 text-rose-700 border-rose-300'
+                        ? 'bg-emerald-100/90 text-emerald-900 border-emerald-300'
+                        : 'bg-rose-50 text-rose-700 border-rose-200'
                     }`}
                     title={
                       bridge.sum !== null
@@ -354,9 +349,9 @@ export const SquarePairsPuzzle: React.FC<SquarePairsPuzzleProps> = ({
       </div>
 
       {/* Number Card Tray (1 to 17) */}
-      <div className="flex flex-col gap-2">
-        <span className="text-micro font-bold text-slate-600">
-          Available Number Cards (1 to 17):
+      <div className="flex flex-col gap-2.5 pt-1 border-t border-slate-100">
+        <span className="text-micro font-bold text-slate-500">
+          Available Cards (1 to 17):
         </span>
         <div className="flex flex-wrap items-center gap-2">
           {Array.from({ length: TOTAL_CARDS }, (_, i) => i + 1).map((num) => {
@@ -370,12 +365,12 @@ export const SquarePairsPuzzle: React.FC<SquarePairsPuzzleProps> = ({
                 draggable={!isUsed}
                 onDragStart={() => setDraggedCard({ num, fromSlotIdx: null })}
                 onClick={() => handleTrayCardTap(num)}
-                className={`min-w-[44px] min-h-[44px] px-2.5 rounded-xl border-2 font-mono text-small font-black tabular-nums transition-all flex items-center justify-center ${
+                className={`min-w-[44px] min-h-[44px] px-2.5 rounded-xl border-2 font-mono text-small font-black tabular-nums transition-colors flex items-center justify-center ${
                   isUsed
-                    ? 'bg-slate-100 text-slate-300 border-slate-200 cursor-not-allowed'
+                    ? 'bg-slate-100 text-slate-300 border-slate-200/70 cursor-not-allowed'
                     : isHintEnd
-                    ? 'bg-amber-100 text-amber-950 border-amber-500 hover:bg-amber-200 cursor-pointer shadow-2xs'
-                    : 'bg-white text-[#005583] border-sky-200 hover:border-[#005583] hover:bg-sky-50 cursor-pointer shadow-2xs'
+                    ? 'bg-amber-100 text-amber-950 border-amber-400 hover:bg-amber-200 cursor-pointer'
+                    : 'bg-white text-[#005583] border-sky-200 hover:border-[#005583] hover:bg-sky-50 cursor-pointer'
                 }`}
               >
                 {num}
@@ -392,7 +387,7 @@ export const SquarePairsPuzzle: React.FC<SquarePairsPuzzleProps> = ({
             checkMessage.status === 'valid'
               ? 'bg-emerald-50 text-emerald-900 border-emerald-300'
               : checkMessage.status === 'incomplete'
-              ? 'bg-blue-50 text-blue-900 border-blue-200'
+              ? 'bg-sky-50 text-blue-900 border-sky-200'
               : 'bg-amber-50 text-amber-950 border-amber-300'
           }`}
         >

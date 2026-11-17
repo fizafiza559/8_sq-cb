@@ -74,6 +74,22 @@ export const chapterData: Chapter = {
           options: ['All lockers', 'Perfect square numbers', 'Prime numbers', 'Even numbers'],
           correctIndex: 1,
           explanation: 'Only lockers with an odd number of factors (perfect squares) stay open.',
+          solutionSteps: [
+            {
+              title: 'Count the flips per locker',
+              text: 'A locker changes state once for every factor it has (an odd count of flips leaves it OPEN).',
+            },
+            {
+              title: 'Spot who has an odd factor count',
+              latex: '36 = 6 \\times 6 \\implies \\text{lone middle factor } 6',
+              text: 'Most numbers pair up factors evenly, but perfect squares have one middle factor paired with itself.',
+            },
+            {
+              title: 'Identify the open lockers',
+              latex: '1, 4, 9, 16, 25, 36, 49, 64, 81, 100',
+              text: 'Therefore, only the perfect square lockers stay open at the end.',
+            },
+          ],
         },
       ],
     },
@@ -105,6 +121,23 @@ export const chapterData: Chapter = {
           options: ['6', '7', '9', '12'],
           correctIndex: 2,
           explanation: '36 has 9 factors: 1, 2, 3, 4, 6, 9, 12, 18, 36.',
+          solutionSteps: [
+            {
+              title: 'List the factor pairs of 36',
+              latex: '1\\times 36,\\; 2\\times 18,\\; 3\\times 12,\\; 4\\times 9',
+              text: 'That gives 4 distinct pairs, which is 8 factors so far.',
+            },
+            {
+              title: 'Include the lone square partner',
+              latex: '6 \\times 6 = 36',
+              text: '6 pairs with itself, adding just 1 more unique factor.',
+            },
+            {
+              title: 'Count all unique factors',
+              latex: '8 + 1 = 9\\text{ factors}',
+              text: 'So 36 has 9 factors in total: 1, 2, 3, 4, 6, 9, 12, 18, 36.',
+            },
+          ],
         },
       ],
     },
@@ -138,6 +171,18 @@ export const chapterData: Chapter = {
           options: ['16', '32', '64', '80'],
           correctIndex: 2,
           explanation: 'Area = 8 × 8 = 64 square units.',
+          solutionSteps: [
+            {
+              title: 'Use the square area formula',
+              latex: '\\text{Area} = \\text{side} \\times \\text{side} = s^2',
+              text: 'A square has equal length and width, so multiply the side by itself.',
+            },
+            {
+              title: 'Substitute side = 8',
+              latex: '8 \\times 8 = 64\\text{ sq. units}',
+              text: 'The area of the square is 64 square units.',
+            },
+          ],
         },
       ],
     },
@@ -214,18 +259,52 @@ export const chapterData: Chapter = {
           options: ['Yes', 'No, because it ends in 7', 'Yes, because it is odd'],
           correctIndex: 1,
           explanation: 'No square ends in 2, 3, 7, or 8.',
+          solutionSteps: [
+            {
+              title: 'Check the last digit of 3287',
+              text: 'The ones digit of 3287 is 7.',
+            },
+            {
+              title: 'Apply the square ending rule',
+              latex: '\\text{Allowed endings: } 0, 1, 4, 5, 6, 9',
+              text: 'No perfect square ever ends in 2, 3, 7, or 8—so 3287 cannot be a square.',
+            },
+          ],
         },
         {
           prompt: '300² ends in how many zeros?',
           options: ['2 zeros', '3 zeros', '4 zeros'],
           correctIndex: 2,
           explanation: 'Two zeros at the end of 300 become four zeros in 300² = 90000.',
+          solutionSteps: [
+            {
+              title: 'Count the zeros in 300',
+              latex: '300 = 3 \\times 100 \\text{ (2 zeros)}',
+              text: '300 ends with 2 trailing zeros.',
+            },
+            {
+              title: 'Double the zeros when squaring',
+              latex: '300^2 = 300 \\times 300 = 90000',
+              text: 'Squaring doubles the trailing zeros: 2 × 2 = 4 zeros.',
+            },
+          ],
         },
         {
           prompt: 'Is the square of an odd number odd or even?',
           options: ['Always odd', 'Always even', 'Depends on the number'],
           correctIndex: 0,
           explanation: 'The square of any odd number is always odd.',
+          solutionSteps: [
+            {
+              title: 'Multiply odd × odd',
+              latex: '3^2 = 9,\\quad 5^2 = 25,\\quad 7^2 = 49',
+              text: 'An odd number times another odd number can never contain a factor of 2.',
+            },
+            {
+              title: 'Conclude the parity',
+              text: 'Therefore, the square of an odd number is always odd.',
+            },
+          ],
         },
       ],
     },
@@ -285,18 +364,54 @@ export const chapterData: Chapter = {
           options: ['16', '36', '64', '81'],
           correctIndex: 2,
           explanation: 'Sum of first n odd numbers is n². 8² = 64.',
+          solutionSteps: [
+            {
+              title: 'Recall the odd-sum square pattern',
+              latex: '1 + 3 + 5 + \\dots + (2n-1) = n^2',
+              text: 'Adding the first n consecutive odd numbers always forms the square n².',
+            },
+            {
+              title: 'Substitute n = 8',
+              latex: '8^2 = 8 \\times 8 = 64',
+              text: 'So the sum of the first 8 odd numbers is 64.',
+            },
+          ],
         },
         {
           prompt: 'What is the 20th odd number?',
           options: ['39', '40', '41'],
           correctIndex: 0,
           explanation: 'The nth odd number is 2n - 1. For n = 20, 2(20) - 1 = 39.',
+          solutionSteps: [
+            {
+              title: 'Use the nth odd number formula',
+              latex: '\\text{nth odd number} = 2n - 1',
+              text: 'Every odd L-frame adds 2n - 1 dots to step from (n-1)² to n².',
+            },
+            {
+              title: 'Plug in n = 20',
+              latex: '2(20) - 1 = 40 - 1 = 39',
+              text: 'The 20th odd number is 39.',
+            },
+          ],
         },
         {
           prompt: 'Does the subtract test show that 50 is a square?',
           options: ['Yes', 'No, it misses 0'],
           correctIndex: 1,
           explanation: '50 is not a square; subtracting odd numbers skips over 0.',
+          solutionSteps: [
+            {
+              title: 'Subtract the first 7 odd numbers (sum = 49)',
+              latex: '50 - (1+3+5+7+9+11+13) = 50 - 49 = 1',
+              text: 'After 7 steps, 1 remains.',
+            },
+            {
+              title: 'Try the 8th subtraction',
+              latex: '1 - 15 = -14 \\neq 0',
+              text: 'It jumps past 0 to -14, proving 50 is NOT a perfect square.',
+            },
+          ],
         },
       ],
     },
@@ -346,18 +461,53 @@ export const chapterData: Chapter = {
           options: ['20', '40', '41'],
           correctIndex: 1,
           explanation: 'Between n² and (n+1)² there are 2n numbers. 2 × 20 = 40.',
+          solutionSteps: [
+            {
+              title: 'Use the between-squares rule',
+              latex: '\\text{Non-squares between } n^2 \\text{ and } (n+1)^2 = 2n',
+              text: 'There are always 2n whole numbers strictly between n² and (n+1)².',
+            },
+            {
+              title: 'Calculate for n = 20',
+              latex: '2 \\times 20 = 40',
+              text: 'Or check directly: 441 - 400 - 1 = 40 numbers.',
+            },
+          ],
         },
         {
           prompt: 'Which two neighboring triangular numbers add up to 49?',
           options: ['15 and 21', '21 and 28', '28 and 36'],
           correctIndex: 1,
           explanation: '21 + 28 = 49 (which is 7²).',
+          solutionSteps: [
+            {
+              title: 'Find T₆ and T₇',
+              latex: 'T_6 = 21, \\quad T_7 = 28',
+              text: 'Neighbors T(n-1) and T(n) always zip together to make n².',
+            },
+            {
+              title: 'Add them to verify 7²',
+              latex: '21 + 28 = 49 = 7^2',
+              text: 'So the two triangular numbers are 21 and 28.',
+            },
+          ],
         },
         {
           prompt: 'Which block of 100 holds the square 729 (27²)?',
           options: ['601 to 700', '701 to 800', '801 to 900'],
           correctIndex: 1,
           explanation: '729 lies in the 701 to 800 block.',
+          solutionSteps: [
+            {
+              title: 'Compare 729 to hundred boundaries',
+              latex: '700 < 729 \\le 800',
+              text: '729 is larger than 700 and smaller than 800.',
+            },
+            {
+              title: 'Pick the matching block',
+              text: 'Therefore, 729 sits inside the 701 to 800 block.',
+            },
+          ],
         },
       ],
     },
@@ -394,6 +544,18 @@ export const chapterData: Chapter = {
           options: ['-9', '9', '18', '81'],
           correctIndex: 1,
           explanation: 'The principal square root of 81 is 9.',
+          solutionSteps: [
+            {
+              title: 'Find what times itself equals 81',
+              latex: '9 \\times 9 = 81 \\quad\\text{and}\\quad (-9) \\times (-9) = 81',
+              text: 'Both +9 and -9 square to 81.',
+            },
+            {
+              title: 'Pick the positive (principal) root',
+              latex: '\\sqrt{81} = 9',
+              text: 'The symbol √ always stands for the non-negative root, which is 9.',
+            },
+          ],
         },
       ],
     },
@@ -427,6 +589,18 @@ export const chapterData: Chapter = {
           options: ['10', '11', '12', '14'],
           correctIndex: 2,
           explanation: '144 = 12 × 12, so √144 = 12.',
+          solutionSteps: [
+            {
+              title: 'Break 144 into prime factors',
+              latex: '144 = (2 \\times 2) \\times (2 \\times 2) \\times (3 \\times 3)',
+              text: 'Group the identical prime factors into pairs.',
+            },
+            {
+              title: 'Take one factor from each pair',
+              latex: '\\sqrt{144} = 2 \\times 2 \\times 3 = 12',
+              text: 'Multiplying one number from each pair gives 12.',
+            },
+          ],
         },
       ],
     },
@@ -460,6 +634,18 @@ export const chapterData: Chapter = {
           options: ['8 and 9', '9 and 10', '10 and 11'],
           correctIndex: 1,
           explanation: '9² = 81 and 10² = 100. So √85 is between 9 and 10.',
+          solutionSteps: [
+            {
+              title: 'Trap 85 between two neighbor squares',
+              latex: '81 < 85 < 100',
+              text: 'Find the closest perfect squares below and above 85.',
+            },
+            {
+              title: 'Take square roots across the inequality',
+              latex: '9 < \\sqrt{85} < 10',
+              text: 'Since √81 = 9 and √100 = 10, √85 lies between 9 and 10.',
+            },
+          ],
         },
       ],
     },
@@ -497,6 +683,18 @@ export const chapterData: Chapter = {
           options: ['25', '75', '125', '150'],
           correctIndex: 2,
           explanation: 'Volume = 5 × 5 × 5 = 125 cubic units.',
+          solutionSteps: [
+            {
+              title: 'Use the cube volume formula',
+              latex: 'V = e \\times e \\times e = e^3',
+              text: 'Multiply length × breadth × height for the cube.',
+            },
+            {
+              title: 'Substitute edge = 5',
+              latex: '5^3 = 5 \\times 5 \\times 5 = 25 \\times 5 = 125',
+              text: 'The volume is 125 cubic units.',
+            },
+          ],
         },
       ],
     },
@@ -528,6 +726,18 @@ export const chapterData: Chapter = {
           options: ['3', '6', '9'],
           correctIndex: 1,
           explanation: '200³ = 8,000,000 (6 zeros). Each zero triples when cubed.',
+          solutionSteps: [
+            {
+              title: 'Count zeros in the base number',
+              latex: '200 = 2 \\times 100 \\text{ (2 zeros)}',
+              text: '200 ends with 2 zeros.',
+            },
+            {
+              title: 'Triple the zero count when cubing',
+              latex: '200^3 = 200 \\times 200 \\times 200 = 8{,}000{,}000',
+              text: '2 zeros × 3 = 6 trailing zeros.',
+            },
+          ],
         },
       ],
     },
@@ -561,6 +771,18 @@ export const chapterData: Chapter = {
           options: ['1³ + 12³ and 9³ + 10³', '2³ + 11³ and 3³ + 10³', '5³ + 10³ and 6³ + 9³'],
           correctIndex: 0,
           explanation: '1³+12³ = 1+1728=1729, and 9³+10³ = 729+1000=1729.',
+          solutionSteps: [
+            {
+              title: 'Check the first cube pair',
+              latex: '1^3 + 12^3 = 1 + 1728 = 1729',
+              text: '1 cubed plus 12 cubed gives 1729.',
+            },
+            {
+              title: 'Check the second cube pair',
+              latex: '9^3 + 10^3 = 729 + 1000 = 1729',
+              text: '9 cubed plus 10 cubed also equals 1729!',
+            },
+          ],
         },
       ],
     },
@@ -594,6 +816,18 @@ export const chapterData: Chapter = {
           options: ['11+13+15+17', '13+15+17+19', '15+17+19+21'],
           correctIndex: 1,
           explanation: '13 + 15 + 17 + 19 = 64 = 4³.',
+          solutionSteps: [
+            {
+              title: 'Recall where the 4th block begins',
+              latex: '1^3=1,\\; 2^3=3+5,\\; 3^3=7+9+11',
+              text: 'The 3rd block ends at 11, so the 4th block starts at 13.',
+            },
+            {
+              title: 'Add the next 4 consecutive odd numbers',
+              latex: '13 + 15 + 17 + 19 = 64 = 4^3',
+              text: 'Their sum is 64, which equals 4³.',
+            },
+          ],
         },
       ],
     },
@@ -628,6 +862,18 @@ export const chapterData: Chapter = {
           options: ['6', '7', '8', '9'],
           correctIndex: 2,
           explanation: '8 × 8 × 8 = 512, so ∛512 = 8.',
+          solutionSteps: [
+            {
+              title: 'Factor 512 by 2 and group in triplets',
+              latex: '512 = (2\\times 2\\times 2) \\times (2\\times 2\\times 2) \\times (2\\times 2\\times 2)',
+              text: '512 breaks into three identical groups of (2 × 2 × 2).',
+            },
+            {
+              title: 'Take one number from each triplet',
+              latex: '\\sqrt[3]{512} = 2 \\times 2 \\times 2 = 8',
+              text: 'So ∛512 = 8 (check: 8 × 8 × 8 = 512).',
+            },
+          ],
         },
       ],
     },
@@ -661,6 +907,18 @@ export const chapterData: Chapter = {
           options: ['7', '19', '27'],
           correctIndex: 0,
           explanation: '8 - 1 = 7.',
+          solutionSteps: [
+            {
+              title: 'Compute the first two cubes',
+              latex: '1^3 = 1, \\quad 2^3 = 8',
+              text: 'Evaluate 1 cubed and 2 cubed.',
+            },
+            {
+              title: 'Subtract the consecutive cubes',
+              latex: '2^3 - 1^3 = 8 - 1 = 7',
+              text: 'The first difference is 7.',
+            },
+          ],
         },
       ],
     },
@@ -696,6 +954,16 @@ export const chapterData: Chapter = {
           options: ['Babylonians', 'Romans', 'Greeks'],
           correctIndex: 0,
           explanation: 'Babylonian clay tablets dating back 4000 years contain square root calculations.',
+          solutionSteps: [
+            {
+              title: 'Look back 4,000 years in history',
+              text: 'Mesopotamian scribes pressed wedge-shaped cuneiform numbers into wet clay tablets.',
+            },
+            {
+              title: 'Identify the civilization',
+              text: 'Babylonian clay tablets (like YBC 7289) show accurate square root approximations.',
+            },
+          ],
         },
       ],
     },
@@ -727,6 +995,17 @@ export const chapterData: Chapter = {
           options: ['Square root', 'Cube root', 'Division'],
           correctIndex: 1,
           explanation: 'Cube root is the exact inverse operation of cubing.',
+          solutionSteps: [
+            {
+              title: 'Compare forward and reverse operations',
+              latex: 'n^3 = V \\iff \\sqrt[3]{V} = n',
+              text: 'Cubing turns an edge into volume; taking the cube root turns volume back into the edge.',
+            },
+            {
+              title: 'Name the inverse operation',
+              text: 'So the inverse of cubing is taking the cube root.',
+            },
+          ],
         },
       ],
     },
@@ -760,6 +1039,18 @@ export const chapterData: Chapter = {
           options: ['9 (Yes, 3²)', '10 (No)', '7 (No)'],
           correctIndex: 0,
           explanation: '8 + 1 = 9, which is 3², a perfect square.',
+          solutionSteps: [
+            {
+              title: 'Add the two adjacent numbers',
+              latex: '8 + 1 = 9',
+              text: 'Sum the pair sitting side by side.',
+            },
+            {
+              title: 'Check if the sum is a perfect square',
+              latex: '9 = 3 \\times 3 = 3^2',
+              text: 'Yes! 9 is 3², so this pair makes a green square bridge.',
+            },
+          ],
         },
       ],
     },
@@ -793,6 +1084,22 @@ export const chapterData: Chapter = {
           options: ['38', '42', '46'],
           correctIndex: 1,
           explanation: '42 × 42 = 1764.',
+          solutionSteps: [
+            {
+              title: 'Trap 1764 between squares of tens',
+              latex: '40^2 = 1600 < 1764 < 2500 = 50^2',
+              text: 'So √1764 is between 40 and 50.',
+            },
+            {
+              title: 'Check the last digit (4)',
+              text: 'Since 1764 ends in 4, its root must end in 2 or 8 (try 42 or 48).',
+            },
+            {
+              title: 'Verify by multiplying',
+              latex: '42 \\times 42 = 1764 \\implies \\sqrt{1764} = 42',
+              text: '42² equals 1764, so √1764 = 42.',
+            },
+          ],
         },
       ],
     },
@@ -824,6 +1131,23 @@ export const chapterData: Chapter = {
           options: ['3', '7', '11'],
           correctIndex: 1,
           explanation: '1323 = 3³ × 7². Multiply by 7 to get 3³ × 7³ = 9261 (21³).',
+          solutionSteps: [
+            {
+              title: 'Prime factorise 1323',
+              latex: '1323 = 3 \\times 3 \\times 3 \\times 7 \\times 7 = 3^3 \\times 7^2',
+              text: 'Group prime factors into triplets (teams of three).',
+            },
+            {
+              title: 'Find the missing factor for a complete triplet',
+              latex: '7^2 \\times 7 = 7^3',
+              text: 'The 3s form a full triplet, while 7 appears only twice—it needs one more 7.',
+            },
+            {
+              title: 'Verify the new cube',
+              latex: '1323 \\times 7 = 9261 = 21^3',
+              text: 'Multiplying by 7 makes it a perfect cube!',
+            },
+          ],
         },
       ],
     },
@@ -855,6 +1179,18 @@ export const chapterData: Chapter = {
           options: ['22', '24', '26'],
           correctIndex: 1,
           explanation: '24 × 24 × 24 = 13824.',
+          solutionSteps: [
+            {
+              title: 'Prime factorise 13824',
+              latex: '13824 = 2^9 \\times 3^3 = (2^3)^3 \\times 3^3',
+              text: 'Group the factors into triplets of three.',
+            },
+            {
+              title: 'Take one factor from each triplet',
+              latex: '\\sqrt[3]{13824} = 2^3 \\times 3 = 8 \\times 3 = 24',
+              text: 'Check: 24 × 24 × 24 = 13824, so the cube root is 24.',
+            },
+          ],
         },
       ],
     },

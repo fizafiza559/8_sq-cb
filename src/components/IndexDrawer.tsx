@@ -105,21 +105,20 @@ export const IndexDrawer: React.FC<IndexDrawerProps> = ({
       >
         {/* Header */}
         <div
-          className="px-4 py-3 border-b flex items-center justify-between shrink-0"
-          style={{ borderColor: COLORS.divider }}
+          className="px-5 py-3.5 border-b border-slate-200/80 flex items-center justify-between shrink-0"
         >
           <h2
             id="index-drawer-title"
             className="text-title"
             style={{ color: COLORS.headingText }}
           >
-            Index
+            Sections &amp; Topics
           </h2>
           <button
             ref={closeBtnRef}
             type="button"
             onClick={onClose}
-            aria-label="Close index"
+            aria-label="Close sections menu"
             className="w-11 h-11 flex items-center justify-center rounded-xl hover:bg-slate-100 transition-colors cursor-pointer"
             style={{ color: COLORS.mutedText }}
           >
@@ -130,7 +129,7 @@ export const IndexDrawer: React.FC<IndexDrawerProps> = ({
         {/* Scrollable sections & topics list (built from sections prop) */}
         <nav
           aria-label="Chapter index"
-          className="flex-1 min-h-0 overflow-y-auto px-3 py-3 space-y-2"
+          className="flex-1 min-h-0 overflow-y-auto px-3 py-3 space-y-2.5"
         >
           {sections.map((sec) => {
             const isActiveSection = sec.id === activeSectionId;
@@ -147,10 +146,10 @@ export const IndexDrawer: React.FC<IndexDrawerProps> = ({
                     onClose();
                   }}
                   aria-current={isActiveSection && hasSingleTopic ? 'page' : undefined}
-                  className="w-full min-h-[44px] px-3.5 py-2 rounded-full text-left text-ui flex items-center transition-colors cursor-pointer hover:bg-slate-100/80"
+                  className="w-full min-h-[44px] px-3.5 py-2 rounded-xl text-left text-ui flex items-center transition-colors cursor-pointer hover:bg-slate-100/80"
                   style={{
                     fontWeight: 700,
-                    backgroundColor: isActiveSection ? 'rgba(0, 85, 131, 0.10)' : 'transparent',
+                    backgroundColor: isActiveSection ? 'rgba(0, 85, 131, 0.08)' : 'transparent',
                     color: isActiveSection ? COLORS.primary : COLORS.headingText,
                   }}
                 >
@@ -176,10 +175,10 @@ export const IndexDrawer: React.FC<IndexDrawerProps> = ({
                             onClose();
                           }}
                           aria-current={isActiveTopic ? 'page' : undefined}
-                          className="w-full min-h-[44px] px-3.5 py-2 rounded-full text-left text-small flex items-center transition-colors cursor-pointer hover:bg-slate-100/80"
+                          className="w-full min-h-[44px] px-3.5 py-2 rounded-xl text-left text-small flex items-center transition-colors cursor-pointer hover:bg-slate-100/80"
                           style={{
-                            fontWeight: 500,
-                            backgroundColor: isActiveTopic ? 'rgba(0, 85, 131, 0.10)' : 'transparent',
+                            fontWeight: isActiveTopic ? 600 : 500,
+                            backgroundColor: isActiveTopic ? 'rgba(0, 85, 131, 0.08)' : 'transparent',
                             color: isActiveTopic ? COLORS.primary : COLORS.bodyText,
                           }}
                         >

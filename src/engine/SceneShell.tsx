@@ -53,6 +53,9 @@ export const SceneShell: React.FC<SceneShellProps> = ({
   interactiveControls,
 }) => {
   const [showQuickCheck, setShowQuickCheck] = useState(false);
+  const [qcIndex, setQcIndex] = useState(0);
+  const [qcAnswers, setQcAnswers] = useState<Record<number, number>>({});
+  const [qcSolutionSteps, setQcSolutionSteps] = useState<Record<number, number>>({});
 
   return (
     <div
@@ -116,12 +119,39 @@ export const SceneShell: React.FC<SceneShellProps> = ({
           <div className="bg-white rounded-3xl border p-6 md:p-10 shadow-sm" style={{ borderColor: COLORS.divider }}>
             <QuickCheck
               questions={quickCheckQuestions}
-              currentIndex={0}
-              answers={{}}
-              onSelectOption={() => {}}
-              onNext={() => setShowQuickCheck(false)}
-              onReviewScene={() => setShowQuickCheck(false)}
-              onNextScene={() => setShowQuickCheck(false)}
+              currentIndex={qcIndex}
+              answers={qcAnswers}
+              solutionStepsRevealed={qcSolutionSteps}
+              onSelectOption={(qIdx, optIdx) => {
+                setQcAnswers((prev) => ({ ...prev, [qIdx]: optIdx }));
+                setQcSolutionSteps((prev) => ({ ...prev, [qIdx]: 1 }));
+              }}
+              onRevealNextStep={(qIdx) => {
+                const total = quickCheckQuestions[qIdx]?.solutionSteps?.length || 1;
+                setQcSolutionSteps((prev) => ({
+                  ...prev,
+                  [qIdx]: Math.min(total, (prev[qIdx] ?? 1) + 1),
+                }));
+              }}
+              onRevealAllSteps={(qIdx) => {
+                const total = quickCheckQuestions[qIdx]?.solutionSteps?.length || 1;
+                setQcSolutionSteps((prev) => ({ ...prev, [qIdx]: total }));
+              }}
+              onNext={() =>
+                setQcIndex((idx) => Math.min(quickCheckQuestions.length, idx + 1))
+              }
+              onReviewScene={() => {
+                setShowQuickCheck(false);
+                setQcIndex(0);
+                setQcAnswers({});
+                setQcSolutionSteps({});
+              }}
+              onNextScene={() => {
+                setShowQuickCheck(false);
+                setQcIndex(0);
+                setQcAnswers({});
+                setQcSolutionSteps({});
+              }}
             />
           </div>
         ) : (
