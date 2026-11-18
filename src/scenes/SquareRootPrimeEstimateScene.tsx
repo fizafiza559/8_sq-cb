@@ -275,7 +275,7 @@ export const SquareRootPrimeEstimateScene: React.FC<SquareRootPrimeEstimateScene
                     <span className="w-8 h-8 rounded-full bg-amber-600 text-white font-mono font-black text-small flex items-center justify-center">
                       3
                     </span>
-                    <span className="text-[11px] font-extrabold text-amber-950 whitespace-nowrap">
+                    <span className="text-micro font-extrabold text-amber-950 whitespace-nowrap">
                       Lonely Factor
                     </span>
                   </div>
@@ -285,7 +285,7 @@ export const SquareRootPrimeEstimateScene: React.FC<SquareRootPrimeEstimateScene
                     <span className="w-8 h-8 rounded-full bg-amber-600 text-white font-mono font-black text-small flex items-center justify-center">
                       13
                     </span>
-                    <span className="text-[11px] font-extrabold text-amber-950 whitespace-nowrap">
+                    <span className="text-micro font-extrabold text-amber-950 whitespace-nowrap">
                       Lonely Factor
                     </span>
                   </div>
@@ -326,9 +326,9 @@ export const SquareRootPrimeEstimateScene: React.FC<SquareRootPrimeEstimateScene
                     : 'bg-slate-50 text-slate-800 border-slate-200 hover:bg-slate-100'
                 }`}
               >
-                <span className="text-[11px] sm:text-small font-extrabold leading-tight truncate">{item.label}</span>
+                <span className="text-micro sm:text-small font-extrabold leading-tight truncate">{item.label}</span>
                 <span
-                  className={`text-[10px] sm:text-micro ${
+                  className={`text-micro sm:text-micro ${
                     estStep === item.step ? 'text-sky-100' : 'text-slate-500'
                   }`}
                 >
@@ -378,7 +378,7 @@ export const SquareRootPrimeEstimateScene: React.FC<SquareRootPrimeEstimateScene
                 className="absolute top-0 flex flex-col items-center -translate-x-1/2"
                 style={{ left: `${((1936 - 1600) / (2500 - 1600)) * 100}%` }}
               >
-                <span className="px-2 py-0.5 rounded-md bg-emerald-600 text-white text-[10px] font-black shadow-2xs whitespace-nowrap">
+                <span className="px-2 py-0.5 rounded-md bg-emerald-600 text-white text-micro font-black shadow-2xs whitespace-nowrap">
                   1936
                 </span>
                 <div className="w-0.5 h-3 bg-emerald-600" />
@@ -386,7 +386,7 @@ export const SquareRootPrimeEstimateScene: React.FC<SquareRootPrimeEstimateScene
 
               {/* Candidate Dot */}
               <div
-                className="absolute top-7 w-5 h-5 rounded-full border-2 border-white shadow-md -translate-x-1/2 -translate-y-1/2 transition-all duration-200 flex items-center justify-center text-[10px] font-black text-white"
+                className="absolute top-7 w-5 h-5 rounded-full border-2 border-white shadow-md -translate-x-1/2 -translate-y-1/2 transition-all duration-200 flex items-center justify-center text-micro font-black text-white"
                 style={{
                   left: `${((candidateSq - 1600) / (2500 - 1600)) * 100}%`,
                   backgroundColor: isExact ? '#16A34A' : '#005583',
@@ -416,8 +416,8 @@ export const SquareRootPrimeEstimateScene: React.FC<SquareRootPrimeEstimateScene
                           : 'bg-white text-slate-700 border-slate-200/80 hover:bg-slate-100'
                       }`}
                     >
-                      <span className="text-[11px] font-black leading-tight">{val}</span>
-                      <span className={`text-[9px] font-mono leading-tight ${active ? 'text-white/90' : 'text-slate-500'}`}>
+                      <span className="text-micro font-black leading-tight">{val}</span>
+                      <span className={`text-micro font-mono leading-tight ${active ? 'text-white/90' : 'text-slate-500'}`}>
                         {sq}
                       </span>
                     </button>

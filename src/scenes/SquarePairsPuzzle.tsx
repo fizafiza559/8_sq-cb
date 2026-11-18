@@ -325,7 +325,7 @@ export const SquarePairsPuzzle: React.FC<SquarePairsPuzzleProps> = ({
                 >
                   <span>{val !== null ? val : idx + 1}</span>
                   {val === null && !isCompact && (
-                    <span className="text-[8px] font-sans font-semibold opacity-75 leading-none">
+                    <span className="text-micro font-sans font-semibold opacity-75 leading-none">
                       {isEndpoint && showEndpointHint ? 'End' : 'slot'}
                     </span>
                   )}
@@ -334,7 +334,7 @@ export const SquarePairsPuzzle: React.FC<SquarePairsPuzzleProps> = ({
                 {/* Bridge Between Adjacent Slots */}
                 {bridge && (
                   <div
-                    className={`px-1 py-0.5 rounded-md text-[10px] font-mono font-bold tabular-nums border transition-colors ${
+                    className={`px-1 py-0.5 rounded-md text-micro font-mono font-bold tabular-nums border transition-colors ${
                       bridge.sum === null
                         ? 'border-transparent text-slate-300'
                         : bridge.valid

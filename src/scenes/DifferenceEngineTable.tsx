@@ -285,7 +285,7 @@ export const DifferenceEngineTable: React.FC<DifferenceEngineTableProps> = ({
                       >
                         <span>{val}</span>
                         {levelIdx === 0 && !isCompact && (
-                          <span className="text-[9px] font-sans font-semibold opacity-70 leading-none">
+                          <span className="text-micro font-sans font-semibold opacity-70 leading-none">
                             {idx + 1}
                             {mode === 'squares' ? '²' : '³'}
                           </span>

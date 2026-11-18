@@ -212,7 +212,7 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
                       y={startY - 13}
                       textAnchor="middle"
                       fill="#FFFFFF"
-                      fontSize="11"
+                      fontSize="14"
                       fontWeight="bold"
                     >
                       {n} units
@@ -237,7 +237,7 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
                       y={startY + totalH / 2 + 4}
                       textAnchor="middle"
                       fill="#FFFFFF"
-                      fontSize="11"
+                      fontSize="14"
                       fontWeight="bold"
                     >
                       {n}
@@ -259,7 +259,7 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
                       y={startY + totalH / 2 + 4}
                       textAnchor="middle"
                       fill={COLORS.volume.text}
-                      fontSize="13"
+                      fontSize="14"
                       fontWeight="800"
                     >
                       {n * n} sq
@@ -352,7 +352,7 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
                         y={originY + block2 / 2 + 14}
                         textAnchor="middle"
                         fill="#056AA6"
-                        fontSize="11"
+                        fontSize="14"
                       >
                         Main Square
                       </text>
@@ -379,7 +379,7 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
                         y={originY + block2 / 2 + 4}
                         textAnchor="middle"
                         fill="#15803D"
-                        fontSize="11"
+                        fontSize="14"
                         fontWeight="bold"
                       >
                         1.0
@@ -407,7 +407,7 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
                         y={originY + block2 + blockHalf / 2 + 4}
                         textAnchor="middle"
                         fill="#15803D"
-                        fontSize="11"
+                        fontSize="14"
                         fontWeight="bold"
                       >
                         2 × 0.5 = 1.0
@@ -435,7 +435,7 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
                         y={originY + block2 + blockHalf / 2 + 3}
                         textAnchor="middle"
                         fill="#B45309"
-                        fontSize="9"
+                        fontSize="14"
                         fontWeight="bold"
                       >
                         0.25
@@ -448,7 +448,7 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
                       y={originY - 10}
                       textAnchor="middle"
                       fill="#056AA6"
-                      fontSize="12"
+                      fontSize="14"
                       fontWeight="bold"
                     >
                       2
@@ -458,7 +458,7 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
                       y={originY - 10}
                       textAnchor="middle"
                       fill="#15803D"
-                      fontSize="12"
+                      fontSize="14"
                       fontWeight="bold"
                     >
                       + 0.5
@@ -468,7 +468,7 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
                       y={originY + block2 / 2 + 4}
                       textAnchor="end"
                       fill="#056AA6"
-                      fontSize="12"
+                      fontSize="14"
                       fontWeight="bold"
                     >
                       2
@@ -478,7 +478,7 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
                       y={originY + block2 + blockHalf / 2 + 4}
                       textAnchor="end"
                       fill="#15803D"
-                      fontSize="12"
+                      fontSize="14"
                       fontWeight="bold"
                     >
                       0.5
@@ -488,7 +488,7 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
                       y={originY + block2 + blockHalf + 20}
                       textAnchor="middle"
                       fill="#334155"
-                      fontSize="12"
+                      fontSize="14"
                       fontWeight="bold"
                     >
                       Total Side = 2.5 units
@@ -648,7 +648,7 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
                       y={startY + (3 * subSize) / 2 + 4}
                       textAnchor="middle"
                       fill="#9A3412"
-                      fontSize="12"
+                      fontSize="14"
                       fontWeight="bold"
                     >
                       9 squares
@@ -660,7 +660,7 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
                       y={startY - 8}
                       textAnchor="middle"
                       fill="#B45309"
-                      fontSize="12"
+                      fontSize="14"
                       fontWeight="bold"
                     >
                       3/5 unit
@@ -671,7 +671,7 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
                       y={startY + (3 * subSize) / 2 + 4}
                       textAnchor="end"
                       fill="#B45309"
-                      fontSize="12"
+                      fontSize="14"
                       fontWeight="bold"
                     >
                       3/5
@@ -682,7 +682,7 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
                       y={startY + totalUnits + 20}
                       textAnchor="middle"
                       fill="#475569"
-                      fontSize="11"
+                      fontSize="14"
                       fontWeight="600"
                     >
                       1 × 1 Unit Square = 5 × 5 = 25 equal sub-squares

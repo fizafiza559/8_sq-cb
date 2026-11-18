@@ -203,7 +203,7 @@ export const HistoryVisualStory: React.FC<HistoryVisualStoryProps> = ({
                     y={232}
                     textAnchor="middle"
                     fill="#0369A1"
-                    fontSize={12}
+                    fontSize={14}
                     fontWeight={800}
                   >
                     {isAligned
@@ -266,7 +266,7 @@ export const HistoryVisualStory: React.FC<HistoryVisualStoryProps> = ({
                     y={236}
                     textAnchor="middle"
                     fill="#9A3412"
-                    fontSize={12}
+                    fontSize={14}
                     fontWeight={800}
                   >
                     {isAligned
@@ -353,7 +353,7 @@ export const HistoryVisualStory: React.FC<HistoryVisualStoryProps> = ({
               <svg viewBox="0 0 420 260" className="w-full h-auto select-none" style={{ maxHeight: `${svgMaxH}px` }}>
                 {/* Soil Horizon */}
                 <line x1={20} y1={170} x2={400} y2={170} stroke="#B45309" strokeWidth={2.5} strokeDasharray="6 4" />
-                <text x={36} y={188} fill="#92400E" fontSize={11} fontWeight={700}>
+                <text x={36} y={188} fill="#92400E" fontSize={14} fontWeight={700}>
                   Underground Mūla (Root)
                 </text>
 
@@ -386,7 +386,7 @@ export const HistoryVisualStory: React.FC<HistoryVisualStoryProps> = ({
                   y={205}
                   textAnchor="middle"
                   fill="#92400E"
-                  fontSize={10}
+                  fontSize={14}
                   fontWeight={800}
                 >
                   MŪLA
@@ -404,7 +404,7 @@ export const HistoryVisualStory: React.FC<HistoryVisualStoryProps> = ({
 
                 {/* Canopy Frame Showing Grown Square or Cube */}
                 <ellipse cx={210} cy={78} rx={115} ry={60} fill="#DCFCE7" stroke="#16A34A" strokeWidth={2} />
-                <text x={210} y={40} textAnchor="middle" fill="#15803D" fontSize={11} fontWeight={800}>
+                <text x={210} y={40} textAnchor="middle" fill="#15803D" fontSize={14} fontWeight={800}>
                   {rootExample === 'square'
                     ? 'Canopy Grows 6 × 6 = 36 Squares'
                     : 'Canopy Grows 4 × 4 × 4 = 64 Cubes'}
@@ -441,7 +441,7 @@ export const HistoryVisualStory: React.FC<HistoryVisualStoryProps> = ({
                         />
                       ))
                     )}
-                    <text x={72} y={32} fill="#6D28D9" fontSize={12} fontWeight={900}>
+                    <text x={72} y={32} fill="#6D28D9" fontSize={14} fontWeight={900}>
                       × 4 layers = 64
                     </text>
                   </g>
