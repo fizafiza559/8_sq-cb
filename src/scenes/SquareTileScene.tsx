@@ -43,10 +43,10 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
   return (
     <div
       data-no-nav="true"
-      className={`w-full max-w-3xl mx-auto flex flex-col items-center gap-5 bg-white p-5 sm:p-7 rounded-3xl border border-slate-200/80 shadow-xs ${className}`}
+      className={`w-full max-w-3xl max-h-full overflow-y-auto no-scrollbar mx-auto flex flex-col items-center gap-2.5 sm:gap-3 bg-white p-3 sm:p-4 rounded-3xl border border-slate-200/80 shadow-xs ${className}`}
     >
       {/* Top Mode Toggle Bar */}
-      <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-3 border-b border-slate-100 pb-4">
+      <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
         <div className="flex items-center gap-2 text-small font-semibold text-slate-600">
           <span>{inverseMode ? 'Area to Side Explorer' : 'Square Area Modes'}</span>
           {inverseMode && (
@@ -102,8 +102,8 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
 
       {/* Mode 1: Whole Numbers (1-5) */}
       {mode === 'integer' && (
-        <div className="w-full flex flex-col items-center gap-4 animate-fade-rise">
-          <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-50/80 p-3.5 sm:px-4 rounded-2xl">
+        <div className="w-full flex flex-col items-center gap-2.5 animate-fade-rise">
+          <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-2 bg-slate-50/80 p-2.5 sm:px-3.5 rounded-2xl">
             <div className="flex items-center gap-3">
               <label
                 htmlFor="tile-n-slider"
@@ -148,10 +148,10 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
           </div>
 
           {/* SVG Tile Grid */}
-          <div className="relative flex items-center justify-center p-3 bg-slate-50/50 rounded-2xl min-h-[210px] sm:min-h-[240px] w-full overflow-hidden">
+          <div className="relative flex items-center justify-center p-2 bg-slate-50/50 rounded-2xl w-full overflow-hidden">
             <svg
               viewBox="0 0 360 240"
-              className="w-full max-w-[360px] h-auto overflow-visible select-none"
+              className="w-full max-w-[340px] h-auto max-h-[200px] sm:max-h-[240px] overflow-visible select-none"
             >
               {(() => {
                 const tileSize = Math.min(38, 175 / Math.max(1, n));
@@ -264,7 +264,7 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
           </div>
 
           {/* Formula Strip */}
-          <div className="w-full flex items-center justify-center p-3.5 rounded-2xl bg-blue-50/60">
+          <div className="w-full flex items-center justify-center p-2.5 rounded-2xl bg-blue-50/60">
             {inverseMode ? (
               <div className="text-body font-medium text-slate-800 flex flex-wrap items-center justify-center gap-2">
                 <span>
@@ -286,7 +286,7 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
 
       {/* Mode 2: Decimal Preset (2.5 x 2.5 = 6.25) */}
       {mode === 'decimal' && (
-        <div className="w-full flex flex-col items-center gap-4 animate-fade-rise">
+        <div className="w-full flex flex-col items-center gap-2.5 animate-fade-rise">
           <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-small text-slate-600 px-1">
             <span className="font-bold text-slate-900">
               Geometric Dissection of (2 + 0.5)²
@@ -297,10 +297,10 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
           </div>
 
           {/* Visual SVG Decomposition of (2 + 0.5) x (2 + 0.5) */}
-          <div className="relative flex items-center justify-center p-3 bg-slate-50/50 rounded-2xl min-h-[210px] sm:min-h-[245px] w-full overflow-hidden">
+          <div className="relative flex items-center justify-center p-2 bg-slate-50/50 rounded-2xl w-full overflow-hidden">
             <svg
               viewBox="0 0 360 245"
-              className="w-full max-w-[360px] h-auto overflow-visible select-none"
+              className="w-full max-w-[340px] h-auto max-h-[210px] sm:max-h-[245px] overflow-visible select-none"
             >
               {(() => {
                 const scale = 68;
@@ -490,7 +490,7 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
           </div>
 
           {/* Interactive Sum Equation */}
-          <div className="w-full p-4 rounded-2xl bg-slate-50/80 flex flex-col items-center gap-2.5">
+          <div className="w-full p-2.5 rounded-2xl bg-slate-50/80 flex flex-col items-center gap-2">
             <div className="flex flex-wrap items-center justify-center gap-1.5 text-small font-bold tabular-nums">
               <button
                 type="button"
@@ -548,7 +548,7 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
 
       {/* Mode 3: Fraction Preset ((3/5)^2 = 9/25 = 0.36) */}
       {mode === 'fraction' && (
-        <div className="w-full flex flex-col items-center gap-4 animate-fade-rise">
+        <div className="w-full flex flex-col items-center gap-2.5 animate-fade-rise">
           <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-small text-slate-600 px-1">
             <span className="font-bold text-slate-900">
               Fraction Square: 3/5 of a 1 × 1 Unit Square
@@ -559,10 +559,10 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
           </div>
 
           {/* SVG 5x5 Grid showing 3x3 highlighted in vivid orange #F27A00 */}
-          <div className="relative flex items-center justify-center p-3 bg-slate-50/50 rounded-2xl min-h-[210px] sm:min-h-[245px] w-full overflow-hidden">
+          <div className="relative flex items-center justify-center p-2 bg-slate-50/50 rounded-2xl w-full overflow-hidden">
             <svg
               viewBox="0 0 360 245"
-              className="w-full max-w-[360px] h-auto overflow-visible select-none"
+              className="w-full max-w-[340px] h-auto max-h-[210px] sm:max-h-[245px] overflow-visible select-none"
             >
               {(() => {
                 const subSize = 36;
@@ -681,7 +681,7 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
           </div>
 
           {/* Fraction Breakdown Equation */}
-          <div className="w-full p-4 rounded-2xl bg-orange-50/60 flex items-center justify-center overflow-x-auto">
+          <div className="w-full p-2.5 rounded-2xl bg-orange-50/60 flex items-center justify-center overflow-x-auto">
             <Katex
               latex={`\\text{Side} = \\frac{3}{5} \\implies \\text{Area} = \\frac{3}{5} \\times \\frac{3}{5} = \\frac{9}{25} = 0.36`}
               displayMode={false}

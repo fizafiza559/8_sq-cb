@@ -140,10 +140,10 @@ export const IsometricCubeRenderer: React.FC<IsometricCubeRendererProps> = ({
   return (
     <div
       data-no-nav="true"
-      className={`w-full max-w-4xl mx-auto rounded-3xl border border-slate-200/80 bg-white p-5 sm:p-7 shadow-xs flex flex-col gap-5 ${className}`}
+      className={`w-full max-w-4xl max-h-full overflow-y-auto no-scrollbar mx-auto rounded-3xl border border-slate-200/80 bg-white p-3 sm:p-4 shadow-xs flex flex-col gap-2.5 sm:gap-3 ${className}`}
     >
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
         <div>
           <span className="text-micro font-bold uppercase tracking-wider text-slate-500">
             3D Isometric Volume Builder
@@ -187,7 +187,7 @@ export const IsometricCubeRenderer: React.FC<IsometricCubeRendererProps> = ({
       </div>
 
       {/* Controls Bar */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-2xl bg-slate-50/80">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 p-2.5 sm:p-3 rounded-2xl bg-slate-50/80">
         {/* Edge Length Controller */}
         <div className="flex items-center justify-between md:justify-start gap-3">
           <span className="text-small font-bold whitespace-nowrap" style={{ color: COLORS.headingText }}>
@@ -271,7 +271,7 @@ export const IsometricCubeRenderer: React.FC<IsometricCubeRendererProps> = ({
       >
         <svg
           viewBox={`0 0 ${viewWidth} ${viewHeight}`}
-          className="w-full h-auto max-h-[300px] sm:max-h-[420px] select-none"
+          className="w-full h-auto max-h-[220px] sm:max-h-[280px] select-none"
         >
           {/* Left Badge */}
           <g transform="translate(22, 22)">
@@ -380,7 +380,7 @@ export const IsometricCubeRenderer: React.FC<IsometricCubeRendererProps> = ({
       </div>
 
       {/* Formula Strip */}
-      <div className="p-4 rounded-2xl bg-slate-50/80 text-center space-y-1">
+      <div className="p-2.5 sm:p-3 rounded-2xl bg-slate-50/80 text-center space-y-0.5">
         <div className="text-body sm:text-statement font-bold overflow-x-auto" style={{ color: COLORS.volume.text }}>
           <Katex
             latex={`\\text{Volume} = ${n} \\times ${n} \\times ${n} = ${n}^3 = ${totalVolume} \\quad (${Array.from({ length: visibleLayers }, (_, i) => (i + 1) * perLayer).join(' \\to ')})`}

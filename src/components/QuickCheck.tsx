@@ -43,7 +43,7 @@ export const QuickCheck: React.FC<QuickCheckProps> = ({
     const scoreText = `${correctCount} out of ${questions.length}`;
 
     return (
-      <div className="w-full max-w-[900px] mx-auto flex flex-col items-center text-center gap-6 py-6 animate-fade-rise">
+      <div className="w-full max-w-[900px] max-h-full overflow-y-auto no-scrollbar mx-auto flex flex-col items-center text-center gap-4 py-3 animate-fade-rise">
         <HighlightHeadline
           text={`You got ${scoreText} right`}
           focusWord={scoreText}
@@ -98,7 +98,7 @@ export const QuickCheck: React.FC<QuickCheckProps> = ({
   return (
     <div
       key={`qc-slide-${currentIndex}`}
-      className="w-full max-w-[900px] mx-auto flex flex-col items-center gap-6 py-2 animate-fade-rise"
+      className="w-full max-w-[900px] max-h-full overflow-y-auto no-scrollbar mx-auto flex flex-col items-center gap-4 py-2 animate-fade-rise"
     >
       {/* Question as the slide headline */}
       <HighlightHeadline text={q.prompt} />

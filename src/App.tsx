@@ -520,9 +520,9 @@ export default function App() {
           onNextScene={advanceAfterQuickCheck}
         />
       ) : isSceneSubTab && !inQuickCheck ? (
-        <div className="w-full flex flex-col items-center gap-4 md:gap-6">
-          <div className="w-full flex flex-col items-center gap-2 px-1">
-            <div className="flex flex-wrap items-center justify-center gap-2.5 max-w-[900px]">
+        <div className="w-full h-full min-h-0 flex flex-col items-center justify-center gap-1.5 sm:gap-2 overflow-hidden">
+          <div className="w-full flex flex-col items-center gap-1 px-1 shrink-0">
+            <div className="flex flex-wrap items-center justify-center gap-2 max-w-[900px]">
               <HighlightHeadline
                 text={currentBeat.headline || currentBeat.narration}
                 focusWord={currentBeat.focusWord}
@@ -535,7 +535,7 @@ export default function App() {
             {currentBeat.caption && (
               <p
                 key={`cap-${currentBeat.id}`}
-                className="text-small sm:text-body text-center max-w-2xl leading-relaxed animate-fade-rise"
+                className="text-micro sm:text-small text-center max-w-2xl leading-snug animate-fade-rise"
                 style={{ color: COLORS.mutedText }}
               >
                 {currentBeat.caption}
@@ -545,14 +545,14 @@ export default function App() {
 
           <div
             data-no-nav={currentBeat.interactive ? 'true' : undefined}
-            className="w-full max-w-[880px] flex items-center justify-center transition-opacity duration-200 ease-out"
+            className="w-full max-w-[760px] flex-1 min-h-0 max-h-[46vh] flex items-center justify-center transition-opacity duration-200 ease-out"
           >
             {renderSceneVisual()}
           </div>
 
           {visibleLatexLines.length > 0 && (
-            <div className="w-full max-w-3xl mx-auto overflow-x-auto no-scrollbar py-1">
-              <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 math-strip font-medium">
+            <div className="w-full max-w-3xl mx-auto overflow-x-auto no-scrollbar py-0.5 shrink-0">
+              <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1 math-strip font-medium">
                 {visibleLatexLines.map((line, i) => {
                   const isNewest = i === visibleLatexLines.length - 1;
                   const formattedLine =

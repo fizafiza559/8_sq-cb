@@ -11,9 +11,7 @@ import {
   Pause,
   RotateCcw,
   Sparkles,
-  Crown,
   Scroll,
-  HelpCircle,
   CheckCircle2,
   Gem,
   KeyRound,
@@ -81,7 +79,7 @@ export const FactorPairsMorph36: React.FC<FactorPairsMorph36Props> = ({
   return (
     <div
       data-no-nav="true"
-      className={`w-full max-w-4xl mx-auto rounded-3xl border border-slate-200/80 bg-white p-5 sm:p-7 shadow-2xs flex flex-col gap-5 ${className}`}
+      className={`w-full max-w-4xl max-h-full overflow-y-auto no-scrollbar mx-auto rounded-3xl border border-slate-200/80 bg-white p-3 sm:p-4 shadow-2xs flex flex-col gap-2.5 sm:gap-3 ${className}`}
     >
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
@@ -281,6 +279,9 @@ export const LockerStorySection: React.FC<LockerStorySectionProps> = ({
   useEffect(() => {
     if (stepIndex >= 0 && stepIndex <= 2) {
       setPanelIndex(stepIndex);
+      if (stepIndex === 2) {
+        setCurrentPerson((prev) => (prev === 0 ? 100 : prev));
+      }
     }
   }, [stepIndex]);
 
@@ -349,15 +350,15 @@ export const LockerStorySection: React.FC<LockerStorySectionProps> = ({
   const renderLockerSimulator = () => (
     <div
       data-no-nav="true"
-      className="w-full bg-white p-4 sm:p-7 rounded-3xl border border-slate-200/80 shadow-2xs flex flex-col gap-5"
+      className="w-full bg-white p-3 sm:p-4 rounded-3xl border border-slate-200/80 shadow-2xs flex flex-col gap-2.5 sm:gap-3"
     >
       {/* Control Bar */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
-        <div className="flex items-center gap-2.5 flex-wrap">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+        <div className="flex items-center gap-2 flex-wrap">
           <button
             type="button"
             onClick={() => setIsPlaying((p) => !p)}
-            className={`min-h-[44px] px-4 py-2 rounded-xl text-small font-bold flex items-center gap-2 cursor-pointer transition-colors whitespace-nowrap shrink-0 ${
+            className={`min-h-[38px] px-3.5 py-1.5 rounded-xl text-small font-bold flex items-center gap-1.5 cursor-pointer transition-colors whitespace-nowrap shrink-0 ${
               isPlaying
                 ? 'bg-amber-600 text-white'
                 : 'bg-emerald-600 text-white hover:bg-emerald-700'
@@ -373,7 +374,7 @@ export const LockerStorySection: React.FC<LockerStorySectionProps> = ({
               setIsPlaying(false);
               setCurrentPerson(0);
             }}
-            className="min-h-[44px] w-11 rounded-xl border border-slate-200/80 bg-slate-50 hover:bg-slate-100 text-slate-600 flex items-center justify-center cursor-pointer shrink-0"
+            className="min-h-[38px] w-10 rounded-xl border border-slate-200/80 bg-slate-50 hover:bg-slate-100 text-slate-600 flex items-center justify-center cursor-pointer shrink-0"
             title="Reset to 0"
           >
             <RotateCcw className="w-4 h-4" />
@@ -574,112 +575,63 @@ export const LockerStorySection: React.FC<LockerStorySectionProps> = ({
   );
 
   return (
-    <div data-no-nav="true" className="w-full max-w-4xl mx-auto flex flex-col gap-5 py-1 pb-12 animate-fade-rise">
-      {/* Storyboard Navigation Header */}
-      <div className="w-full bg-white p-2 sm:p-2.5 rounded-2xl border border-slate-200/80 flex items-center justify-between gap-2 overflow-x-auto no-scrollbar">
-        <div className="flex items-center gap-1.5">
-          <button
-            type="button"
-            onClick={() => setPanelIndex(0)}
-            className={`min-h-[42px] px-3.5 py-2 rounded-xl text-small font-bold flex items-center gap-2 transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
-              panelIndex === 0
-                ? 'bg-amber-600 text-white'
-                : 'text-slate-600 hover:bg-slate-50'
-            }`}
-          >
-            <Crown className="w-4 h-4 shrink-0" />
-            <span>1. Queen&apos;s Decree</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setPanelIndex(1)}
-            className={`min-h-[42px] px-3.5 py-2 rounded-xl text-small font-bold flex items-center gap-2 transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
-              panelIndex === 1
-                ? 'bg-[#005583] text-white'
-                : 'text-slate-600 hover:bg-slate-50'
-            }`}
-          >
-            <HelpCircle className="w-4 h-4 shrink-0" />
-            <span>2. Vault &amp; Guess</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              setPanelIndex(2);
-              if (currentPerson === 0) setCurrentPerson(100);
-            }}
-            className={`min-h-[42px] px-3.5 py-2 rounded-xl text-small font-bold flex items-center gap-2 transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
-              panelIndex === 2
-                ? 'bg-emerald-600 text-white'
-                : 'text-slate-600 hover:bg-slate-50'
-            }`}
-          >
-            <Sparkles className="w-4 h-4 shrink-0" />
-            <span>3. Solution &amp; Animation</span>
-          </button>
-        </div>
-
-        <span className="text-micro font-semibold text-slate-400 px-3 shrink-0 hidden sm:block tabular-nums">
-          Panel {panelIndex + 1} of 3
-        </span>
-      </div>
-
+    <div
+      data-no-nav="true"
+      className="w-full max-w-4xl max-h-full overflow-y-auto no-scrollbar mx-auto flex flex-col gap-3 sm:gap-4 py-1 pb-2 animate-fade-rise"
+    >
       {/* ================================================================= */}
       {/* PANEL 1: THE QUEEN'S ROYAL DECREE + IMMEDIATE 100-LOCKER GRID */}
       {/* ================================================================= */}
       {panelIndex === 0 && (
-        <div className="w-full flex flex-col gap-6 animate-fade-rise">
+        <div className="w-full flex flex-col gap-3 sm:gap-4 animate-fade-rise">
           {/* Main Hero Card with User Image */}
           <div className="w-full bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-xs flex flex-col md:flex-row">
             {/* Left: Queen Court Image */}
-            <div className="md:w-1/2 relative bg-amber-950 min-h-[240px] md:min-h-[320px] overflow-hidden">
+            <div className="md:w-5/12 relative bg-amber-950 min-h-[170px] md:min-h-[200px] max-h-[220px] overflow-hidden">
               <img
                 src="/assets/aistudio/Gemini_Generated_Image_j5vt77j5vt77j5vt__1__8ec11c4a.png"
                 alt="Queen Ratnamanjuri reading her royal decree to Khoisnam and relatives"
                 className="w-full h-full object-cover object-center transform hover:scale-105 transition-transform duration-700"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent pointer-events-none" />
-              <div className="absolute bottom-3 left-4 right-4 text-white">
-                <span className="text-micro uppercase font-bold tracking-widest text-amber-300">
+              <div className="absolute bottom-2.5 left-3.5 right-3.5 text-white">
+                <span className="text-[10px] uppercase font-bold tracking-widest text-amber-300">
                   Palace of Ratnas
                 </span>
-                <p className="text-small font-bold text-slate-100">
+                <p className="text-micro font-bold text-slate-100 leading-snug">
                   Queen Ratnamanjuri addresses her son Khoisnam and 99 relatives.
                 </p>
               </div>
             </div>
 
             {/* Right: The Queen's Will & Riddle Statement */}
-            <div className="md:w-1/2 p-6 sm:p-8 flex flex-col justify-between gap-5 bg-gradient-to-br from-amber-50/50 via-white to-amber-50/30">
-              <div className="flex flex-col gap-3">
-                <div className="flex items-center gap-2 text-amber-800">
-                  <Scroll className="w-5 h-5 text-amber-600" />
-                  <span className="text-micro font-extrabold uppercase tracking-widest">
+            <div className="md:w-7/12 p-4 sm:p-5 flex flex-col justify-between gap-3 bg-gradient-to-br from-amber-50/50 via-white to-amber-50/30">
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-1.5 text-amber-800">
+                  <Scroll className="w-4 h-4 text-amber-600 shrink-0" />
+                  <span className="text-[11px] font-extrabold uppercase tracking-widest">
                     Royal Testament &amp; Will
                   </span>
                 </div>
 
-                <h3 className="text-title font-black text-slate-900 tracking-tight leading-tight">
+                <h3 className="text-statement sm:text-title font-black text-slate-900 tracking-tight leading-snug">
                   The Royal Decree of Queen Ratnamanjuri
                 </h3>
 
-                <blockquote className="p-4 rounded-2xl bg-amber-100/70 border border-amber-300/80 text-body text-amber-950 font-serif italic leading-relaxed relative">
+                <blockquote className="p-3 rounded-xl bg-amber-100/70 border border-amber-300/80 text-small sm:text-body text-amber-950 font-serif italic leading-relaxed relative">
                   &ldquo;I have created a puzzle. If all 100 of you answer it at the same time, you
-                  will share the ratnas (precious stones) equally. However, if you are the first one
-                  to solve the problem, you will get to keep the entire inheritance to yourself. Good
-                  luck.&rdquo;
+                  will share the ratnas equally. However, if you are the first one to solve the problem,
+                  you will get to keep the entire inheritance to yourself.&rdquo;
                 </blockquote>
 
-                <p className="text-small text-slate-700 leading-relaxed">
-                  Test the <strong>100-locker grid</strong> right below, or enter the vault to make your prediction!
+                <p className="text-micro sm:text-small text-slate-700 leading-snug">
+                  Test the <strong>100-locker grid</strong> below, or tap Continue / Enter Secret Vault to make your guess!
                 </p>
               </div>
 
-              <div className="pt-2 flex items-center justify-between gap-2 flex-wrap">
+              <div className="pt-1 flex items-center justify-between gap-2 flex-wrap">
                 <span className="text-micro text-slate-500 font-medium">
-                  Grade 8 NCERT Mathematics · Chapter 1 Opening Story
+                  Class 8 NCERT Mathematics · Chapter Opening Puzzle
                 </span>
                 <button
                   type="button"
@@ -687,7 +639,7 @@ export const LockerStorySection: React.FC<LockerStorySectionProps> = ({
                     setPanelIndex(1);
                     onAdvanceStep?.();
                   }}
-                  className="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-small font-bold flex items-center gap-2 shadow-2xs transition-colors cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-micro sm:text-small font-bold flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
                 >
                   <span>Enter Secret Vault</span>
                   <ArrowRight className="w-4 h-4" />

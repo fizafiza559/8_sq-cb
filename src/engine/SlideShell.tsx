@@ -61,7 +61,7 @@ export const SlideShell: React.FC<SlideShellProps> = ({
   onSelectSection,
   activeChapter = 'ch-2',
   onSelectChapter,
-  topics,
+  topics: _topics,
   activeTopicId,
   onSelectTopic,
   topLeftExtra,
@@ -105,7 +105,6 @@ export const SlideShell: React.FC<SlideShellProps> = ({
     }
   }, [chapterMenuOpen]);
 
-  const activeSection = sections.find((s) => s.id === activeSectionId) || sections[0];
   const totalSteps = Math.max(1, steps.length);
   const clampedStep = Math.max(0, Math.min(totalSteps - 1, currentStepIndex));
 
@@ -204,7 +203,7 @@ export const SlideShell: React.FC<SlideShellProps> = ({
   };
 
   const renderUtilityControls = (compact = false) => (
-    <div data-no-nav="true" className="flex items-center gap-1.5 shrink-0">
+    <div data-no-nav="true" className="flex items-center gap-1.5 sm:gap-2 shrink-0">
       <button
         type="button"
         onClick={() => {
@@ -213,7 +212,7 @@ export const SlideShell: React.FC<SlideShellProps> = ({
         }}
         title={focusMode ? 'Exit focus mode' : 'Focus mode'}
         aria-label={focusMode ? 'Exit focus mode' : 'Focus mode'}
-        className="w-10 h-10 flex items-center justify-center rounded-xl border border-slate-200/80 bg-white hover:bg-slate-50 cursor-pointer transition-colors"
+        className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl border border-slate-200/80 bg-white hover:bg-slate-50 cursor-pointer transition-colors"
         style={{ color: focusMode ? COLORS.primary : COLORS.mutedText }}
       >
         {focusMode ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -236,16 +235,18 @@ export const SlideShell: React.FC<SlideShellProps> = ({
         ref={menuBtnRef}
         type="button"
         onClick={() => setShowIndex((s) => !s)}
-        title="Sections & Topics"
-        aria-label="Open sections and topics menu"
+        title="Chapter Index & Navigation"
+        aria-label="Open Chapter Index and Navigation"
         aria-expanded={showIndex}
         aria-controls="index-drawer"
-        className="h-10 px-3 flex items-center justify-center gap-1.5 rounded-xl border border-slate-200/80 bg-white hover:bg-slate-50 cursor-pointer transition-colors text-micro font-bold whitespace-nowrap shrink-0"
-        style={{ color: showIndex ? COLORS.primary : COLORS.headingText }}
+        className="h-9 sm:h-10 px-3 sm:px-3.5 flex items-center justify-center gap-1.5 rounded-xl font-bold text-micro sm:text-small shadow-xs cursor-pointer transition-all whitespace-nowrap shrink-0"
+        style={{
+          backgroundColor: showIndex ? '#003F62' : COLORS.primary,
+          color: '#FFFFFF',
+        }}
       >
-        <Layers className="w-4 h-4 shrink-0" style={{ color: COLORS.primary }} />
-        <span className="lg:hidden">Sections</span>
-        <span className="hidden lg:inline">Index</span>
+        <Layers className="w-4 h-4 shrink-0" />
+        <span>Index</span>
       </button>
     </div>
   );
@@ -261,36 +262,42 @@ export const SlideShell: React.FC<SlideShellProps> = ({
         {currentUnit?.title ? `: ${currentUnit.title}` : ''}
       </div>
 
-      {/* 1. HEADER: Calm minimal 56px navigation chrome (hidden in Focus mode) */}
+      {/* 1. HEADER: Clean, minimal 56px chrome with breadcrumb left & Index hub right */}
       {!focusMode && (
         <header
           data-no-nav="true"
           className="h-14 px-3 sm:px-5 lg:px-6 border-b border-slate-200/80 bg-white/95 backdrop-blur-sm flex items-center justify-between gap-3 shrink-0 z-30"
         >
-          {/* Left: Compact Brand + Chapter Switcher + Mobile Active Section label */}
-          <div className="flex items-center gap-2 min-w-0">
-            <span
-              className="font-bold tracking-tight text-small shrink-0"
-              style={{ color: COLORS.primary }}
-            >
-              NCERT
-            </span>
+          {/* Left: Clean title / breadcrumb badge + compact Chapter indicator */}
+          <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+            <div className="flex items-center gap-1.5 min-w-0 text-small font-semibold text-slate-700">
+              <span className="font-extrabold tracking-tight shrink-0" style={{ color: COLORS.primary }}>
+                NCERT
+              </span>
+              <span className="text-slate-300 shrink-0" aria-hidden="true">
+                &gt;
+              </span>
+              <span className="text-slate-500 hidden sm:inline shrink-0">Class 8</span>
+              <span className="text-slate-300 hidden sm:inline shrink-0" aria-hidden="true">
+                &gt;
+              </span>
+              <span className="font-bold text-slate-900 truncate">
+                {activeChapter === 'ch-1' ? 'Linear Equations' : 'Squares & Cubes'}
+              </span>
+            </div>
 
-            {/* Chapter Switcher Dropdown */}
+            {/* Compact Chapter 2 indicator / switcher */}
             <div ref={chapterMenuRef} className="relative inline-block shrink-0">
               <button
                 type="button"
                 onClick={() => setChapterMenuOpen((o) => !o)}
-                className="min-h-[38px] px-2.5 py-1 rounded-xl text-micro font-semibold border border-slate-200/80 bg-slate-50/60 hover:bg-slate-100/80 flex items-center gap-1 transition-colors cursor-pointer whitespace-nowrap"
-                style={{ color: COLORS.headingText }}
+                className="min-h-[30px] px-2 py-0.5 rounded-lg text-micro font-bold border border-sky-200/80 bg-sky-50/80 hover:bg-sky-100/80 flex items-center gap-1 transition-colors cursor-pointer whitespace-nowrap"
+                style={{ color: COLORS.primary }}
                 aria-expanded={chapterMenuOpen}
-                aria-label="Switch chapter"
+                aria-label="Chapter indicator"
               >
-                <span className="sm:hidden">{activeChapter === 'ch-1' ? 'Ch 1' : 'Ch 2'}</span>
-                <span className="hidden sm:inline">
-                  {activeChapter === 'ch-1' ? 'Ch 1: Linear Equations' : 'Ch 2: Squares & Cubes'}
-                </span>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                <span>{activeChapter === 'ch-1' ? 'Ch 1' : 'Ch 2'}</span>
+                <ChevronDown className="w-3 h-3 opacity-75" />
               </button>
 
               {chapterMenuOpen && (
@@ -335,53 +342,9 @@ export const SlideShell: React.FC<SlideShellProps> = ({
                 </div>
               )}
             </div>
-
-            {/* Active Section indicator on phones/tablets where center nav collapses */}
-            <div className="lg:hidden flex items-center gap-1.5 min-w-0 text-small text-slate-500">
-              <span className="opacity-50">/</span>
-              <button
-                type="button"
-                onClick={() => setShowIndex(true)}
-                className="truncate font-semibold text-slate-800 hover:text-[#005583] cursor-pointer text-left max-w-[140px] sm:max-w-[240px]"
-              >
-                {activeSection.shortLabel.replace(/^\d+\.\s*/, '')}
-              </button>
-            </div>
           </div>
 
-          {/* Centre (lg+): Calm typographic section tabs with subtle bottom indicator */}
-          <nav
-            aria-label="Chapter sections"
-            className="hidden lg:flex items-center justify-center gap-1 flex-1 min-w-0 overflow-x-auto no-scrollbar"
-          >
-            {sections.map((sec) => {
-              const isActive = sec.id === activeSectionId;
-              return (
-                <button
-                  key={sec.id}
-                  type="button"
-                  onClick={() => onSelectSection(sec.id)}
-                  aria-current={isActive ? 'page' : undefined}
-                  className={`relative min-h-[40px] px-3 py-1.5 text-ui whitespace-nowrap shrink-0 flex items-center transition-colors cursor-pointer rounded-lg ${
-                    isActive
-                      ? 'font-bold text-[#005583]'
-                      : 'font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50/80'
-                  }`}
-                >
-                  <span>{sec.shortLabel}</span>
-                  {isActive && (
-                    <span
-                      aria-hidden="true"
-                      className="absolute bottom-0.5 left-3 right-3 h-0.5 rounded-full"
-                      style={{ backgroundColor: COLORS.primary }}
-                    />
-                  )}
-                </button>
-              );
-            })}
-          </nav>
-
-          {/* Right: Calm utility actions + collapsible Sections trigger */}
+          {/* Right: Calm utility actions + highlighted Index portal button */}
           {renderUtilityControls(false)}
         </header>
       )}
@@ -441,10 +404,10 @@ export const SlideShell: React.FC<SlideShellProps> = ({
           </div>
         )}
 
-        {/* 4. STAGE: #F8FAFF with faint 28px square grid (#E3EAF8), tap/double-tap navigable */}
+        {/* 4. STAGE: #F8FAFF with faint 28px square grid (#E3EAF8), zero-scroll 100vh lock */}
         <main
           {...stagePointerProps}
-          className="flex-1 min-w-0 min-h-0 flex flex-col relative overflow-y-auto select-none"
+          className="flex-1 min-w-0 min-h-0 flex flex-col justify-between items-center overflow-hidden p-2 sm:p-3 select-none relative"
           style={{
             backgroundColor: '#F8FAFF',
             backgroundImage:
@@ -455,50 +418,20 @@ export const SlideShell: React.FC<SlideShellProps> = ({
         >
           {/* Floating utility icons when Focus mode hides the header */}
           {focusMode && (
-            <div data-no-nav="true" className="sticky top-3 z-30 flex justify-end px-4 pointer-events-none">
+            <div data-no-nav="true" className="w-full flex justify-end px-2 pt-1 shrink-0 z-30 pointer-events-none">
               <div className="pointer-events-auto">{renderUtilityControls(true)}</div>
             </div>
           )}
 
-          {/* 2. TOPICS + optional top-left filter: scrollable single-row bar on phones & spacious on desktop */}
-          {((topics && topics.length >= 2) || topLeftExtra) && (
-            <div
-              data-no-nav="true"
-              className="px-4 sm:px-6 md:px-10 pt-3 pb-1 border-b border-slate-200/50 bg-white/55 backdrop-blur-[2px] flex items-center gap-4 overflow-x-auto no-scrollbar shrink-0"
-            >
-              {topics && topics.length >= 2 && (
-                <div className="flex items-center gap-1 sm:gap-2 min-w-max">
-                  {topics.map((topic) => {
-                    const isActive = topic.id === activeTopicId;
-                    return (
-                      <button
-                        key={topic.id}
-                        type="button"
-                        onClick={() => onSelectTopic?.(topic.id)}
-                        className="text-ui font-semibold min-h-[44px] px-3 py-1.5 transition-colors cursor-pointer border-b-2 flex items-center whitespace-nowrap shrink-0"
-                        style={{
-                          color: isActive ? COLORS.primary : COLORS.mutedText,
-                          borderColor: isActive ? COLORS.primary : 'transparent',
-                        }}
-                      >
-                        {topic.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-              {topLeftExtra && <div className="shrink-0">{topLeftExtra}</div>}
+          {topLeftExtra && (
+            <div data-no-nav="true" className="w-full max-w-6xl mx-auto px-2 sm:px-4 pt-1 shrink-0">
+              {topLeftExtra}
             </div>
           )}
 
-          {/* Centered airy stage content */}
-          <div className="flex-1 w-full max-w-5xl mx-auto px-4 sm:px-6 md:px-10 py-4 sm:py-6 flex flex-col items-center">
-            {activeSection.storyHook && clampedStep === 0 && (
-              <p className="mb-3 text-micro sm:text-small font-medium text-slate-500 text-center max-w-xl animate-fade-rise">
-                {activeSection.storyHook}
-              </p>
-            )}
-            <div className="w-full min-w-0 my-auto flex flex-col items-center transition-opacity duration-200 ease-out">
+          {/* Zero-overflow stage content - aligned cleanly to top */}
+          <div className="w-full flex-1 min-h-0 max-w-6xl mx-auto px-1 sm:px-3 md:px-4 flex flex-col items-center justify-start overflow-hidden">
+            <div className="w-full flex-1 min-h-0 flex flex-col items-center justify-start transition-opacity duration-200 ease-out">
               {children}
             </div>
           </div>
@@ -519,94 +452,143 @@ export const SlideShell: React.FC<SlideShellProps> = ({
               }}
             />
           ))}
-
-          {/* Bottom stage cues: quiet unboxed text cue */}
-          <div className="w-full px-4 pb-4 pt-1 flex flex-col items-center gap-1.5 pointer-events-none shrink-0">
-            {effectiveIsLastUnit && nextScreenLabel && (
-              <p
-                className="text-small font-semibold text-center animate-fade-rise"
-                style={{ color: COLORS.primary }}
-              >
-                Tap to continue → {nextScreenLabel}
-              </p>
-            )}
-            <p
-              aria-hidden={hasTappedOnce}
-              className={`text-micro font-medium text-center transition-opacity duration-500 ${
-                hasTappedOnce ? 'opacity-0' : 'opacity-75'
-              }`}
-              style={{ color: COLORS.mutedText }}
-            >
-              Tap anywhere to continue · Double-tap to go back
-            </p>
-          </div>
         </main>
       </div>
 
-      {/* Slim Controls Dock for interactive steps (with Continue chip) */}
-      <div
-        data-no-nav="true"
-        className={`shrink-0 overflow-hidden transition-all duration-300 ease-out bg-white ${
-          controlsDock ? 'max-h-64 opacity-100 border-t border-slate-200/80' : 'max-h-0 opacity-0 pointer-events-none'
-        }`}
-      >
-        {controlsDock && (
-          <div className="px-4 md:px-6 py-2.5 max-w-6xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div className="flex-1 min-w-0">{controlsDock}</div>
-            <button
-              type="button"
-              onClick={() => onNext()}
-              className="self-end sm:self-auto shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-ui font-semibold text-white min-h-[44px] cursor-pointer transition-opacity hover:opacity-90 whitespace-nowrap"
-              style={{ backgroundColor: COLORS.primary }}
-            >
-              <span>Continue</span>
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* 3b. MOBILE STEP DOTS (< 768px) */}
-      {!focusMode && totalSteps > 1 && (
-        <div
+      {/* 5. BOTTOM NAVIGATION DOCK: Fixed h-14 (56px), leaving calc(100vh - 112px) for the stage */}
+      {!focusMode && (
+        <footer
           data-no-nav="true"
-          className="md:hidden relative px-4 py-1.5 border-t border-slate-200/80 shrink-0 overflow-x-auto no-scrollbar bg-white/90"
+          className="h-14 px-3 sm:px-5 lg:px-6 border-t border-slate-200/80 bg-white/95 backdrop-blur-sm flex items-center justify-between gap-3 shrink-0 z-20"
         >
-          {mobileDotTitle && (
-            <div
-              className="fixed bottom-12 left-1/2 -translate-x-1/2 z-50 px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-small font-medium max-w-[85vw] truncate pointer-events-none shadow-sm"
-              style={{ color: COLORS.headingText }}
-            >
-              {mobileDotTitle}
+          {controlsDock ? (
+            <div className="w-full max-w-6xl mx-auto flex items-center justify-between gap-2 min-w-0">
+              <div className="flex-1 min-w-0 overflow-x-auto no-scrollbar">{controlsDock}</div>
+              <button
+                type="button"
+                onClick={() => onNext()}
+                className="shrink-0 inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-small font-semibold text-white min-h-[38px] cursor-pointer transition-opacity hover:opacity-90 whitespace-nowrap"
+                style={{ backgroundColor: COLORS.primary }}
+              >
+                <span>Continue</span>
+                <ChevronRight className="w-4 h-4" />
+              </button>
             </div>
+          ) : (
+            <>
+              {/* Mobile Step Dots (< 768px) */}
+              <div className="md:hidden w-full flex items-center justify-between gap-2 min-w-0">
+                {mobileDotTitle && (
+                  <div
+                    className="fixed bottom-16 left-1/2 -translate-x-1/2 z-50 px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-small font-medium max-w-[85vw] truncate pointer-events-none shadow-sm"
+                    style={{ color: COLORS.headingText }}
+                  >
+                    {mobileDotTitle}
+                  </div>
+                )}
+
+                {totalSteps > 1 ? (
+                  <div className="flex-1 min-w-0 overflow-x-auto no-scrollbar flex items-center justify-center">
+                    <div className="flex items-center gap-1 min-w-max">
+                      {steps.map((step, idx) => {
+                        const isActive = idx === clampedStep;
+                        return (
+                          <button
+                            key={step.id}
+                            type="button"
+                            onClick={() => onSelectStep(idx)}
+                            onTouchStart={(e) => handleTouchStartStep(e.currentTarget, step.title, true)}
+                            onTouchEnd={clearStepTooltip}
+                            onTouchCancel={clearStepTooltip}
+                            aria-label={`Step ${idx + 1}: ${step.title}`}
+                            aria-current={isActive ? 'step' : undefined}
+                            className="h-9 px-1 flex items-center justify-center cursor-pointer shrink-0"
+                          >
+                            <span
+                              className="h-2.5 rounded-full transition-all block"
+                              style={{
+                                width: isActive ? '22px' : '8px',
+                                backgroundColor: isActive ? COLORS.primary : '#CBD5E1',
+                              }}
+                            />
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ) : (
+                  <span className="text-micro font-medium text-slate-500 truncate mx-auto">
+                    {activeSectionId === 'sec-5'
+                      ? 'Tap the right card to reveal solution steps'
+                      : effectiveIsLastUnit && nextScreenLabel
+                      ? `Tap to continue → ${nextScreenLabel}`
+                      : 'Tap anywhere to continue'}
+                  </span>
+                )}
+              </div>
+
+              {/* Desktop / Tablet Bottom Dock (>= 768px) */}
+              <div className="hidden md:flex w-full max-w-6xl mx-auto items-center justify-between gap-4">
+                <div className="flex items-center gap-2 text-micro font-semibold text-slate-500 tabular-nums shrink-0">
+                  {activeSectionId === 'sec-5' ? (
+                    <span>Practice Arena · Single-Screen Mode</span>
+                  ) : (
+                    <span>
+                      Step {clampedUnitIndex + 1} of {totalUnits}
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex-1 min-w-0 flex items-center justify-center">
+                  {activeSectionId === 'sec-5' ? (
+                    <span className="text-micro font-medium text-slate-500 truncate">
+                      Pick an option on the left or tap the right panel to step through the solution
+                    </span>
+                  ) : effectiveIsLastUnit && nextScreenLabel ? (
+                    <span
+                      className="text-small font-semibold truncate animate-fade-rise"
+                      style={{ color: COLORS.primary }}
+                    >
+                      Tap to continue → {nextScreenLabel}
+                    </span>
+                  ) : (
+                    <span
+                      className={`text-micro font-medium truncate transition-opacity duration-300 ${
+                        hasTappedOnce ? 'opacity-65' : 'opacity-85'
+                      }`}
+                      style={{ color: COLORS.mutedText }}
+                    >
+                      Tap anywhere to continue · Double-tap to go back
+                    </span>
+                  )}
+                </div>
+
+                {activeSectionId !== 'sec-5' ? (
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => onBack()}
+                      className="h-9 px-3 rounded-xl border border-slate-200/90 bg-white hover:bg-slate-50 text-micro font-semibold text-slate-600 transition-colors cursor-pointer"
+                    >
+                      ← Back
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onNext()}
+                      className="h-9 px-3.5 rounded-xl text-micro font-bold text-white inline-flex items-center gap-1 transition-opacity hover:opacity-90 cursor-pointer"
+                      style={{ backgroundColor: COLORS.primary }}
+                    >
+                      <span>{effectiveIsLastUnit && nextScreenLabel ? 'Next Topic' : 'Continue'}</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="w-24 shrink-0" aria-hidden="true" />
+                )}
+              </div>
+            </>
           )}
-          <div className="flex items-center gap-1 min-w-max mx-auto">
-            {steps.map((step, idx) => {
-              const isActive = idx === clampedStep;
-              return (
-                <button
-                  key={step.id}
-                  type="button"
-                  onClick={() => onSelectStep(idx)}
-                  onTouchStart={(e) => handleTouchStartStep(e.currentTarget, step.title, true)}
-                  onTouchEnd={clearStepTooltip}
-                  onTouchCancel={clearStepTooltip}
-                  aria-label={`Step ${idx + 1}: ${step.title}`}
-                  aria-current={isActive ? 'step' : undefined}
-                  className="h-9 px-1 flex items-center justify-center cursor-pointer shrink-0"
-                >
-                  <span
-                    className="h-2.5 rounded-full transition-all block"
-                    style={{
-                      width: isActive ? '22px' : '8px',
-                      backgroundColor: isActive ? COLORS.primary : '#CBD5E1',
-                    }}
-                  />
-                </button>
-              );
-            })}
-          </div>
-        </div>
+        </footer>
       )}
       <IndexDrawer
         open={showIndex}

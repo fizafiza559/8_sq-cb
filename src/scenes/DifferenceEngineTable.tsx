@@ -117,10 +117,10 @@ export const DifferenceEngineTable: React.FC<DifferenceEngineTableProps> = ({
   return (
     <div
       data-no-nav="true"
-      className={`w-full max-w-4xl mx-auto rounded-3xl border border-slate-200/80 bg-white p-5 sm:p-7 shadow-xs flex flex-col gap-5 ${className}`}
+      className={`w-full max-w-4xl max-h-full overflow-y-auto no-scrollbar mx-auto rounded-3xl border border-slate-200/80 bg-white p-3 sm:p-4 shadow-xs flex flex-col gap-2.5 sm:gap-3 ${className}`}
     >
       {/* Header & Mode Controls */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
         <div>
           <div className="flex items-center gap-2 text-micro text-slate-500 font-semibold">
             <GitCommitHorizontal className="w-3.5 h-3.5 text-[#005583]" />
@@ -161,7 +161,7 @@ export const DifferenceEngineTable: React.FC<DifferenceEngineTableProps> = ({
       </div>
 
       {/* Step & Term Count Controls */}
-      <div className="p-3.5 sm:px-4 rounded-2xl bg-slate-50/80 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+      <div className="p-2.5 sm:px-3 rounded-2xl bg-slate-50/80 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
         <div className="flex items-center gap-3 flex-wrap">
           <span className="text-small font-bold text-slate-700 whitespace-nowrap">
             Terms shown:
@@ -226,8 +226,8 @@ export const DifferenceEngineTable: React.FC<DifferenceEngineTableProps> = ({
         <span className="sm:hidden text-[11px] font-medium text-slate-400 text-center">
           Swipe horizontally to view full pyramid ↔
         </span>
-        <div className="w-full overflow-x-auto pb-1">
-          <div className="min-w-[500px] flex flex-col gap-3 p-3 sm:p-4 rounded-2xl bg-slate-50/60">
+        <div className="w-full overflow-x-auto pb-0.5">
+          <div className="min-w-[500px] flex flex-col gap-1.5 p-2.5 rounded-2xl bg-slate-50/60">
           {levels.slice(0, revealedLevel + 1).map((row, levelIdx) => {
             const meta = levelMeta(levelIdx);
             const isConstantRow = levelIdx === maxLevels;
@@ -259,7 +259,7 @@ export const DifferenceEngineTable: React.FC<DifferenceEngineTableProps> = ({
                         onClick={() => {
                           if (levelIdx > 0) setFocusedNode({ level: levelIdx, idx });
                         }}
-                        className={`min-w-[46px] sm:min-w-[54px] min-h-[42px] px-2.5 py-1.5 rounded-xl border-2 font-mono text-small font-extrabold tabular-nums transition-all flex flex-col items-center justify-center ${
+                        className={`min-w-[44px] sm:min-w-[50px] min-h-[34px] px-2 py-1 rounded-xl border-2 font-mono text-micro sm:text-small font-extrabold tabular-nums transition-all flex flex-col items-center justify-center ${
                           levelIdx > 0 ? 'cursor-pointer hover:scale-105' : 'cursor-default'
                         } ${
                           isSelected
@@ -293,9 +293,9 @@ export const DifferenceEngineTable: React.FC<DifferenceEngineTableProps> = ({
       </div>
 
       {/* Interactive Subtraction Inspector & Formula Banner */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-stretch">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 items-stretch">
         {/* Clicked Subtraction Detail */}
-        <div className="p-4 rounded-2xl bg-slate-50/80 flex flex-col justify-center gap-1">
+        <div className="p-2.5 sm:p-3 rounded-2xl bg-slate-50/80 flex flex-col justify-center gap-0.5">
           <span className="text-micro font-bold text-slate-500">
             Tap any difference box to check it
           </span>
@@ -317,7 +317,7 @@ export const DifferenceEngineTable: React.FC<DifferenceEngineTableProps> = ({
         </div>
 
         {/* Formula Summary */}
-        <div className="p-4 rounded-2xl bg-emerald-50/60 flex flex-col justify-center gap-1.5">
+        <div className="p-2.5 sm:p-3 rounded-2xl bg-emerald-50/60 flex flex-col justify-center gap-1">
           <div className="flex items-center gap-1.5 text-small font-extrabold text-emerald-900">
             <Sparkles className="w-4 h-4 text-emerald-600 shrink-0" />
             <span>
