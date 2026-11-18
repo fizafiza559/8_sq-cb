@@ -42,7 +42,7 @@ export const DotGridSquareVisualizer: React.FC<DotGridSquareVisualizerProps> = (
   const [hoveredLayer, setHoveredLayer] = useState<number | null>(null);
   const { tier, isNarrow } = useViewportTier();
   const isCompact = tier === 'compact';
-  const svgMaxH = isCompact ? 120 : isNarrow ? 155 : tier === 'standard' ? 195 : 255;
+  const svgMaxH = isCompact ? 150 : isNarrow ? 210 : tier === 'standard' ? 280 : 360;
 
   useEffect(() => {
     if (beatIndex === undefined) return;
@@ -56,14 +56,14 @@ export const DotGridSquareVisualizer: React.FC<DotGridSquareVisualizerProps> = (
     onNChange?.(clamped);
   };
 
-  const viewWidth = 520;
-  const viewHeight = 380;
-  const maxGridPixelSize = 240;
-  const tileSize = Math.min(36, maxGridPixelSize / Math.max(1, n));
+  const viewWidth = 560;
+  const viewHeight = 420;
+  const maxGridPixelSize = 310;
+  const tileSize = Math.min(48, maxGridPixelSize / Math.max(1, n));
   const gridW = n * tileSize;
   const gridH = n * tileSize;
   const startX = (viewWidth - gridW) / 2;
-  const startY = 60 + (maxGridPixelSize - gridH) / 2;
+  const startY = 65 + (maxGridPixelSize - gridH) / 2;
 
   // Odd numbers equation string: 1 + 3 + 5 + ... = n^2
   const oddTerms = Array.from({ length: n }, (_, i) => 2 * i + 1);
@@ -72,7 +72,7 @@ export const DotGridSquareVisualizer: React.FC<DotGridSquareVisualizerProps> = (
   return (
     <div
       data-no-nav="true"
-      className={`w-full max-w-3xl h-full max-h-full min-h-0 overflow-hidden mx-auto rounded-3xl border border-slate-200/80 bg-white ${
+      className={`w-full max-w-4xl lg:max-w-5xl h-full max-h-full min-h-0 overflow-hidden mx-auto rounded-3xl border border-slate-200/80 bg-white ${
         isCompact ? 'p-2 gap-1.5' : 'p-3 sm:p-4 gap-2 sm:gap-2.5'
       } shadow-xs flex flex-col justify-between ${className}`}
     >
@@ -190,21 +190,21 @@ export const DotGridSquareVisualizer: React.FC<DotGridSquareVisualizerProps> = (
             <line x1={0} y1={-4} x2={0} y2={4} stroke={COLORS.side.solid} strokeWidth={2} />
             <line x1={gridW} y1={-4} x2={gridW} y2={4} stroke={COLORS.side.solid} strokeWidth={2} />
             <rect
-              x={gridW / 2 - 28}
-              y={-14}
-              width={56}
-              height={20}
-              rx={10}
+              x={gridW / 2 - 32}
+              y={-15}
+              width={64}
+              height={22}
+              rx={11}
               fill={COLORS.side.tint}
               stroke={COLORS.side.solid}
-              strokeWidth={1}
+              strokeWidth={1.5}
             />
             <text
               x={gridW / 2}
               y={0}
               textAnchor="middle"
               dominantBaseline="central"
-              className="text-micro font-bold"
+              className="text-small font-extrabold"
               fill={COLORS.side.text}
             >
               n = {n}
@@ -217,21 +217,21 @@ export const DotGridSquareVisualizer: React.FC<DotGridSquareVisualizerProps> = (
             <line x1={-4} y1={0} x2={4} y2={0} stroke={COLORS.side.solid} strokeWidth={2} />
             <line x1={-4} y1={gridH} x2={4} y2={gridH} stroke={COLORS.side.solid} strokeWidth={2} />
             <rect
-              x={-34}
-              y={gridH / 2 - 10}
-              width={48}
-              height={20}
-              rx={10}
+              x={-38}
+              y={gridH / 2 - 11}
+              width={52}
+              height={22}
+              rx={11}
               fill={COLORS.side.tint}
               stroke={COLORS.side.solid}
-              strokeWidth={1}
+              strokeWidth={1.5}
             />
             <text
-              x={-10}
+              x={-12}
               y={gridH / 2}
               textAnchor="middle"
               dominantBaseline="central"
-              className="text-micro font-bold"
+              className="text-small font-extrabold"
               fill={COLORS.side.text}
             >
               n = {n}

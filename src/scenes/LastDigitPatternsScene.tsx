@@ -79,8 +79,8 @@ export const LastDigitPatternsScene: React.FC<LastDigitPatternsSceneProps> = ({
   return (
     <div
       data-no-nav="true"
-      className={`w-full max-w-4xl h-full max-h-full min-h-0 overflow-hidden mx-auto rounded-3xl border border-slate-200/80 bg-white ${
-        isCompact ? 'p-2 gap-1.5' : 'p-2.5 sm:p-4 gap-2 sm:gap-2.5'
+      className={`w-full max-w-5xl lg:max-w-6xl h-full max-h-full min-h-0 overflow-hidden mx-auto rounded-3xl border border-slate-200/80 bg-white ${
+        isCompact ? 'p-2 gap-1.5' : 'p-3 sm:p-4 md:p-5 gap-2.5 sm:gap-3'
       } shadow-xs flex flex-col justify-between ${className}`}
     >
       {/* Header & Mode Switcher */}
@@ -191,7 +191,7 @@ export const LastDigitPatternsScene: React.FC<LastDigitPatternsSceneProps> = ({
             className={`grid ${
               isCompact
                 ? 'grid-cols-10 gap-1'
-                : 'grid-cols-5 sm:grid-cols-6 lg:grid-cols-10 gap-1 sm:gap-1.5'
+                : 'grid-cols-5 sm:grid-cols-6 lg:grid-cols-10 gap-1.5 sm:gap-2 lg:gap-2.5'
             } flex-1 min-h-0 content-center`}
           >
             {squares1to30.map(({ n, sq, lastDigit }) => {
@@ -203,18 +203,22 @@ export const LastDigitPatternsScene: React.FC<LastDigitPatternsSceneProps> = ({
               return (
                 <div
                   key={n}
-                  className={`${isCompact || isNarrow ? 'p-1 rounded-lg' : 'p-1.5 rounded-xl'} border text-center transition-all tabular-nums flex flex-col justify-center ${
+                  className={`${
+                    isCompact || isNarrow
+                      ? 'p-1 rounded-lg'
+                      : 'p-2 sm:p-2.5 lg:p-3 rounded-2xl'
+                  } border-2 text-center transition-all tabular-nums flex flex-col justify-center shadow-2xs ${
                     highlighted
                       ? digitFilter !== 'all'
-                        ? 'bg-orange-50 border-orange-400 shadow-2xs scale-[1.02]'
-                        : 'bg-slate-50 border-slate-200'
-                      : 'bg-slate-50/40 border-slate-100 opacity-35'
+                        ? 'bg-orange-50 border-[#F27A00] shadow-sm scale-[1.04] ring-2 ring-orange-200'
+                        : 'bg-slate-50/90 border-slate-200 hover:border-slate-300'
+                      : 'bg-slate-50/30 border-slate-100 opacity-30'
                   }`}
                 >
-                  <div className="text-[10px] font-semibold text-slate-500 leading-tight">{n}²</div>
-                  <div className="font-mono text-[11px] sm:text-small font-extrabold text-slate-900 leading-tight">
+                  <div className="text-[11px] sm:text-micro font-bold text-slate-500 leading-tight">{n}²</div>
+                  <div className="font-mono text-micro sm:text-statement md:text-title font-black text-slate-900 leading-tight mt-0.5">
                     <span>{prefix}</span>
-                    <span className="text-[#F27A00] underline decoration-2 underline-offset-2">
+                    <span className="text-[#F27A00] underline decoration-2 sm:decoration-3 underline-offset-2">
                       {last}
                     </span>
                   </div>
@@ -342,30 +346,28 @@ export const LastDigitPatternsScene: React.FC<LastDigitPatternsSceneProps> = ({
 
       {/* TAB 3: TRAILING ZEROS & PARITY */}
       {activeTab === 'zeros-parity' && (
-        <div className={`grid ${isCompact ? 'grid-cols-2 gap-2' : 'grid-cols-1 md:grid-cols-2 gap-2 sm:gap-3'} flex-1 min-h-0 overflow-hidden items-center animate-fade-rise`}>
+        <div className={`grid ${isCompact ? 'grid-cols-2 gap-2' : 'grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 lg:gap-6'} flex-1 min-h-0 overflow-hidden items-center animate-fade-rise`}>
           {/* Trailing Zeros Doubler */}
-          <div className={`${isCompact || isNarrow ? 'p-2.5 gap-1.5' : 'p-3.5 sm:p-4 gap-3'} rounded-2xl bg-purple-50/50 flex flex-col`}>
+          <div className={`${isCompact || isNarrow ? 'p-2.5 gap-2' : 'p-4 sm:p-5 md:p-6 gap-3 sm:gap-4'} rounded-3xl bg-purple-50/60 border border-purple-100 flex flex-col justify-between h-full`}>
             <div>
-              <span className="text-[11px] sm:text-micro font-bold uppercase tracking-wider text-purple-800">
+              <span className="text-micro sm:text-small font-black uppercase tracking-wider text-purple-800">
                 Trailing Zeros Double (k → 2k)
               </span>
-              {!isCompact && (
-                <h4 className="text-small sm:text-statement font-extrabold text-slate-900 mt-0.5">
-                  Squaring Doubles Ending Zeros
-                </h4>
-              )}
+              <h4 className="text-statement sm:text-title font-extrabold text-slate-900 mt-1">
+                Squaring Doubles Ending Zeros
+              </h4>
             </div>
 
-            <div className="flex flex-wrap gap-1">
+            <div className="flex flex-wrap gap-1.5 sm:gap-2">
               {[10, 30, 100, 300, 2000].map((val) => (
                 <button
                   key={val}
                   type="button"
                   onClick={() => setZeroBase(val)}
-                  className={`${isCompact || isNarrow ? 'min-h-[32px] px-2 py-0.5' : 'min-h-[38px] px-3 py-1'} rounded-xl font-mono text-micro font-bold border cursor-pointer transition-all tabular-nums ${
+                  className={`${isCompact || isNarrow ? 'min-h-[34px] px-2.5 py-1 text-micro' : 'min-h-[44px] px-3.5 py-1.5 text-small sm:text-statement'} rounded-xl font-mono font-bold border cursor-pointer transition-all tabular-nums ${
                     zeroBase === val
-                      ? 'bg-purple-700 text-white border-purple-800 shadow-2xs'
-                      : 'bg-white text-slate-700 border-slate-200/80 hover:bg-purple-50'
+                      ? 'bg-purple-700 text-white border-purple-800 shadow-sm scale-105'
+                      : 'bg-white text-slate-700 border-slate-200 hover:bg-purple-50'
                   }`}
                 >
                   {val}
@@ -373,62 +375,59 @@ export const LastDigitPatternsScene: React.FC<LastDigitPatternsSceneProps> = ({
               ))}
             </div>
 
-            <div className={`${isCompact || isNarrow ? 'p-2 gap-0.5' : 'p-3 sm:p-4 gap-1.5'} rounded-2xl bg-white border border-purple-100 flex flex-col text-center`}>
-              <div className={`font-mono ${isCompact ? 'text-small' : 'text-body'} font-black text-slate-900 tabular-nums`}>
+            <div className={`${isCompact || isNarrow ? 'p-2.5 gap-1' : 'p-4 sm:p-5 gap-2'} rounded-2xl bg-white border border-purple-200/80 shadow-xs flex flex-col text-center`}>
+              <div className={`font-mono ${isCompact ? 'text-statement' : 'text-title sm:text-headline'} font-black text-slate-900 tabular-nums`}>
                 {zeroBase}² = {zeroBaseSquared.toLocaleString()}
               </div>
-              <div className="text-micro sm:text-small text-purple-900 font-semibold">
-                {zeroStats.originalZeros} {zeroStats.originalZeros === 1 ? 'zero' : 'zeros'} →{' '}
-                <strong>{zeroStats.squareZeros} zeros</strong>
+              <div className="text-small sm:text-statement text-purple-900 font-extrabold">
+                <span className="text-blue-700">{zeroStats.originalZeros} {zeroStats.originalZeros === 1 ? 'zero' : 'zeros'}</span>
+                {' '}→{' '}
+                <span className="text-purple-700 underline decoration-2">{zeroStats.squareZeros} trailing zeros</span>!
               </div>
-              {!isCompact && (
-                <p className="text-[11px] sm:text-micro text-slate-500">
-                  A square can NEVER end in an odd number of zeros (like 1000).
-                </p>
-              )}
+              <p className="text-micro sm:text-small text-slate-500 mt-1">
+                A square number can NEVER end in an odd number of zeros (e.g. 1000 is impossible).
+              </p>
             </div>
           </div>
 
           {/* Parity Tester */}
-          <div className={`${isCompact || isNarrow ? 'p-2.5 gap-1.5' : 'p-3.5 sm:p-4 gap-3'} rounded-2xl bg-emerald-50/50 flex flex-col`}>
+          <div className={`${isCompact || isNarrow ? 'p-2.5 gap-2' : 'p-4 sm:p-5 md:p-6 gap-3 sm:gap-4'} rounded-3xl bg-emerald-50/60 border border-emerald-100 flex flex-col justify-between h-full`}>
             <div>
-              <span className="text-[11px] sm:text-micro font-bold uppercase tracking-wider text-emerald-800">
+              <span className="text-micro sm:text-small font-black uppercase tracking-wider text-emerald-800">
                 Even / Odd Parity Rule
               </span>
-              {!isCompact && (
-                <h4 className="text-small sm:text-statement font-extrabold text-slate-900 mt-0.5">
-                  Even² = Even · Odd² = Odd
-                </h4>
-              )}
+              <h4 className="text-statement sm:text-title font-extrabold text-slate-900 mt-1">
+                Even² = Even · Odd² = Odd
+              </h4>
             </div>
 
-            <div className="flex flex-wrap gap-1">
+            <div className="flex flex-wrap gap-1.5 sm:gap-2">
               {[12, 13, 24, 25, 42, 71].map((val) => (
                 <button
                   key={val}
                   type="button"
                   onClick={() => setTestParityN(val)}
-                  className={`${isCompact || isNarrow ? 'min-h-[32px] px-2 py-0.5' : 'min-h-[38px] px-3 py-1'} rounded-xl font-mono text-micro font-bold border cursor-pointer transition-all tabular-nums ${
+                  className={`${isCompact || isNarrow ? 'min-h-[34px] px-2.5 py-1 text-micro' : 'min-h-[44px] px-3.5 py-1.5 text-small sm:text-statement'} rounded-xl font-mono font-bold border cursor-pointer transition-all tabular-nums ${
                     testParityN === val
-                      ? 'bg-emerald-700 text-white border-emerald-800 shadow-2xs'
-                      : 'bg-white text-slate-700 border-slate-200/80 hover:bg-emerald-50'
+                      ? 'bg-emerald-700 text-white border-emerald-800 shadow-sm scale-105'
+                      : 'bg-white text-slate-700 border-slate-200 hover:bg-emerald-50'
                   }`}
                 >
-                  {val} ({val % 2 === 0 ? 'E' : 'O'})
+                  {val} ({val % 2 === 0 ? 'Even' : 'Odd'})
                 </button>
               ))}
             </div>
 
-            <div className={`${isCompact || isNarrow ? 'p-2 gap-1' : 'p-3 sm:p-4 gap-1.5'} rounded-2xl bg-white border border-emerald-100 flex flex-col items-center text-center`}>
-              <div className={`font-mono ${isCompact ? 'text-small' : 'text-body'} font-black text-slate-900 tabular-nums`}>
+            <div className={`${isCompact || isNarrow ? 'p-2.5 gap-1' : 'p-4 sm:p-5 gap-2'} rounded-2xl bg-white border border-emerald-200/80 shadow-xs flex flex-col items-center text-center`}>
+              <div className={`font-mono ${isCompact ? 'text-statement' : 'text-title sm:text-headline'} font-black text-slate-900 tabular-nums`}>
                 {testParityN}² = {testParityN * testParityN}
               </div>
-              <div className="max-w-full flex flex-wrap justify-center">
+              <div className="max-w-full flex flex-wrap justify-center font-bold text-small sm:text-statement">
                 <Katex
                   latex={
                     testParityN % 2 === 0
-                      ? `${testParityN}\\text{ even} \\implies ${testParityN * testParityN}\\text{ even}`
-                      : `${testParityN}\\text{ odd} \\implies ${testParityN * testParityN}\\text{ odd}`
+                      ? `\\mathbf{${testParityN}}\\text{ is even} \\implies \\mathbf{${testParityN * testParityN}}\\text{ is even}`
+                      : `\\mathbf{${testParityN}}\\text{ is odd} \\implies \\mathbf{${testParityN * testParityN}}\\text{ is odd}`
                   }
                   displayMode={false}
                 />
