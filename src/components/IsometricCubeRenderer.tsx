@@ -368,7 +368,7 @@ export const IsometricCubeRenderer: React.FC<IsometricCubeRendererProps> = ({
                       x={labelAnchor.x + 14}
                       y={labelAnchor.y + 4}
                       fill="#7C2D12"
-                      fontSize={11}
+                      fontSize={14}
                       fontWeight={800}
                     >
                       Layer {z + 1} (+{perLayer} → {(z + 1) * perLayer})

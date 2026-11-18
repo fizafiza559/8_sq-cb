@@ -192,9 +192,8 @@ export const SquarePairsPuzzle: React.FC<SquarePairsPuzzleProps> = ({
   return (
     <div
       data-no-nav="true"
-      className={`w-full max-w-6xl h-full max-h-full min-h-0 overflow-hidden mx-auto rounded-3xl border border-slate-200/80 bg-white ${
-        isCompact ? 'p-2 gap-1.5' : 'p-3 sm:p-4 gap-2.5 sm:gap-3'
-      } shadow-2xs flex flex-col justify-between ${className}`}
+      className={`w-full max-w-6xl h-full max-h-full min-h-0 overflow-hidden mx-auto rounded-3xl border border-slate-200/80 bg-white ${isCompact ? 'p-2 gap-1.5' : 'p-3 sm:p-4 gap-2.5 sm:gap-3'
+        } shadow-2xs flex flex-col justify-between ${className}`}
     >
       {/* 1. TOP HEADER: Official NCERT PUZZLE Banner */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 border-b border-slate-100 pb-2 shrink-0">
@@ -213,18 +212,16 @@ export const SquarePairsPuzzle: React.FC<SquarePairsPuzzleProps> = ({
             <button
               type="button"
               onClick={() => setMobileTab('board')}
-              className={`px-3 py-1 rounded-md transition-colors ${
-                mobileTab === 'board' ? 'bg-white text-[#005583] shadow-2xs' : 'text-slate-600'
-              }`}
+              className={`px-3 py-1 rounded-md transition-colors ${mobileTab === 'board' ? 'bg-white text-[#005583] shadow-2xs' : 'text-slate-600'
+                }`}
             >
               Play Board (1–17)
             </button>
             <button
               type="button"
               onClick={() => setMobileTab('story')}
-              className={`px-3 py-1 rounded-md transition-colors ${
-                mobileTab === 'story' ? 'bg-white text-[#005583] shadow-2xs' : 'text-slate-600'
-              }`}
+              className={`px-3 py-1 rounded-md transition-colors ${mobileTab === 'story' ? 'bg-white text-[#005583] shadow-2xs' : 'text-slate-600'
+                }`}
             >
               Rules &amp; Story
             </button>
@@ -253,9 +250,8 @@ export const SquarePairsPuzzle: React.FC<SquarePairsPuzzleProps> = ({
         {/* LEFT COLUMN: THE PUZZLE STORY, RULES & 1-32 CIRCLE TEASER                 */}
         {/* ========================================================================= */}
         <div
-          className={`w-full md:w-[42%] lg:w-[40%] flex flex-col justify-between gap-2.5 p-3 sm:p-4 rounded-2xl bg-amber-50/60 border border-amber-200/70 overflow-y-auto no-scrollbar shrink-0 ${
-            mobileTab === 'board' ? 'hidden md:flex' : 'flex'
-          }`}
+          className={`w-full md:w-[42%] lg:w-[40%] flex flex-col justify-between gap-2.5 p-3 sm:p-4 rounded-2xl bg-amber-50/60 border border-amber-200/70 overflow-y-auto no-scrollbar shrink-0 ${mobileTab === 'board' ? 'hidden md:flex' : 'flex'
+            }`}
         >
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-1.5 text-micro font-extrabold uppercase tracking-wide text-amber-900">
@@ -327,9 +323,8 @@ export const SquarePairsPuzzle: React.FC<SquarePairsPuzzleProps> = ({
         {/* RIGHT COLUMN: INTERACTIVE SEQUENCE SLOTS & NUMBER CARD TRAY               */}
         {/* ========================================================================= */}
         <div
-          className={`w-full md:w-[58%] lg:w-[60%] flex flex-col justify-between gap-2 sm:gap-2.5 overflow-hidden ${
-            mobileTab === 'story' ? 'hidden md:flex' : 'flex'
-          }`}
+          className={`w-full md:w-[58%] lg:w-[60%] flex flex-col justify-between gap-2 sm:gap-2.5 overflow-hidden ${mobileTab === 'story' ? 'hidden md:flex' : 'flex'
+            }`}
         >
           {/* Action Toolbar */}
           <div className="flex flex-wrap items-center justify-between gap-1.5 shrink-0">
@@ -337,11 +332,10 @@ export const SquarePairsPuzzle: React.FC<SquarePairsPuzzleProps> = ({
               <button
                 type="button"
                 onClick={() => setShowEndpointHint((h) => !h)}
-                className={`${isCompact ? 'min-h-[34px] px-2.5' : 'min-h-[38px] px-3'} py-1 rounded-xl text-micro sm:text-small font-bold border flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 ${
-                  showEndpointHint
+                className={`${isCompact ? 'min-h-[34px] px-2.5' : 'min-h-[38px] px-3'} py-1 rounded-xl text-micro sm:text-small font-bold border flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 ${showEndpointHint
                     ? 'bg-amber-100 text-amber-950 border-amber-400'
                     : 'bg-amber-50/80 text-amber-900 border-amber-200/80 hover:bg-amber-100'
-                }`}
+                  }`}
               >
                 <Lightbulb className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                 <span>{showEndpointHint ? 'Hide Hint' : 'Hint (16 & 17)'}</span>
@@ -418,21 +412,19 @@ export const SquarePairsPuzzle: React.FC<SquarePairsPuzzleProps> = ({
                       onDragOver={(e) => e.preventDefault()}
                       onDrop={() => handleDropOnSlot(idx)}
                       onClick={() => handleSlotTap(idx)}
-                      className={`${
-                        isCompact || isNarrow
+                      className={`${isCompact || isNarrow
                           ? 'w-8 h-8 sm:w-9 sm:h-9 text-micro rounded-lg'
                           : 'w-10 h-10 sm:w-11 sm:h-11 text-small sm:text-statement rounded-xl'
-                      } border-2 font-mono font-black tabular-nums transition-all cursor-pointer flex flex-col items-center justify-center relative shadow-2xs ${
-                        isSelected
+                        } border-2 font-mono font-black tabular-nums transition-all cursor-pointer flex flex-col items-center justify-center relative shadow-2xs ${isSelected
                           ? 'bg-[#005583] text-white border-[#003F62] ring-2 ring-sky-300 scale-105'
                           : val !== null
-                          ? showEndpointHint && (val === 16 || val === 17)
-                            ? 'bg-amber-100 text-amber-950 border-amber-500'
-                            : 'bg-white text-slate-900 border-slate-300/90 hover:border-[#005583]'
-                          : isEndpoint && showEndpointHint
-                          ? 'bg-amber-50/80 text-amber-800 border-dashed border-amber-400'
-                          : 'bg-white/80 text-slate-400 border-dashed border-slate-300/90 hover:border-slate-400'
-                      }`}
+                            ? showEndpointHint && (val === 16 || val === 17)
+                              ? 'bg-amber-100 text-amber-950 border-amber-500'
+                              : 'bg-white text-slate-900 border-slate-300/90 hover:border-[#005583]'
+                            : isEndpoint && showEndpointHint
+                              ? 'bg-amber-50/80 text-amber-800 border-dashed border-amber-400'
+                              : 'bg-white/80 text-slate-400 border-dashed border-slate-300/90 hover:border-slate-400'
+                        }`}
                     >
                       <span>{val !== null ? val : idx + 1}</span>
                     </button>
@@ -440,13 +432,12 @@ export const SquarePairsPuzzle: React.FC<SquarePairsPuzzleProps> = ({
                     {/* Bridge Between Adjacent Slots */}
                     {bridge && (
                       <div
-                        className={`px-1 py-0.5 rounded-md text-[10px] font-mono font-bold tabular-nums border transition-colors ${
-                          bridge.sum === null
+                        className={`px-1 py-0.5 rounded-md text-[10px] font-mono font-bold tabular-nums border transition-colors ${bridge.sum === null
                             ? 'border-transparent text-slate-300'
                             : bridge.valid
-                            ? 'bg-emerald-100 text-emerald-900 border-emerald-300'
-                            : 'bg-rose-50 text-rose-700 border-rose-200'
-                        }`}
+                              ? 'bg-emerald-100/90 text-emerald-900 border-emerald-300'
+                              : 'bg-rose-50 text-rose-700 border-rose-200'
+                          }`}
                         title={
                           bridge.sum !== null
                             ? bridge.valid
@@ -481,17 +472,15 @@ export const SquarePairsPuzzle: React.FC<SquarePairsPuzzleProps> = ({
                     draggable={!isUsed}
                     onDragStart={() => setDraggedCard({ num, fromSlotIdx: null })}
                     onClick={() => handleTrayCardTap(num)}
-                    className={`${
-                      isCompact || isNarrow
+                    className={`${isCompact || isNarrow
                         ? 'w-8 h-8 sm:w-9 sm:h-9 text-micro'
                         : 'w-10 h-10 sm:w-11 sm:h-11 text-small sm:text-statement'
-                    } rounded-full border-2 font-mono font-black tabular-nums transition-all flex items-center justify-center shadow-2xs ${
-                      isUsed
+                      } rounded-full border-2 font-mono font-black tabular-nums transition-all flex items-center justify-center shadow-2xs ${isUsed
                         ? 'bg-slate-100 text-slate-300 border-slate-200/70 cursor-not-allowed scale-90'
                         : isHintEnd
-                        ? 'bg-amber-100 text-amber-950 border-amber-400 hover:bg-amber-200 cursor-pointer scale-105'
-                        : 'bg-white text-[#005583] border-sky-300 hover:border-[#005583] hover:bg-sky-50 cursor-pointer hover:scale-105'
-                    }`}
+                          ? 'bg-amber-100 text-amber-950 border-amber-400 hover:bg-amber-200 cursor-pointer scale-105'
+                          : 'bg-white text-[#005583] border-sky-300 hover:border-[#005583] hover:bg-sky-50 cursor-pointer hover:scale-105'
+                      }`}
                   >
                     {num}
                   </button>
@@ -503,13 +492,12 @@ export const SquarePairsPuzzle: React.FC<SquarePairsPuzzleProps> = ({
           {/* Validation Message Banner */}
           {checkMessage.status !== 'idle' && (
             <div
-              className={`p-2.5 rounded-2xl border flex items-center gap-2 text-micro sm:text-small font-bold animate-fade-rise shrink-0 ${
-                checkMessage.status === 'valid'
+              className={`p-2.5 rounded-2xl border flex items-center gap-2 text-micro sm:text-small font-bold animate-fade-rise shrink-0 ${checkMessage.status === 'valid'
                   ? 'bg-emerald-50 text-emerald-900 border-emerald-300'
                   : checkMessage.status === 'incomplete'
-                  ? 'bg-sky-50 text-blue-900 border-sky-200'
-                  : 'bg-amber-50 text-amber-950 border-amber-300'
-              }`}
+                    ? 'bg-sky-50 text-blue-900 border-sky-200'
+                    : 'bg-amber-50 text-amber-950 border-amber-300'
+                }`}
             >
               {checkMessage.status === 'valid' ? (
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />

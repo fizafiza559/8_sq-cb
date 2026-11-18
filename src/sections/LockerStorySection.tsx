@@ -16,6 +16,7 @@ import {
   ArrowLeft,
   Grid,
   ChevronRight,
+  ChevronLeft,
 } from 'lucide-react';
 import { lockers, divisors, toggleCount, isSquare } from '../math/facts';
 import { Katex } from '../components/Katex';
@@ -191,7 +192,7 @@ export const FactorPairsMorph36: React.FC<FactorPairsMorph36Props> = ({
                     y={3.5}
                     textAnchor="middle"
                     fill="#FFFFFF"
-                    fontSize={9}
+                    fontSize={14}
                     fontWeight={700}
                   >
                     {idx + 1}
@@ -489,140 +490,239 @@ export const LockerStorySection: React.FC<LockerStorySectionProps> = ({
     onShowAll: () => void
   ) => {
     const hasMore = visibleCount < turns.length;
-    const isCondensedDialogue = tier === 'compact' || isNarrow;
     const safeFocusIdx = Math.min(Math.max(0, focusedIdx), visibleCount - 1);
+    const currentTurn = turns[safeFocusIdx];
+    const isQueen = currentTurn.role === 'queen';
+    const isNarrator = currentTurn.role === 'narrator';
+    const hasNext = safeFocusIdx < turns.length - 1;
+    const hasPrev = safeFocusIdx > 0;
 
-    const renderBubble = (item: DialogueTurn, idx: number) => {
-      const isQueen = item.role === 'queen';
-      const isNarrator = item.role === 'narrator';
-      return (
-        <div
-          key={idx}
-          className={`rounded-xl border ${
-            tier === 'compact' ? 'px-2.5 py-1.5' : tier === 'standard' ? 'px-2.5 py-1.5 sm:px-3 sm:py-2' : 'px-3 py-2'
-          } animate-fade-rise`}
-          style={{
-            background: isQueen
-              ? 'linear-gradient(135deg, rgba(184, 134, 43, 0.16), rgba(251, 242, 225, 0.9))'
-              : isNarrator
-              ? 'rgba(235, 217, 186, 0.45)'
-              : 'rgba(255, 252, 245, 0.75)',
-            borderColor: isQueen ? PARCHMENT_PALETTE.gold : '#D5BD94',
-          }}
-        >
-          <div
-            className={`${tier === 'compact' ? 'text-[11px]' : 'text-[12px] sm:text-[13px]'} font-bold tracking-wide`}
-            style={{
-              fontFamily: HEADING_FONT,
-              color: isQueen ? PARCHMENT_PALETTE.goldDark : PARCHMENT_PALETTE.sealRed,
-            }}
-          >
-            {item.speaker}
-          </div>
-          <p
-            className={`${
-              tier === 'compact'
-                ? 'text-[15px]'
-                : tier === 'standard'
-                ? 'text-[15px] sm:text-[16px]'
-                : 'text-[16px] sm:text-[18px]'
-            } leading-snug mt-0.5 font-semibold`}
-            style={{
-              fontFamily: BODY_FONT,
-              color: PARCHMENT_PALETTE.ink,
-              fontStyle: isQueen ? 'italic' : 'normal',
-            }}
-          >
-            {item.line}
-          </p>
-        </div>
-      );
+    const getRoleTitle = (role: DialogueTurn['role']) => {
+      switch (role) {
+        case 'queen':
+          return 'Ruler of Ratnapura';
+        case 'prince':
+          return 'The Inquiring Prince';
+        case 'narrator':
+          return 'Palace Chronicler';
+        case 'relative':
+        default:
+          return 'Royal Assembly';
+      }
+    };
+
+    const handleAdvance = () => {
+      if (!hasNext) return;
+      if (safeFocusIdx < visibleCount - 1) {
+        onSelectFocus(safeFocusIdx + 1);
+      } else {
+        onNextTurn();
+      }
     };
 
     return (
       <div
-        role={hasMore ? 'button' : undefined}
-        tabIndex={hasMore ? 0 : undefined}
+        role={hasNext ? 'button' : undefined}
+        tabIndex={hasNext ? 0 : undefined}
         onClick={() => {
-          if (!hasMore) return;
+          if (!hasNext) return;
           const sel = window.getSelection()?.toString();
           if (sel && sel.length > 0) return;
-          onNextTurn();
+          handleAdvance();
         }}
         onKeyDown={(e) => {
-          if (hasMore && (e.key === 'Enter' || e.key === ' ')) {
+          if (hasNext && (e.key === 'Enter' || e.key === ' ')) {
             e.preventDefault();
-            onNextTurn();
+            handleAdvance();
           }
         }}
-        className={`flex flex-col ${tier === 'compact' ? 'gap-1.5 p-2.5' : 'gap-2 p-3 sm:p-3.5'} rounded-2xl border transition-colors min-h-0 overflow-hidden ${
-          hasMore ? 'cursor-pointer' : ''
+        className={`flex-1 min-h-0 w-full flex flex-col justify-between ${
+          tier === 'compact' ? 'p-2.5 sm:p-3' : 'p-3 sm:p-4'
+        } rounded-2xl border transition-colors overflow-hidden ${
+          hasNext ? 'cursor-pointer select-none' : ''
         }`}
         style={INSET_PARCHMENT}
       >
-        <div className="flex items-center justify-between gap-2 shrink-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span
-              className="text-[13px] font-semibold tabular-nums"
-              style={{ color: PARCHMENT_PALETTE.inkMuted, fontFamily: BODY_FONT }}
+        {/* Top Header: Speaker identification + Visual progress dots + Prev/Next controls */}
+        <div className="flex items-center justify-between gap-2 shrink-0 pb-2 border-b border-[#D2B88C]/40">
+          <div className="flex items-center gap-2 min-w-0">
+            <div
+              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center shrink-0 border"
+              style={{
+                backgroundColor: isQueen
+                  ? 'rgba(184, 134, 43, 0.22)'
+                  : isNarrator
+                  ? 'rgba(235, 217, 186, 0.65)'
+                  : 'rgba(139, 46, 31, 0.12)',
+                borderColor: isQueen ? PARCHMENT_PALETTE.gold : '#C7A977',
+                color: isQueen ? PARCHMENT_PALETTE.goldDark : PARCHMENT_PALETTE.sealRed,
+              }}
             >
-              Dialogue · {visibleCount} of {turns.length}
-            </span>
-            {isCondensedDialogue && visibleCount > 1 && (
-              <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-                {turns.slice(0, visibleCount).map((_, tIdx) => (
+              {isQueen ? (
+                <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              ) : (
+                <Scroll className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              )}
+            </div>
+            <div className="min-w-0">
+              <div
+                className="text-[13px] sm:text-[14px] font-bold tracking-wide truncate"
+                style={{
+                  fontFamily: HEADING_FONT,
+                  color: isQueen ? PARCHMENT_PALETTE.goldDark : PARCHMENT_PALETTE.sealRed,
+                }}
+              >
+                {currentTurn.speaker}
+              </div>
+              <div
+                className="text-[10px] sm:text-[11px] font-medium tracking-wide uppercase truncate"
+                style={{ color: PARCHMENT_PALETTE.inkMuted }}
+              >
+                {getRoleTitle(currentTurn.role)}
+              </div>
+            </div>
+          </div>
+
+          {/* Dots Indicator & Step Controls (No number counter) */}
+          <div className="flex items-center gap-1.5 shrink-0" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center gap-1 px-1">
+              {turns.map((_, tIdx) => {
+                const isCurrent = tIdx === safeFocusIdx;
+                const isVisited = tIdx < visibleCount;
+                return (
                   <button
                     key={tIdx}
                     type="button"
                     onClick={() => onSelectFocus(tIdx)}
-                    aria-label={`View turn ${tIdx + 1}`}
-                    className="min-w-[28px] min-h-[28px] px-1.5 rounded-md text-[12px] font-bold border cursor-pointer tabular-nums"
+                    aria-label={`Dialogue step ${tIdx + 1}`}
+                    className={`transition-all duration-200 cursor-pointer ${
+                      isCurrent
+                        ? 'w-5 sm:w-6 h-2 rounded-full'
+                        : 'w-2 h-2 rounded-full hover:opacity-80'
+                    }`}
                     style={{
-                      backgroundColor:
-                        safeFocusIdx === tIdx ? PARCHMENT_PALETTE.goldDark : 'rgba(255,250,240,0.9)',
-                      color: safeFocusIdx === tIdx ? '#FFF9EE' : PARCHMENT_PALETTE.ink,
-                      borderColor: PARCHMENT_PALETTE.paperBorder,
-                      fontFamily: HEADING_FONT,
+                      backgroundColor: isCurrent
+                        ? PARCHMENT_PALETTE.goldDark
+                        : isVisited
+                        ? '#C7A977'
+                        : 'rgba(199, 169, 119, 0.35)',
                     }}
-                  >
-                    {tIdx + 1}
-                  </button>
-                ))}
-              </div>
+                  />
+                );
+              })}
+            </div>
+
+            {hasPrev && (
+              <button
+                type="button"
+                onClick={() => onSelectFocus(safeFocusIdx - 1)}
+                className="w-7 h-7 rounded-lg border flex items-center justify-center cursor-pointer transition-colors hover:bg-amber-100/60"
+                style={{
+                  borderColor: PARCHMENT_PALETTE.paperBorder,
+                  color: PARCHMENT_PALETTE.ink,
+                }}
+                aria-label="Previous dialogue"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+            )}
+            {hasNext && (
+              <button
+                type="button"
+                onClick={() => handleAdvance()}
+                className="w-7 h-7 rounded-lg border flex items-center justify-center cursor-pointer transition-colors hover:bg-amber-100/60"
+                style={{
+                  borderColor: PARCHMENT_PALETTE.paperBorder,
+                  color: PARCHMENT_PALETTE.ink,
+                }}
+                aria-label="Next dialogue"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
             )}
           </div>
+        </div>
 
-          {hasMore && (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onShowAll();
-              }}
+        {/* Center: Single Dialogue occupying the entire part of the dialogue div */}
+        <div className="flex-1 min-h-0 flex flex-col justify-center py-2 sm:py-3">
+          <div
+            key={safeFocusIdx}
+            className="h-full rounded-2xl border p-3.5 sm:p-5 flex flex-col justify-center transition-all animate-fade-rise"
+            style={{
+              background: isQueen
+                ? 'linear-gradient(135deg, rgba(184, 134, 43, 0.16), rgba(255, 252, 245, 0.95))'
+                : isNarrator
+                ? 'linear-gradient(135deg, rgba(235, 217, 186, 0.5), rgba(255, 252, 245, 0.95))'
+                : 'linear-gradient(135deg, rgba(245, 235, 215, 0.65), rgba(255, 252, 245, 0.95))',
+              borderColor: isQueen ? '#D5BD94' : '#DBC7A2',
+              boxShadow: '0 2px 8px rgba(94, 70, 48, 0.05)',
+            }}
+          >
+            <p
               className={`${
-                tier === 'compact' ? 'min-h-[36px]' : 'min-h-[40px]'
-              } px-2.5 py-1 rounded-lg text-[13px] font-bold underline underline-offset-2 cursor-pointer`}
+                tier === 'compact'
+                  ? 'text-[17px] sm:text-[19px]'
+                  : tier === 'standard'
+                  ? 'text-[19px] sm:text-[22px]'
+                  : 'text-[21px] sm:text-[24px] lg:text-[26px]'
+              } font-semibold leading-relaxed`}
+              style={{
+                fontFamily: BODY_FONT,
+                color: PARCHMENT_PALETTE.ink,
+                fontStyle: isQueen ? 'italic' : 'normal',
+              }}
+            >
+              {currentTurn.line}
+            </p>
+          </div>
+        </div>
+
+        {/* Bottom Bar: Action prompt / Controls (no number counter) */}
+        <div className="flex items-center justify-between gap-2 shrink-0 pt-1.5 border-t border-[#D2B88C]/30 text-[13px] font-semibold">
+          {hasNext ? (
+            <div
+              className="flex items-center gap-1.5 animate-pulse"
               style={{ color: PARCHMENT_PALETTE.sealRed, fontFamily: BODY_FONT }}
             >
-              Show all
-            </button>
+              <span>Tap anywhere to continue</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </div>
+          ) : (
+            <div
+              className="flex items-center gap-1.5"
+              style={{ color: PARCHMENT_PALETTE.goldDark, fontFamily: BODY_FONT }}
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+              <span>Dialogue complete</span>
+            </div>
           )}
-        </div>
 
-        <div className="flex flex-col gap-1.5 min-h-0 overflow-hidden">
-          {isCondensedDialogue
-            ? renderBubble(turns[safeFocusIdx], safeFocusIdx)
-            : turns.slice(0, visibleCount).map((item, idx) => renderBubble(item, idx))}
-        </div>
-
-        {hasMore && (
-          <div
-            className="text-[14px] font-bold text-center pt-0.5 animate-pulse shrink-0"
-            style={{ color: PARCHMENT_PALETTE.sealRed, fontFamily: BODY_FONT }}
-          >
-            Tap dialogue to continue ({visibleCount} of {turns.length})
+          <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+            {safeFocusIdx > 0 && !hasNext ? (
+              <button
+                type="button"
+                onClick={() => onSelectFocus(0)}
+                className="px-2.5 py-1 rounded-md text-[12px] font-bold border cursor-pointer hover:bg-amber-100/50"
+                style={{
+                  color: PARCHMENT_PALETTE.goldDark,
+                  borderColor: PARCHMENT_PALETTE.paperBorder,
+                  fontFamily: HEADING_FONT,
+                }}
+              >
+                Replay story
+              </button>
+            ) : hasMore ? (
+              <button
+                type="button"
+                onClick={() => onShowAll()}
+                className="px-2 py-0.5 text-[12px] font-bold underline cursor-pointer hover:opacity-80"
+                style={{ color: PARCHMENT_PALETTE.inkMuted, fontFamily: BODY_FONT }}
+              >
+                Skip to end
+              </button>
+            ) : null}
           </div>
-        )}
+        </div>
       </div>
     );
   };
@@ -1224,7 +1324,7 @@ export const LockerStorySection: React.FC<LockerStorySectionProps> = ({
               tier === 'compact' ? 'p-2.5 gap-1.5' : 'p-3 sm:p-4 gap-2.5'
             } flex flex-col justify-between overflow-hidden`}
           >
-            <div className={`flex flex-col ${tier === 'compact' ? 'gap-1' : 'gap-2'} min-h-0 overflow-hidden`}>
+            <div className={`flex-1 min-h-0 flex flex-col ${tier === 'compact' ? 'gap-1.5' : 'gap-2 sm:gap-2.5'} overflow-hidden`}>
               <div className="flex items-center gap-2 shrink-0" style={{ color: PARCHMENT_PALETTE.goldDark }}>
                 <Scroll className="w-4 h-4 shrink-0" />
                 <span className="text-[12px] sm:text-[13px] font-bold tracking-wide" style={{ fontFamily: HEADING_FONT }}>
@@ -1245,7 +1345,12 @@ export const LockerStorySection: React.FC<LockerStorySectionProps> = ({
                 STEP1_DIALOGUE,
                 decreeTurn,
                 decreeFocusIdx,
-                setDecreeFocusIdx,
+                (targetIdx) => {
+                  if (targetIdx >= decreeTurn) {
+                    setDecreeTurn(targetIdx + 1);
+                  }
+                  setDecreeFocusIdx(targetIdx);
+                },
                 () => {
                   const next = Math.min(STEP1_DIALOGUE.length, decreeTurn + 1);
                   setDecreeTurn(next);
@@ -1337,7 +1442,7 @@ export const LockerStorySection: React.FC<LockerStorySectionProps> = ({
               tier === 'compact' ? 'p-2.5 gap-1.5' : 'p-3 sm:p-4 gap-2.5'
             } flex flex-col justify-between overflow-hidden`}
           >
-            <div className={`flex flex-col ${tier === 'compact' ? 'gap-1' : 'gap-2'} min-h-0 overflow-hidden`}>
+            <div className={`flex-1 min-h-0 flex flex-col ${tier === 'compact' ? 'gap-1.5' : 'gap-2 sm:gap-2.5'} overflow-hidden`}>
               <div className="flex items-center gap-2 shrink-0" style={{ color: PARCHMENT_PALETTE.sealRed }}>
                 <Lock className="w-4 h-4 shrink-0" />
                 <span className="text-[12px] sm:text-[13px] font-bold tracking-wide" style={{ fontFamily: HEADING_FONT }}>
@@ -1358,7 +1463,12 @@ export const LockerStorySection: React.FC<LockerStorySectionProps> = ({
                 STEP2_DIALOGUE,
                 vaultTurn,
                 vaultFocusIdx,
-                setVaultFocusIdx,
+                (targetIdx) => {
+                  if (targetIdx >= vaultTurn) {
+                    setVaultTurn(targetIdx + 1);
+                  }
+                  setVaultFocusIdx(targetIdx);
+                },
                 () => {
                   const next = Math.min(STEP2_DIALOGUE.length, vaultTurn + 1);
                   setVaultTurn(next);
@@ -1738,7 +1848,7 @@ export const LockerStorySection: React.FC<LockerStorySectionProps> = ({
               <div
                 className={`${
                   isNarrow || tier === 'compact'
-                    ? 'shrink-0'
+                    ? 'h-[220px] sm:h-[240px] shrink-0'
                     : tier === 'standard'
                     ? 'col-span-5 min-h-0'
                     : 'col-span-6 min-h-0'
@@ -1792,177 +1902,450 @@ export const LockerStorySection: React.FC<LockerStorySectionProps> = ({
                       setSolutionStep((s) => Math.min(3, s + 1));
                     }
                   }}
-                  className={`${
-                    tier === 'compact' || isNarrow ? 'p-2.5 gap-1.5' : 'p-3 sm:p-3.5 gap-2'
-                  } flex-1 min-h-0 flex flex-col justify-between overflow-hidden ${
-                    solutionStep < 3 ? 'cursor-pointer' : ''
-                  }`}
+                  className={`flex-1 min-h-0 w-full flex flex-col justify-between ${
+                    tier === 'compact' ? 'p-2.5 sm:p-3' : 'p-3.5 sm:p-4'
+                  } overflow-hidden ${solutionStep < 3 ? 'cursor-pointer select-none' : ''}`}
                 >
-                  <div className="flex flex-col gap-1.5 min-h-0 overflow-hidden">
-                    <div className="flex items-center justify-between gap-2 flex-wrap shrink-0">
-                      <span
-                        className="text-[13px] font-bold tabular-nums"
-                        style={{ color: PARCHMENT_PALETTE.goldDark, fontFamily: BODY_FONT }}
+                  {/* Top Header: Step concept identification + Progress dots + Prev/Next controls */}
+                  <div className="flex items-center justify-between gap-2 shrink-0 pb-2 border-b border-[#D2B88C]/40">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div
+                        className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center shrink-0 border"
+                        style={{
+                          backgroundColor:
+                            solutionStep === 1
+                              ? 'rgba(139, 46, 31, 0.12)'
+                              : solutionStep === 2
+                              ? 'rgba(184, 134, 43, 0.22)'
+                              : 'rgba(59, 42, 26, 0.15)',
+                          borderColor:
+                            solutionStep === 1
+                              ? '#C7A977'
+                              : solutionStep === 2
+                              ? PARCHMENT_PALETTE.gold
+                              : PARCHMENT_PALETTE.goldDark,
+                          color:
+                            solutionStep === 1
+                              ? PARCHMENT_PALETTE.sealRed
+                              : solutionStep === 2
+                              ? PARCHMENT_PALETTE.goldDark
+                              : PARCHMENT_PALETTE.ink,
+                        }}
                       >
-                        Proof · Step {solutionStep} of 3
-                      </span>
-                      {(tier === 'compact' || isNarrow) ? (
-                        <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-                          {[1, 2, 3].map((sNum) => (
+                        {solutionStep === 1 ? (
+                          <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        ) : solutionStep === 2 ? (
+                          <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        ) : (
+                          <Unlock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <div
+                          className="text-[13px] sm:text-[14px] font-bold tracking-wide truncate"
+                          style={{
+                            fontFamily: HEADING_FONT,
+                            color:
+                              solutionStep === 1
+                                ? PARCHMENT_PALETTE.sealRed
+                                : solutionStep === 2
+                                ? PARCHMENT_PALETTE.goldDark
+                                : PARCHMENT_PALETTE.ink,
+                          }}
+                        >
+                          {solutionStep === 1
+                            ? 'Factor Pairs & Flips'
+                            : solutionStep === 2
+                            ? 'The Square Exception'
+                            : 'The 10 Open Lockers'}
+                        </div>
+                        <div
+                          className="text-[10px] sm:text-[11px] font-medium tracking-wide uppercase truncate"
+                          style={{ color: PARCHMENT_PALETTE.inkMuted }}
+                        >
+                          The Mathematical Proof
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Progress indicators: unnumbered dots & prev/next buttons */}
+                    <div className="flex items-center gap-1.5 shrink-0" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex items-center gap-1 px-1">
+                        {[1, 2, 3].map((sNum) => {
+                          const isCurrent = sNum === solutionStep;
+                          return (
                             <button
                               key={sNum}
                               type="button"
                               onClick={() => setSolutionStep(sNum)}
-                              className="min-w-[32px] min-h-[32px] px-2 rounded-lg text-[12px] font-bold border cursor-pointer tabular-nums"
+                              aria-label={`Proof step ${sNum}`}
+                              className={`transition-all duration-200 cursor-pointer ${
+                                isCurrent ? 'w-5 sm:w-6 h-2 rounded-full' : 'w-2 h-2 rounded-full hover:opacity-80'
+                              }`}
                               style={{
-                                backgroundColor:
-                                  solutionStep === sNum ? PARCHMENT_PALETTE.goldDark : 'rgba(255,250,240,0.85)',
-                                color: solutionStep === sNum ? '#FFF9EE' : PARCHMENT_PALETTE.ink,
-                                borderColor: PARCHMENT_PALETTE.paperBorder,
-                                fontFamily: HEADING_FONT,
+                                backgroundColor: isCurrent
+                                  ? PARCHMENT_PALETTE.goldDark
+                                  : '#C7A977',
                               }}
-                            >
-                              {sNum}
-                            </button>
-                          ))}
-                        </div>
-                      ) : (
-                        solutionStep < 3 && (
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSolutionStep(3);
-                            }}
-                            className="min-h-[36px] px-2.5 py-1 rounded-lg text-[13px] font-bold underline underline-offset-2 cursor-pointer"
-                            style={{ color: PARCHMENT_PALETTE.sealRed }}
-                          >
-                            Show all steps
-                          </button>
-                        )
+                            />
+                          );
+                        })}
+                      </div>
+
+                      {solutionStep > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => setSolutionStep((s) => Math.max(1, s - 1))}
+                          className="w-7 h-7 rounded-lg border flex items-center justify-center cursor-pointer transition-colors hover:bg-amber-100/60"
+                          style={{
+                            borderColor: PARCHMENT_PALETTE.paperBorder,
+                            color: PARCHMENT_PALETTE.ink,
+                          }}
+                          aria-label="Previous step"
+                        >
+                          <ChevronLeft className="w-4 h-4" />
+                        </button>
+                      )}
+                      {solutionStep < 3 && (
+                        <button
+                          type="button"
+                          onClick={() => setSolutionStep((s) => Math.min(3, s + 1))}
+                          className="w-7 h-7 rounded-lg border flex items-center justify-center cursor-pointer transition-colors hover:bg-amber-100/60"
+                          style={{
+                            borderColor: PARCHMENT_PALETTE.paperBorder,
+                            color: PARCHMENT_PALETTE.ink,
+                          }}
+                          aria-label="Next step"
+                        >
+                          <ChevronRight className="w-4 h-4" />
+                        </button>
                       )}
                     </div>
+                  </div>
 
-                    {tier !== 'compact' && (
-                      <h3
-                        className={`${
-                          isNarrow ? 'text-[16px]' : 'text-[18px] sm:text-[20px]'
-                        } font-bold leading-snug shrink-0`}
-                        style={{ fontFamily: HEADING_FONT, color: PARCHMENT_PALETTE.ink }}
-                      >
-                        Why Do Exactly 10 Lockers Stay Open?
-                      </h3>
-                    )}
-
-                    {/* Condensed single-step view on compact/narrow vs stacked steps on desktop */}
-                    {(tier === 'compact' || isNarrow) ? (
-                      <div
-                        className="p-2 rounded-xl border text-[14px] leading-snug animate-fade-rise"
-                        style={
+                  {/* Center: Single Step occupying the entire part of the explanation div */}
+                  <div className="flex-1 min-h-0 flex flex-col justify-center py-2 sm:py-3">
+                    <div
+                      key={solutionStep}
+                      className="h-full rounded-2xl border p-3 sm:p-4 md:p-5 flex flex-col justify-between transition-all animate-fade-rise overflow-hidden"
+                      style={{
+                        background:
                           solutionStep === 1
-                            ? INSET_PARCHMENT
+                            ? 'linear-gradient(135deg, rgba(255, 250, 240, 0.95), rgba(251, 242, 225, 0.9))'
                             : solutionStep === 2
-                            ? { background: 'rgba(184, 134, 43, 0.14)', borderColor: PARCHMENT_PALETTE.gold }
-                            : { background: 'rgba(184, 134, 43, 0.22)', borderColor: PARCHMENT_PALETTE.goldDark }
-                        }
-                      >
-                        {solutionStep === 1 && (
-                          <>
-                            <strong style={{ fontFamily: HEADING_FONT, color: PARCHMENT_PALETTE.sealRed }}>1. </strong>
-                            Factors usually travel in pairs: <strong>12 = 1 × 12, 2 × 6, 3 × 4</strong>. That&apos;s 6 flips (even). Open, closed, open, closed, open, closed—shut!
-                          </>
-                        )}
-                        {solutionStep === 2 && (
-                          <>
-                            <strong style={{ fontFamily: HEADING_FONT, color: PARCHMENT_PALETTE.goldDark }}>2. </strong>
-                            What makes a square number different? One factor pairs with itself: <strong>6 × 6 = 36</strong>. That lone factor gives it an odd count of factors (9 flips)!
-                          </>
-                        )}
-                        {solutionStep === 3 && (
-                          <>
-                            <strong style={{ fontFamily: HEADING_FONT, color: PARCHMENT_PALETTE.ink }}>3. </strong>
-                            An odd number of flips leaves the door wide open. Exactly 10 lockers stay open: <strong className="tabular-nums">1, 4, 9, 16, 25, 36, 49, 64, 81, and 100</strong>!
-                          </>
-                        )}
-                      </div>
-                    ) : (
-                      <>
-                        <div
-                          className="p-2 sm:p-2.5 rounded-xl border text-[14px] sm:text-[15px] leading-snug animate-fade-rise"
-                          style={INSET_PARCHMENT}
-                        >
-                          <span
-                            className="font-bold mr-1 tabular-nums"
-                            style={{ fontFamily: HEADING_FONT, color: PARCHMENT_PALETTE.sealRed }}
-                          >
-                            1.
-                          </span>
-                          Factors usually travel in pairs: <strong className="tabular-nums">12 = 1 × 12, 2 × 6, 3 × 4</strong>. That&apos;s 6 flips (even) → shut!
-                        </div>
+                            ? 'linear-gradient(135deg, rgba(184, 134, 43, 0.16), rgba(255, 252, 245, 0.95))'
+                            : 'linear-gradient(135deg, rgba(184, 134, 43, 0.22), rgba(255, 252, 245, 0.95))',
+                        borderColor:
+                          solutionStep === 1
+                            ? '#D5BD94'
+                            : solutionStep === 2
+                            ? PARCHMENT_PALETTE.gold
+                            : PARCHMENT_PALETTE.goldDark,
+                        boxShadow: '0 2px 8px rgba(94, 70, 48, 0.05)',
+                      }}
+                    >
+                      {solutionStep === 1 && (
+                        <div className="flex-1 min-h-0 flex flex-col justify-between gap-1.5 sm:gap-2">
+                          <div className="shrink-0">
+                            <h4
+                              className={`${
+                                tier === 'compact' ? 'text-[15px]' : 'text-[17px] sm:text-[19px]'
+                              } font-bold leading-tight`}
+                              style={{ fontFamily: HEADING_FONT, color: PARCHMENT_PALETTE.sealRed }}
+                            >
+                              Factors Always Travel in Pairs
+                            </h4>
+                            <p
+                              className={`${
+                                tier === 'compact'
+                                  ? 'text-[12px] sm:text-[13px]'
+                                  : 'text-[13px] sm:text-[14px]'
+                              } font-medium leading-snug mt-0.5`}
+                              style={{ fontFamily: BODY_FONT, color: PARCHMENT_PALETTE.ink }}
+                            >
+                              Take Locker #12. Walker visits pair up: each pair flips open then shuts!
+                            </p>
+                          </div>
 
-                        {solutionStep >= 2 && (
+                          {/* The 3 visible factor pairs occupying the rest of the div */}
+                          <div className="flex-1 min-h-0 grid grid-cols-3 gap-1.5 sm:gap-2.5 my-0.5">
+                            {[
+                              { pair: '1 × 12', label: 'Pair 1', flips: '2 flips' },
+                              { pair: '2 × 6',  label: 'Pair 2', flips: '2 flips' },
+                              { pair: '3 × 4',  label: 'Pair 3', flips: '2 flips' },
+                            ].map((item, idx) => (
+                              <div
+                                key={idx}
+                                className="flex-1 min-h-0 rounded-xl border flex flex-col items-center justify-center p-1.5 sm:p-2.5 shadow-xs"
+                                style={{
+                                  background: 'linear-gradient(145deg, #FFFDF8 0%, #F5EAE0 100%)',
+                                  borderColor: '#D5BD94',
+                                }}
+                              >
+                                <span
+                                  className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[#8B2E1F]"
+                                  style={{ fontFamily: HEADING_FONT }}
+                                >
+                                  {item.label}
+                                </span>
+                                <div
+                                  className="text-[19px] sm:text-[23px] md:text-[26px] font-black tabular-nums my-0.5"
+                                  style={{ fontFamily: HEADING_FONT, color: PARCHMENT_PALETTE.sealRed }}
+                                >
+                                  {item.pair}
+                                </div>
+                                <span
+                                  className="text-[10px] sm:text-[11px] font-semibold text-stone-600"
+                                  style={{ fontFamily: BODY_FONT }}
+                                >
+                                  {item.flips} → shut
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+
                           <div
-                            className="p-2 sm:p-2.5 rounded-xl border text-[14px] sm:text-[15px] leading-snug animate-fade-rise"
+                            className="px-2.5 py-1 sm:py-1.5 rounded-xl border flex items-center justify-between gap-1.5 shrink-0 text-[12px] sm:text-[13px]"
+                            style={{
+                              background: 'rgba(139, 46, 31, 0.08)',
+                              borderColor: '#E2CEBA',
+                              color: PARCHMENT_PALETTE.ink,
+                            }}
+                          >
+                            <span className="font-bold">Total Flips: 3 pairs × 2 = 6 flips (EVEN)</span>
+                            <span className="font-extrabold text-[#8B2E1F] uppercase tracking-wider">Ends Closed</span>
+                          </div>
+                        </div>
+                      )}
+
+                      {solutionStep === 2 && (
+                        <div className="flex-1 min-h-0 flex flex-col justify-between gap-1.5 sm:gap-2">
+                          <div className="shrink-0">
+                            <h4
+                              className={`${
+                                tier === 'compact' ? 'text-[15px]' : 'text-[17px] sm:text-[19px]'
+                              } font-bold leading-tight`}
+                              style={{ fontFamily: HEADING_FONT, color: PARCHMENT_PALETTE.goldDark }}
+                            >
+                              The Square Exception: 36 Factors
+                            </h4>
+                            <p
+                              className={`${
+                                tier === 'compact'
+                                  ? 'text-[12px] sm:text-[13px]'
+                                  : 'text-[13px] sm:text-[14px]'
+                              } font-medium leading-snug mt-0.5`}
+                              style={{ fontFamily: BODY_FONT, color: PARCHMENT_PALETTE.ink }}
+                            >
+                              Square numbers pair with themselves! Look at the lone self-pair <strong>6 × 6</strong>:
+                            </p>
+                          </div>
+
+                          {/* The 5 visible factor pairs occupying the rest of the div */}
+                          <div className="flex-1 min-h-0 grid grid-cols-5 gap-1 sm:gap-2 my-0.5">
+                            {[
+                              { pair: '1 × 36', isSelf: false },
+                              { pair: '2 × 18', isSelf: false },
+                              { pair: '3 × 12', isSelf: false },
+                              { pair: '4 × 9',  isSelf: false },
+                              { pair: '6 × 6',  isSelf: true },
+                            ].map((item, idx) => (
+                              <div
+                                key={idx}
+                                className={`flex-1 min-h-0 rounded-xl border flex flex-col items-center justify-center p-1 sm:p-2 text-center transition-all ${
+                                  item.isSelf ? 'ring-2 ring-[#B8862B] shadow-sm scale-[1.02]' : 'shadow-xs'
+                                }`}
+                                style={{
+                                  background: item.isSelf
+                                    ? 'linear-gradient(145deg, #FFFDF8 0%, #F8E6B8 100%)'
+                                    : 'linear-gradient(145deg, #FFFDF8 0%, #F5EAE0 100%)',
+                                  borderColor: item.isSelf ? PARCHMENT_PALETTE.goldDark : '#D5BD94',
+                                }}
+                              >
+                                <span
+                                  className="text-[9px] sm:text-[11px] font-bold uppercase tracking-wider truncate"
+                                  style={{
+                                    fontFamily: HEADING_FONT,
+                                    color: item.isSelf ? PARCHMENT_PALETTE.goldDark : PARCHMENT_PALETTE.inkMuted,
+                                  }}
+                                >
+                                  {item.isSelf ? 'Lone Twin' : `Pair ${idx + 1}`}
+                                </span>
+                                <div
+                                  className={`text-[13px] sm:text-[17px] md:text-[19px] font-black tabular-nums my-0.5 ${
+                                    item.isSelf ? 'text-amber-900 font-extrabold' : ''
+                                  }`}
+                                  style={{
+                                    fontFamily: HEADING_FONT,
+                                    color: item.isSelf ? PARCHMENT_PALETTE.goldDark : PARCHMENT_PALETTE.ink,
+                                  }}
+                                >
+                                  {item.pair}
+                                </div>
+                                <span
+                                  className="text-[9px] sm:text-[11px] font-bold"
+                                  style={{ color: item.isSelf ? '#B8862B' : '#7A5F43', fontFamily: BODY_FONT }}
+                                >
+                                  {item.isSelf ? '1 flip (Lone)' : '2 flips'}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+
+                          <div
+                            className="px-2.5 py-1 sm:py-1.5 rounded-xl border flex items-center justify-between gap-1.5 shrink-0 text-[12px] sm:text-[13px]"
                             style={{
                               background: 'rgba(184, 134, 43, 0.14)',
                               borderColor: PARCHMENT_PALETTE.gold,
+                              color: PARCHMENT_PALETTE.ink,
                             }}
                           >
-                            <span
-                              className="font-bold mr-1 tabular-nums"
-                              style={{ fontFamily: HEADING_FONT, color: PARCHMENT_PALETTE.goldDark }}
-                            >
-                              2.
-                            </span>
-                            What makes a square different? One factor pairs with itself: <strong className="tabular-nums">6 × 6 = 36</strong> (9 flips) → stays open!
+                            <span className="font-bold">4 pairs (8 flips) + 1 lone twin (1 flip) = 9 flips (ODD)</span>
+                            <span className="font-extrabold text-[#7C5610] uppercase tracking-wider">Stays Open!</span>
                           </div>
-                        )}
+                        </div>
+                      )}
 
-                        {solutionStep >= 3 && (
+                      {solutionStep === 3 && (
+                        <div className="flex-1 min-h-0 flex flex-col justify-between gap-1.5 sm:gap-2">
+                          <div className="flex items-center justify-between gap-2 shrink-0">
+                            <div>
+                              <h4
+                                className={`${
+                                  tier === 'compact' ? 'text-[15px]' : 'text-[17px] sm:text-[19px]'
+                                } font-bold leading-tight`}
+                                style={{ fontFamily: HEADING_FONT, color: PARCHMENT_PALETTE.goldDark }}
+                              >
+                                The 10 Open Lockers: Perfect Squares
+                              </h4>
+                              <p
+                                className={`${
+                                  tier === 'compact'
+                                    ? 'text-[12px] sm:text-[13px]'
+                                    : 'text-[13px] sm:text-[14px]'
+                                } font-medium leading-snug mt-0.5`}
+                                style={{ fontFamily: BODY_FONT, color: PARCHMENT_PALETTE.ink }}
+                              >
+                                Every square has an odd flip count and finishes wide open:
+                              </p>
+                            </div>
+                            <span
+                              className="text-[11px] sm:text-[12px] font-bold px-2 py-0.5 rounded-full border shrink-0 uppercase tracking-wide"
+                              style={{
+                                backgroundColor: 'rgba(184, 134, 43, 0.18)',
+                                borderColor: PARCHMENT_PALETTE.gold,
+                                color: PARCHMENT_PALETTE.goldDark,
+                                fontFamily: HEADING_FONT,
+                              }}
+                            >
+                              10 Winners
+                            </span>
+                          </div>
+
+                          {/* The 10 numbers occupying the rest of the div with high visibility! */}
+                          <div className="flex-1 min-h-0 grid grid-cols-5 gap-1.5 sm:gap-2 my-0.5">
+                            {[
+                              { n: 1, root: 1 },
+                              { n: 4, root: 2 },
+                              { n: 9, root: 3 },
+                              { n: 16, root: 4 },
+                              { n: 25, root: 5 },
+                              { n: 36, root: 6 },
+                              { n: 49, root: 7 },
+                              { n: 64, root: 8 },
+                              { n: 81, root: 9 },
+                              { n: 100, root: 10 },
+                            ].map((item) => (
+                              <div
+                                key={item.n}
+                                className="flex-1 min-h-0 rounded-xl border flex flex-col items-center justify-center p-1 sm:p-1.5 transition-transform hover:scale-[1.04] shadow-xs cursor-default"
+                                style={{
+                                  background: 'linear-gradient(145deg, #FFFDF8 0%, #F5E8CE 100%)',
+                                  borderColor: PARCHMENT_PALETTE.gold,
+                                }}
+                              >
+                                <div
+                                  className="text-[18px] sm:text-[22px] md:text-[24px] lg:text-[26px] font-black tabular-nums leading-none tracking-tight"
+                                  style={{ fontFamily: HEADING_FONT, color: PARCHMENT_PALETTE.goldDark }}
+                                >
+                                  {item.n}
+                                </div>
+                                <div
+                                  className="text-[10px] sm:text-[11px] md:text-[12px] font-bold text-amber-900/80 mt-0.5 tabular-nums"
+                                  style={{ fontFamily: BODY_FONT }}
+                                >
+                                  {item.root}²
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+
                           <div
-                            className="p-2 sm:p-2.5 rounded-xl border text-[14px] sm:text-[15px] leading-snug animate-fade-rise"
+                            className="px-2.5 py-1 sm:py-1.5 rounded-xl border flex items-center justify-between gap-1.5 shrink-0 text-[12px] sm:text-[13px]"
                             style={{
-                              background: 'rgba(184, 134, 43, 0.22)',
-                              borderColor: PARCHMENT_PALETTE.goldDark,
+                              background: 'rgba(184, 134, 43, 0.14)',
+                              borderColor: PARCHMENT_PALETTE.gold,
+                              color: PARCHMENT_PALETTE.ink,
                             }}
                           >
-                            <span
-                              className="font-bold mr-1 tabular-nums"
-                              style={{ fontFamily: HEADING_FONT, color: PARCHMENT_PALETTE.ink }}
-                            >
-                              3.
+                            <span className="font-bold">
+                              All other 90 doors were touched an even number of times.
                             </span>
-                            An odd number of flips leaves 10 lockers wide open:{' '}
-                            <strong className="tabular-nums">
-                              1, 4, 9, 16, 25, 36, 49, 64, 81, 100
-                            </strong>.
+                            <span className="font-extrabold text-[#7C5610] uppercase tracking-wider">
+                              90 Stay Closed
+                            </span>
                           </div>
-                        )}
-                      </>
-                    )}
+                        </div>
+                      )}
+                    </div>
                   </div>
 
-                  {solutionStep < 3 && (
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSolutionStep((s) => Math.min(3, s + 1));
-                      }}
-                      className={`${
-                        tier === 'compact' ? 'min-h-[36px] text-[13px]' : 'min-h-[42px] text-[14px]'
-                      } w-full px-3 py-1.5 rounded-xl border border-dashed font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-colors shrink-0`}
-                      style={{
-                        borderColor: PARCHMENT_PALETTE.sealRed,
-                        backgroundColor: 'rgba(139, 46, 31, 0.08)',
-                        color: PARCHMENT_PALETTE.sealRed,
-                        fontFamily: HEADING_FONT,
-                      }}
-                    >
-                      <span>Tap to reveal Step {solutionStep + 1} of 3</span>
-                      <ChevronRight className="w-4 h-4 shrink-0" />
-                    </button>
-                  )}
+                  {/* Bottom Bar: Action prompt / Controls (no number counter) */}
+                  <div className="flex items-center justify-between gap-2 shrink-0 pt-1.5 border-t border-[#D2B88C]/30 text-[13px] font-semibold">
+                    {solutionStep < 3 ? (
+                      <div
+                        className="flex items-center gap-1.5 animate-pulse"
+                        style={{ color: PARCHMENT_PALETTE.sealRed, fontFamily: BODY_FONT }}
+                      >
+                        <span>Tap anywhere to continue</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </div>
+                    ) : (
+                      <div
+                        className="flex items-center gap-1.5"
+                        style={{ color: PARCHMENT_PALETTE.goldDark, fontFamily: BODY_FONT }}
+                      >
+                        <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                        <span>Proof complete · 10 Lockers Open</span>
+                      </div>
+                    )}
+
+                    <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                      {solutionStep === 3 ? (
+                        <button
+                          type="button"
+                          onClick={() => setSolutionStep(1)}
+                          className="px-2.5 py-1 rounded-md text-[12px] font-bold border cursor-pointer hover:bg-amber-100/50"
+                          style={{
+                            color: PARCHMENT_PALETTE.goldDark,
+                            borderColor: PARCHMENT_PALETTE.paperBorder,
+                            fontFamily: HEADING_FONT,
+                          }}
+                        >
+                          Replay proof
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setSolutionStep(3)}
+                          className="px-2 py-0.5 text-[12px] font-bold underline cursor-pointer hover:opacity-80"
+                          style={{ color: PARCHMENT_PALETTE.inkMuted, fontFamily: BODY_FONT }}
+                        >
+                          Skip to conclusion
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
 

@@ -9,11 +9,11 @@
   --font-headline: clamp(1.25rem, 1.05rem + 1.45vw, 2.35rem);
   --font-title: clamp(1.125rem, 1.05rem + 0.435vw, 1.45rem);
   --font-statement: clamp(1.0625rem, 1rem + 0.25vw, 1.225rem);
-  --font-body: clamp(0.9375rem, 0.91rem + 0.217vw, 1.075rem);
+  --font-body: clamp(1rem, 0.95rem + 0.25vw, 1.1875rem);
   --font-ui-option: clamp(0.9375rem, 0.913rem + 0.109vw, 1rem);
-  --font-ui: clamp(0.875rem, 0.851rem + 0.109vw, 0.9375rem);
-  --font-small: clamp(0.8125rem, 0.788rem + 0.109vw, 0.875rem);
-  --font-micro: clamp(0.75rem, 0.726rem + 0.109vw, 0.8125rem);
+  --font-ui: clamp(0.9375rem, 0.9rem + 0.2vw, 1.0625rem);
+  --font-small: clamp(0.875rem, 0.84rem + 0.2vw, 1rem);
+  --font-micro: clamp(0.8125rem, 0.78rem + 0.2vw, 0.9375rem);
   --font-math-strip: clamp(1.0625rem, 0.95rem + 0.5vw, 1.55rem);
   --font-math-step: clamp(1.0625rem, 0.98rem + 0.435vw, 1.375rem);
   --font-math-option: clamp(0.9375rem, 0.9rem + 0.217vw, 1.075rem);

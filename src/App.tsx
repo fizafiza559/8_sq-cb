@@ -39,6 +39,7 @@ import { PrimeFactorGroupingHelper } from './components/PrimeFactorGroupingHelpe
 import { COLORS } from './design/tokens';
 import { selfCheck } from './math/facts';
 import { useViewportTier } from './hooks/useViewportTier';
+import { playCorrectSound, playIncorrectSound } from './utils/audio';
 
 const ALL_SUBTABS: { sectionId: SectionId; subTab: SubTabConfig }[] = CHAPTER_SECTIONS.flatMap((sec) =>
   sec.subTabs.map((subTab) => ({ sectionId: sec.id, subTab }))
@@ -495,6 +496,12 @@ export default function App() {
           answers={quickCheckAnswers}
           solutionStepsRevealed={quickCheckSolutionSteps}
           onSelectOption={(qIdx, optIdx) => {
+            const isCorrect = qcQuestions[qIdx]?.correctIndex === optIdx;
+            if (isCorrect) {
+              playCorrectSound();
+            } else {
+              playIncorrectSound();
+            }
             setQuickCheckAnswers((prev) => ({ ...prev, [qIdx]: optIdx }));
             setQuickCheckSolutionSteps((prev) => ({ ...prev, [qIdx]: 1 }));
           }}
@@ -508,6 +515,18 @@ export default function App() {
           onRevealAllSteps={(qIdx) => {
             const total = qcQuestions[qIdx]?.solutionSteps?.length || 1;
             setQuickCheckSolutionSteps((prev) => ({ ...prev, [qIdx]: total }));
+          }}
+          onResetQuestion={(qIdx) => {
+            setQuickCheckAnswers((prev) => {
+              const next = { ...prev };
+              delete next[qIdx];
+              return next;
+            });
+            setQuickCheckSolutionSteps((prev) => {
+              const next = { ...prev };
+              delete next[qIdx];
+              return next;
+            });
           }}
           onNext={() =>
             setQuickCheckIndex((idx) => (idx === null ? 0 : Math.min(qcQuestions.length, idx + 1)))

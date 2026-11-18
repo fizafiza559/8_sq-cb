@@ -267,7 +267,7 @@ export const TriangularSquareZipper: React.FC<TriangularSquareZipperProps> = ({
                 y={baseTopY - dotR - 18}
                 textAnchor="middle"
                 fill="#C2410C"
-                fontSize={13}
+                fontSize={14}
                 fontWeight={800}
               >
                 T{n} = {tCurr} orange dots
@@ -277,7 +277,7 @@ export const TriangularSquareZipper: React.FC<TriangularSquareZipperProps> = ({
                 y={blueStartTopY - dotR - 18}
                 textAnchor="middle"
                 fill="#0369A1"
-                fontSize={13}
+                fontSize={14}
                 fontWeight={800}
               >
                 T{n - 1} = {tPrev} blue dots
@@ -315,7 +315,7 @@ export const TriangularSquareZipper: React.FC<TriangularSquareZipperProps> = ({
                 y={d.y + 4}
                 textAnchor="middle"
                 fill="#FFFFFF"
-                fontSize={10}
+                fontSize={14}
                 fontWeight={800}
               >
                 {idx + 1}
@@ -339,7 +339,7 @@ export const TriangularSquareZipper: React.FC<TriangularSquareZipperProps> = ({
                 y={d.y + 4}
                 textAnchor="middle"
                 fill="#FFFFFF"
-                fontSize={10}
+                fontSize={14}
                 fontWeight={800}
               >
                 {idx + 1}
