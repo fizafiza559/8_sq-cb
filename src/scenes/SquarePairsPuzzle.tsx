@@ -4,7 +4,6 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { COLORS } from '../design/tokens';
 import { isSquare, solveSquarePairsRow } from '../math/facts';
 import {
   CheckCircle2,

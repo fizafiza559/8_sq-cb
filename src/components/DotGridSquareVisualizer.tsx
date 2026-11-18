@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { COLORS } from '../design/tokens';
 import { Katex } from './Katex';
-import { Layers, Grid, Sparkles, Plus, Minus } from 'lucide-react';
+import { Layers, Grid, Plus, Minus } from 'lucide-react';
 
 export interface DotGridSquareVisualizerProps {
   initialN?: number;

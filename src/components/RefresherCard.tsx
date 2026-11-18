@@ -9,7 +9,7 @@ import { useTimeline } from '../engine/useTimeline';
 import { Controls } from '../engine/Controls';
 import { ScrubBar } from '../engine/ScrubBar';
 import { COLORS } from '../design/tokens';
-import { Sparkles, X, HelpCircle } from 'lucide-react';
+import { Sparkles, X } from 'lucide-react';
 import { Katex } from './Katex';
 
 interface RefresherCardProps {

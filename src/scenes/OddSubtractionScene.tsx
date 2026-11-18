@@ -4,7 +4,6 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import { COLORS } from '../design/tokens';
 import { Katex } from '../components/Katex';
 import {
   Play,

@@ -4,7 +4,6 @@
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { COLORS } from '../design/tokens';
 import { Katex } from '../components/Katex';
 import { lastDigitOfCube, trailingZeros } from '../math/facts';
 import { Box, Sparkles, ArrowLeftRight } from 'lucide-react';

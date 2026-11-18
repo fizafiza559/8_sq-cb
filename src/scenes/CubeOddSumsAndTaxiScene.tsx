@@ -4,7 +4,6 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { COLORS } from '../design/tokens';
 import { Katex } from '../components/Katex';
 import { Scale, Sparkles, Box, Layers } from 'lucide-react';
 

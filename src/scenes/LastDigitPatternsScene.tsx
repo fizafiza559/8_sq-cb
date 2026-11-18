@@ -4,7 +4,6 @@
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { COLORS } from '../design/tokens';
 import { Katex } from '../components/Katex';
 import { lastDigitOfSquare, trailingZeros, isSquare } from '../math/facts';
 import { Grid3X3, Cpu, Sparkles, CheckCircle2, XCircle } from 'lucide-react';
