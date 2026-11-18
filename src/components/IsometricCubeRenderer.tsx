@@ -7,6 +7,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { COLORS } from '../design/tokens';
 import { Katex } from './Katex';
 import { Box, Layers, Plus, Minus, Play, Pause, Maximize2, Minimize2 } from 'lucide-react';
+import { useViewportTier } from '../hooks/useViewportTier';
 
 export interface IsometricCubeRendererProps {
   initialN?: number;
@@ -65,6 +66,9 @@ export const IsometricCubeRenderer: React.FC<IsometricCubeRendererProps> = ({
   const [explodeLayers, setExplodeLayers] = useState<boolean>(false);
   const [isAutoStacking, setIsAutoStacking] = useState<boolean>(false);
   const stackTimerRef = useRef<number | null>(null);
+  const { tier, isNarrow } = useViewportTier();
+  const isCompact = tier === 'compact';
+  const svgMaxH = isCompact ? 120 : isNarrow ? 155 : tier === 'standard' ? 195 : 255;
 
   useEffect(() => {
     if (beatIndex === undefined) return;
@@ -140,32 +144,36 @@ export const IsometricCubeRenderer: React.FC<IsometricCubeRendererProps> = ({
   return (
     <div
       data-no-nav="true"
-      className={`w-full max-w-4xl max-h-full overflow-y-auto no-scrollbar mx-auto rounded-3xl border border-slate-200/80 bg-white p-3 sm:p-4 shadow-xs flex flex-col gap-2.5 sm:gap-3 ${className}`}
+      className={`w-full max-w-4xl h-full max-h-full min-h-0 overflow-hidden mx-auto rounded-3xl border border-slate-200/80 bg-white ${
+        isCompact ? 'p-2 gap-1.5' : 'p-3 sm:p-4 gap-2 sm:gap-2.5'
+      } shadow-xs flex flex-col justify-between ${className}`}
     >
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2 shrink-0">
         <div className="min-w-0">
-          <span className="text-micro font-bold uppercase tracking-wider text-slate-500">
-            3D Isometric Volume Builder
-          </span>
-          <h3 className="text-statement font-extrabold flex items-center gap-2 mt-0.5" style={{ color: COLORS.headingText }}>
-            <Box className="w-5 h-5 text-purple-600 shrink-0" />
-            <span>Building {n} × {n} × {n} Layer by Layer ({totalVolume} Cubes)</span>
+          {!isCompact && (
+            <span className="text-micro font-bold uppercase tracking-wider text-slate-500 hidden sm:block">
+              3D Isometric Volume Builder
+            </span>
+          )}
+          <h3 className="text-small sm:text-statement font-extrabold flex items-center gap-2 mt-0.5" style={{ color: COLORS.headingText }}>
+            <Box className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 shrink-0" />
+            <span>Building {n} × {n} × {n} ({totalVolume} Cubes)</span>
           </h3>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
           <button
             type="button"
             onClick={() => setExplodeLayers((e) => !e)}
-            className={`min-h-[44px] sm:min-h-[40px] px-3.5 py-1.5 rounded-xl text-small font-bold border flex items-center gap-1.5 transition-all cursor-pointer shrink-0 ${
+            className={`${isCompact ? 'min-h-[38px] px-2.5' : 'min-h-[42px] sm:min-h-[38px] px-3'} py-1 rounded-xl text-micro sm:text-small font-bold border flex items-center gap-1.5 transition-all cursor-pointer shrink-0 ${
               explodeLayers
                 ? 'bg-[#F27A00] text-white border-[#C2410C] shadow-xs'
                 : 'bg-orange-50 text-orange-900 border-orange-300 hover:bg-orange-100'
             }`}
           >
-            {explodeLayers ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
-            <span>{explodeLayers ? 'Collapse Cube' : 'Explode Layers'}</span>
+            {explodeLayers ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
+            <span>{explodeLayers ? 'Collapse' : 'Explode'}</span>
           </button>
 
           <button
@@ -174,20 +182,20 @@ export const IsometricCubeRenderer: React.FC<IsometricCubeRendererProps> = ({
               if (visibleLayers >= n) setVisibleLayers(1);
               setIsAutoStacking((p) => !p);
             }}
-            className={`min-h-[44px] sm:min-h-[40px] px-3.5 py-1.5 rounded-xl text-small font-bold flex items-center gap-1.5 transition-all cursor-pointer shrink-0 ${
+            className={`${isCompact ? 'min-h-[38px] px-2.5' : 'min-h-[42px] sm:min-h-[38px] px-3'} py-1 rounded-xl text-micro sm:text-small font-bold flex items-center gap-1.5 transition-all cursor-pointer shrink-0 ${
               isAutoStacking
                 ? 'bg-amber-600 text-white'
                 : 'bg-[#005583] hover:bg-[#003F62] text-white shadow-2xs'
             }`}
           >
-            {isAutoStacking ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-            <span>{isAutoStacking ? 'Pause' : 'Stack Layers'}</span>
+            {isAutoStacking ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+            <span>{isAutoStacking ? 'Pause' : 'Stack'}</span>
           </button>
         </div>
       </div>
 
       {/* Controls Bar */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 p-2.5 sm:p-3 rounded-2xl bg-slate-50/80">
+      <div className={`grid grid-cols-1 md:grid-cols-2 ${isCompact ? 'gap-1.5 p-1.5 px-2.5' : 'gap-2 p-2 sm:p-2.5'} rounded-2xl bg-slate-50/80 shrink-0`}>
         {/* Edge Length Controller */}
         <div className="flex flex-wrap items-center justify-between md:justify-start gap-2.5">
           <span className="text-small font-bold whitespace-nowrap" style={{ color: COLORS.headingText }}>
@@ -265,7 +273,7 @@ export const IsometricCubeRenderer: React.FC<IsometricCubeRendererProps> = ({
 
       {/* 3D Isometric SVG Canvas */}
       <div
-        className="w-full flex items-center justify-center rounded-2xl border border-slate-100 bg-white overflow-hidden relative"
+        className="w-full flex-1 min-h-0 flex items-center justify-center rounded-2xl border border-slate-100 bg-white overflow-hidden relative"
         style={{
           backgroundImage: `radial-gradient(${COLORS.canvasGrid} 1.5px, transparent 1.5px)`,
           backgroundSize: '20px 20px',
@@ -273,7 +281,8 @@ export const IsometricCubeRenderer: React.FC<IsometricCubeRendererProps> = ({
       >
         <svg
           viewBox={`0 0 ${viewWidth} ${viewHeight}`}
-          className="w-full h-auto max-h-[175px] sm:max-h-[235px] lg:max-h-[260px] select-none"
+          className="w-full h-auto select-none"
+          style={{ maxHeight: `${svgMaxH}px` }}
         >
           {/* Left Badge */}
           <g transform="translate(22, 22)">
@@ -382,16 +391,18 @@ export const IsometricCubeRenderer: React.FC<IsometricCubeRendererProps> = ({
       </div>
 
       {/* Formula Strip */}
-      <div className="p-2.5 sm:p-3 rounded-2xl bg-slate-50/80 text-center space-y-0.5">
-        <div className="text-body sm:text-statement font-bold max-w-full flex flex-wrap justify-center" style={{ color: COLORS.volume.text }}>
+      <div className={`${isCompact ? 'p-1.5' : 'p-2 sm:p-2.5'} rounded-2xl bg-slate-50/80 text-center space-y-0.5 shrink-0`}>
+        <div className="text-small sm:text-statement font-bold max-w-full flex flex-wrap justify-center" style={{ color: COLORS.volume.text }}>
           <Katex
             latex={`\\text{Volume} = ${n} \\times ${n} \\times ${n} = ${n}^3 = ${totalVolume} \\quad (${Array.from({ length: visibleLayers }, (_, i) => (i + 1) * perLayer).join(' \\to ')})`}
             displayMode={false}
           />
         </div>
-        <p className="text-micro font-medium" style={{ color: COLORS.mutedText }}>
-          Each layer holds {n} × {n} = {perLayer} cubes. Stack {n} layers to fill a {n} × {n} × {n} cube ({totalVolume} cubes)!
-        </p>
+        {!isCompact && (
+          <p className="text-micro font-medium hidden sm:block" style={{ color: COLORS.mutedText }}>
+            Each layer holds {n} × {n} = {perLayer} cubes. Stack {n} layers to fill a {n} × {n} × {n} cube ({totalVolume} cubes)!
+          </p>
+        )}
       </div>
     </div>
   );

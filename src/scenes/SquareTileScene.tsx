@@ -7,6 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { COLORS } from '../design/tokens';
 import { Katex } from '../components/Katex';
 import { Grid, Layers, Sparkles } from 'lucide-react';
+import { useViewportTier } from '../hooks/useViewportTier';
 
 export interface SquareTileSceneProps {
   inverseMode?: boolean;
@@ -28,6 +29,9 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
   const [mode, setMode] = useState<'integer' | 'decimal' | 'fraction'>(initialMode);
   const [n, setN] = useState<number>(Math.max(1, Math.min(5, initialN)));
   const [activePiece, setActivePiece] = useState<HighlightPiece>(null);
+  const { tier, isNarrow } = useViewportTier();
+  const isCompact = tier === 'compact';
+  const svgMaxH = isCompact ? 115 : isNarrow ? 150 : tier === 'standard' ? 185 : 225;
 
   useEffect(() => {
     if (beatIndex === undefined) return;
@@ -43,11 +47,13 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
   return (
     <div
       data-no-nav="true"
-      className={`w-full max-w-3xl max-h-full overflow-y-auto no-scrollbar mx-auto flex flex-col items-center gap-2.5 sm:gap-3 bg-white p-3 sm:p-4 rounded-3xl border border-slate-200/80 shadow-xs ${className}`}
+      className={`w-full max-w-3xl h-full max-h-full min-h-0 overflow-hidden mx-auto flex flex-col items-center justify-between ${
+        isCompact ? 'gap-1.5 p-2' : 'gap-2 sm:gap-2.5 p-2.5 sm:p-4'
+      } bg-white rounded-3xl border border-slate-200/80 shadow-xs ${className}`}
     >
       {/* Top Mode Toggle Bar */}
-      <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
-        <div className="flex items-center gap-2 text-small font-semibold text-slate-600">
+      <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-1.5 border-b border-slate-100 pb-2 shrink-0">
+        <div className="flex items-center gap-2 text-micro sm:text-small font-semibold text-slate-600">
           <span>{inverseMode ? 'Area to Side Explorer' : 'Square Area Modes'}</span>
           {inverseMode && (
             <>
@@ -102,8 +108,8 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
 
       {/* Mode 1: Whole Numbers (1-5) */}
       {mode === 'integer' && (
-        <div className="w-full flex flex-col items-center gap-2.5 animate-fade-rise">
-          <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-2 bg-slate-50/80 p-2.5 sm:px-3.5 rounded-2xl">
+        <div className="w-full flex-1 min-h-0 flex flex-col items-center justify-between gap-2 overflow-hidden animate-fade-rise">
+          <div className={`w-full flex flex-col sm:flex-row items-center justify-between gap-2 bg-slate-50/80 ${isCompact ? 'p-1.5 px-2.5' : 'p-2 sm:px-3.5'} rounded-2xl shrink-0`}>
             <div className="flex items-center gap-3">
               <label
                 htmlFor="tile-n-slider"
@@ -148,10 +154,11 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
           </div>
 
           {/* SVG Tile Grid */}
-          <div className="relative flex items-center justify-center p-2 bg-slate-50/50 rounded-2xl w-full overflow-hidden">
+          <div className="relative flex-1 min-h-0 flex items-center justify-center p-1.5 bg-slate-50/50 rounded-2xl w-full overflow-hidden">
             <svg
               viewBox="0 0 360 240"
-              className="w-full max-w-[340px] h-auto max-h-[165px] sm:max-h-[215px] overflow-visible select-none"
+              className="w-full max-w-[340px] h-auto overflow-visible select-none"
+              style={{ maxHeight: `${svgMaxH}px` }}
             >
               {(() => {
                 const tileSize = Math.min(38, 175 / Math.max(1, n));
@@ -286,21 +293,24 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
 
       {/* Mode 2: Decimal Preset (2.5 x 2.5 = 6.25) */}
       {mode === 'decimal' && (
-        <div className="w-full flex flex-col items-center gap-2.5 animate-fade-rise">
-          <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-small text-slate-600 px-1">
+        <div className="w-full flex-1 min-h-0 flex flex-col items-center justify-between gap-2 overflow-hidden animate-fade-rise">
+          <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-micro sm:text-small text-slate-600 px-1 shrink-0">
             <span className="font-bold text-slate-900">
               Geometric Dissection of (2 + 0.5)²
             </span>
-            <span className="tabular-nums font-semibold text-emerald-700">
-              Tap any piece to inspect
-            </span>
+            {!isCompact && (
+              <span className="tabular-nums font-semibold text-emerald-700">
+                Tap any piece to inspect
+              </span>
+            )}
           </div>
 
           {/* Visual SVG Decomposition of (2 + 0.5) x (2 + 0.5) */}
-          <div className="relative flex items-center justify-center p-2 bg-slate-50/50 rounded-2xl w-full overflow-hidden">
+          <div className="relative flex-1 min-h-0 flex items-center justify-center p-1.5 bg-slate-50/50 rounded-2xl w-full overflow-hidden">
             <svg
               viewBox="0 0 360 245"
-              className="w-full max-w-[340px] h-auto max-h-[165px] sm:max-h-[215px] overflow-visible select-none"
+              className="w-full max-w-[340px] h-auto overflow-visible select-none"
+              style={{ maxHeight: `${svgMaxH}px` }}
             >
               {(() => {
                 const scale = 68;
@@ -548,21 +558,24 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
 
       {/* Mode 3: Fraction Preset ((3/5)^2 = 9/25 = 0.36) */}
       {mode === 'fraction' && (
-        <div className="w-full flex flex-col items-center gap-2.5 animate-fade-rise">
-          <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-small text-slate-600 px-1">
+        <div className="w-full flex-1 min-h-0 flex flex-col items-center justify-between gap-2 overflow-hidden animate-fade-rise">
+          <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-micro sm:text-small text-slate-600 px-1 shrink-0">
             <span className="font-bold text-slate-900">
               Fraction Square: 3/5 of a 1 × 1 Unit Square
             </span>
-            <span className="tabular-nums font-semibold" style={{ color: COLORS.volume.text }}>
-              9 of 25 sub-squares shaded
-            </span>
+            {!isCompact && (
+              <span className="tabular-nums font-semibold" style={{ color: COLORS.volume.text }}>
+                9 of 25 sub-squares shaded
+              </span>
+            )}
           </div>
 
           {/* SVG 5x5 Grid showing 3x3 highlighted in vivid orange #F27A00 */}
-          <div className="relative flex items-center justify-center p-2 bg-slate-50/50 rounded-2xl w-full overflow-hidden">
+          <div className="relative flex-1 min-h-0 flex items-center justify-center p-1.5 bg-slate-50/50 rounded-2xl w-full overflow-hidden">
             <svg
               viewBox="0 0 360 245"
-              className="w-full max-w-[340px] h-auto max-h-[165px] sm:max-h-[215px] overflow-visible select-none"
+              className="w-full max-w-[340px] h-auto overflow-visible select-none"
+              style={{ maxHeight: `${svgMaxH}px` }}
             >
               {(() => {
                 const subSize = 36;

@@ -13,6 +13,7 @@ import {
   Box,
   RotateCcw,
 } from 'lucide-react';
+import { useViewportTier } from '../hooks/useViewportTier';
 
 export interface PrimeFactorGroupingHelperProps {
   initialNumber?: number;
@@ -71,6 +72,10 @@ export const PrimeFactorGroupingHelper: React.FC<PrimeFactorGroupingHelperProps>
     from: number;
     action: string;
   } | null>(null);
+  const [compactView, setCompactView] = useState<'repair' | 'steps'>('repair');
+  const { tier, isNarrow } = useViewportTier();
+  const isCompact = tier === 'compact';
+  const useTwoPanels = isCompact || isNarrow;
 
   useEffect(() => {
     if (beatIndex === undefined) return;
@@ -126,17 +131,21 @@ export const PrimeFactorGroupingHelper: React.FC<PrimeFactorGroupingHelperProps>
   return (
     <div
       data-no-nav="true"
-      className={`w-full max-w-4xl max-h-full overflow-y-auto no-scrollbar mx-auto rounded-3xl border border-slate-200/80 bg-white p-3 sm:p-4 shadow-xs flex flex-col gap-2.5 sm:gap-3 ${className}`}
+      className={`w-full max-w-4xl h-full max-h-full min-h-0 overflow-hidden mx-auto rounded-3xl border border-slate-200/80 bg-white ${
+        isCompact ? 'p-2 gap-1.5' : 'p-3 sm:p-4 gap-2 sm:gap-2.5'
+      } shadow-xs flex flex-col justify-between ${className}`}
     >
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2 shrink-0">
         <div className="min-w-0">
-          <span className="text-micro font-bold uppercase tracking-wider text-slate-500">
-            Prime Triplets for Cubes
-          </span>
-          <h3 className="text-statement font-extrabold flex items-center gap-2 mt-0.5" style={{ color: COLORS.headingText }}>
-            <Calculator className="w-5 h-5 text-[#005583] shrink-0" />
-            <span>Group Prime Factors in Teams of Three</span>
+          {!isCompact && (
+            <span className="text-micro font-bold uppercase tracking-wider text-slate-500 hidden sm:block">
+              Prime Triplets for Cubes
+            </span>
+          )}
+          <h3 className="text-small sm:text-statement font-extrabold flex items-center gap-2 mt-0.5" style={{ color: COLORS.headingText }}>
+            <Calculator className="w-4 h-4 sm:w-5 sm:h-5 text-[#005583] shrink-0" />
+            <span>Group Prime Factors in Teams of {groupMode === 'square' ? 'Two' : 'Three'}</span>
           </h3>
         </div>
 
@@ -148,7 +157,7 @@ export const PrimeFactorGroupingHelper: React.FC<PrimeFactorGroupingHelperProps>
               setPreviousIncomplete(null);
               setGroupMode('square');
             }}
-            className={`min-h-[44px] sm:min-h-[38px] px-3 py-1.5 rounded-lg text-micro font-bold transition-all cursor-pointer ${
+            className={`${isCompact ? 'min-h-[38px]' : 'min-h-[42px] sm:min-h-[36px]'} px-3 py-1 rounded-lg text-micro font-bold transition-all cursor-pointer ${
               groupMode === 'square'
                 ? 'bg-white text-orange-600 shadow-2xs'
                 : 'text-slate-600 hover:text-slate-900'
@@ -162,7 +171,7 @@ export const PrimeFactorGroupingHelper: React.FC<PrimeFactorGroupingHelperProps>
               setPreviousIncomplete(null);
               setGroupMode('cube');
             }}
-            className={`min-h-[44px] sm:min-h-[38px] px-3 py-1.5 rounded-lg text-micro font-bold transition-all cursor-pointer ${
+            className={`${isCompact ? 'min-h-[38px]' : 'min-h-[42px] sm:min-h-[36px]'} px-3 py-1 rounded-lg text-micro font-bold transition-all cursor-pointer ${
               groupMode === 'cube'
                 ? 'bg-white text-purple-700 shadow-2xs'
                 : 'text-slate-600 hover:text-slate-900'
@@ -173,85 +182,160 @@ export const PrimeFactorGroupingHelper: React.FC<PrimeFactorGroupingHelperProps>
         </div>
       </div>
 
-      {/* Preset Quick Chips */}
-      <div className="flex items-center gap-1.5 flex-wrap">
-        <span className="text-micro font-bold text-slate-500">Try Examples:</span>
-        {PRESET_NUMBERS.map((p) => (
+      {/* Presets & Input Bar (combined compactly when compact/narrow) */}
+      {useTwoPanels ? (
+        <div className="flex flex-wrap items-center justify-between gap-1.5 p-2 rounded-2xl bg-slate-50/80 shrink-0">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {[3375, 500, 252, 9408].map((pNum) => (
+              <button
+                key={pNum}
+                type="button"
+                onClick={() => selectNumber(pNum, null)}
+                className={`min-h-[38px] px-2.5 py-1 rounded-xl text-micro font-bold border transition-all cursor-pointer tabular-nums ${
+                  num === pNum
+                    ? 'bg-[#005583] text-white border-[#003F62]'
+                    : 'bg-white text-slate-700 border-slate-200'
+                }`}
+              >
+                {pNum}
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center gap-1.5">
+            <input
+              id="num-input"
+              type="number"
+              min={2}
+              max={999999}
+              value={inputVal}
+              aria-label="Number to check"
+              onChange={(e) => {
+                setPreviousIncomplete(null);
+                setInputVal(e.target.value);
+              }}
+              className="w-24 px-2.5 py-1 min-h-[38px] rounded-xl border bg-white text-small font-extrabold text-[#005583] outline-none border-slate-300 focus:border-[#005583]"
+            />
+            {previousIncomplete && (
+              <button
+                type="button"
+                onClick={() => selectNumber(previousIncomplete.from, null)}
+                className="min-h-[38px] px-2.5 py-1 rounded-xl bg-white border border-slate-300 text-micro font-bold text-slate-700 flex items-center gap-1 cursor-pointer"
+              >
+                <RotateCcw className="w-3 h-3 shrink-0" />
+                <span>{previousIncomplete.from}</span>
+              </button>
+            )}
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* Preset Quick Chips */}
+          <div className="flex items-center gap-1.5 flex-wrap shrink-0">
+            <span className="text-micro font-bold text-slate-500">Examples:</span>
+            {PRESET_NUMBERS.map((p) => (
+              <button
+                key={p.num}
+                type="button"
+                onClick={() => selectNumber(p.num, null)}
+                className={`min-h-[34px] px-2.5 py-1 rounded-xl text-micro font-bold border transition-all cursor-pointer text-left ${
+                  num === p.num
+                    ? 'bg-[#005583] text-white border-[#003F62] shadow-2xs'
+                    : p.num === 500 || p.num === 3375
+                    ? 'bg-purple-50 text-purple-900 border-purple-200/80 hover:bg-purple-100'
+                    : 'bg-slate-50 text-slate-700 border-slate-200/80 hover:bg-slate-100'
+                }`}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Manual Input Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-2 p-2 sm:px-3 rounded-2xl bg-slate-50/80 shrink-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <label htmlFor="num-input" className="text-small font-bold text-slate-700">
+                Number to Check:
+              </label>
+              <input
+                id="num-input"
+                type="number"
+                min={2}
+                max={999999}
+                value={inputVal}
+                onChange={(e) => {
+                  setPreviousIncomplete(null);
+                  setInputVal(e.target.value);
+                }}
+                className="w-28 px-3 py-1 rounded-xl border bg-white text-body font-extrabold text-[#005583] outline-none border-slate-300 focus:border-[#005583]"
+              />
+            </div>
+
+            {previousIncomplete && (
+              <button
+                type="button"
+                onClick={() => selectNumber(previousIncomplete.from, null)}
+                className="min-h-[34px] px-3 py-1 rounded-xl bg-white border border-slate-300 hover:bg-slate-100 text-micro font-bold text-slate-700 flex items-center gap-1.5 cursor-pointer"
+              >
+                <RotateCcw className="w-3.5 h-3.5 shrink-0" />
+                <span>Back to {previousIncomplete.from} ({previousIncomplete.action})</span>
+              </button>
+            )}
+          </div>
+        </>
+      )}
+
+      {/* Compact/Narrow View Switcher between Factors & Fix vs Division Steps */}
+      {useTwoPanels && (
+        <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-100 shrink-0">
           <button
-            key={p.num}
             type="button"
-            onClick={() => selectNumber(p.num, null)}
-            className={`min-h-[44px] sm:min-h-[36px] px-2.5 sm:px-3 py-1 rounded-xl text-micro font-bold border transition-all cursor-pointer text-left ${
-              num === p.num
-                ? 'bg-[#005583] text-white border-[#003F62] shadow-2xs'
-                : p.num === 500 || p.num === 3375
-                ? 'bg-purple-50 text-purple-900 border-purple-200/80 hover:bg-purple-100'
-                : 'bg-slate-50 text-slate-700 border-slate-200/80 hover:bg-slate-100'
+            onClick={() => setCompactView('repair')}
+            className={`flex-1 min-h-[36px] rounded-lg text-micro font-bold cursor-pointer ${
+              compactView === 'repair' ? 'bg-white text-[#005583] shadow-2xs' : 'text-slate-600'
             }`}
           >
-            {p.label}
+            Factors &amp; Fix
           </button>
-        ))}
-      </div>
-
-      {/* Manual Input Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-2.5 p-2.5 sm:px-3.5 rounded-2xl bg-slate-50/80">
-        <div className="flex flex-wrap items-center gap-2.5">
-          <label htmlFor="num-input" className="text-small font-bold text-slate-700">
-            Number to Check:
-          </label>
-          <input
-            id="num-input"
-            type="number"
-            min={2}
-            max={999999}
-            value={inputVal}
-            onChange={(e) => {
-              setPreviousIncomplete(null);
-              setInputVal(e.target.value);
-            }}
-            className="w-28 sm:w-32 px-3 py-1.5 min-h-[44px] sm:min-h-0 rounded-xl border bg-white text-statement font-extrabold text-[#005583] outline-none border-slate-300 focus:border-[#005583]"
-          />
-        </div>
-
-        {previousIncomplete && (
           <button
             type="button"
-            onClick={() => selectNumber(previousIncomplete.from, null)}
-            className="min-h-[44px] sm:min-h-[36px] px-3 py-1.5 rounded-xl bg-white border border-slate-300 hover:bg-slate-100 text-micro font-bold text-slate-700 flex items-center gap-1.5 cursor-pointer"
+            onClick={() => setCompactView('steps')}
+            className={`flex-1 min-h-[36px] rounded-lg text-micro font-bold cursor-pointer ${
+              compactView === 'steps' ? 'bg-white text-[#005583] shadow-2xs' : 'text-slate-600'
+            }`}
           >
-            <RotateCcw className="w-3.5 h-3.5 shrink-0" />
-            <span>Back to {previousIncomplete.from} ({previousIncomplete.action})</span>
+            Division Ladder ({steps.length})
           </button>
-        )}
-      </div>
-
-      {/* Prime Factor Grouping Display */}
-      <div className="flex flex-col gap-2">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <span className="text-small font-extrabold" style={{ color: COLORS.headingText }}>
-            Prime Factors of {num}:
-          </span>
-          <span
-            className="text-micro font-extrabold px-3 py-1 rounded-full border text-center"
-            style={{
-              backgroundColor: isAlreadyPerfect ? '#DCFCE7' : '#FEF3C7',
-              borderColor: isAlreadyPerfect ? '#86EFAC' : '#FCD34D',
-              color: isAlreadyPerfect ? '#15803D' : '#B45309',
-            }}
-          >
-            {isAlreadyPerfect
-              ? groupMode === 'square'
-                ? 'ALL PAIRS COMPLETE — PERFECT SQUARE!'
-                : 'ALL TRIPLETS COMPLETE — PERFECT CUBE!'
-              : groupMode === 'square'
-              ? 'INCOMPLETE PAIR — NOT A PERFECT SQUARE'
-              : 'INCOMPLETE TRIPLET — NOT A PERFECT CUBE'}
-          </span>
         </div>
+      )}
 
-        {/* Visual Boxed Groups */}
-        <div className="flex items-center gap-2 sm:gap-3 flex-wrap p-2.5 sm:p-3.5 rounded-2xl bg-slate-50/75">
+      {(!useTwoPanels || compactView === 'repair') && (
+        <div className="flex flex-col gap-2 flex-1 min-h-0 justify-between overflow-hidden">
+          {/* Prime Factor Grouping Display */}
+          <div className="flex flex-col gap-1.5">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="text-micro sm:text-small font-extrabold" style={{ color: COLORS.headingText }}>
+                Prime Factors of {num}:
+              </span>
+              <span
+                className="text-micro font-extrabold px-2.5 py-0.5 rounded-full border text-center"
+                style={{
+                  backgroundColor: isAlreadyPerfect ? '#DCFCE7' : '#FEF3C7',
+                  borderColor: isAlreadyPerfect ? '#86EFAC' : '#FCD34D',
+                  color: isAlreadyPerfect ? '#15803D' : '#B45309',
+                }}
+              >
+                {isAlreadyPerfect
+                  ? groupMode === 'square'
+                    ? 'ALL PAIRS COMPLETE!'
+                    : 'ALL TRIPLETS COMPLETE!'
+                  : groupMode === 'square'
+                  ? 'INCOMPLETE PAIR'
+                  : 'INCOMPLETE TRIPLET'}
+              </span>
+            </div>
+
+            {/* Visual Boxed Groups */}
+            <div className="flex items-center gap-1.5 sm:gap-2.5 flex-wrap p-2 sm:p-2.5 rounded-2xl bg-slate-50/75">
           {Object.entries(factorCounts).map(([factorStr, count]) => {
             const factor = parseInt(factorStr, 10);
             const fullGroupsCount = Math.floor(count / groupSize);
@@ -315,21 +399,17 @@ export const PrimeFactorGroupingHelper: React.FC<PrimeFactorGroupingHelperProps>
 
       {/* Interactive Repair Cards when Incomplete */}
       {!isAlreadyPerfect ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className={`grid ${isCompact ? 'grid-cols-2' : 'grid-cols-1 sm:grid-cols-2'} gap-2`}>
           {/* Multiply Card */}
-          <div className="p-3 sm:p-4 rounded-2xl bg-emerald-50/60 flex flex-col justify-between gap-2.5 min-w-0">
-            <div className="flex flex-col gap-1 min-w-0">
-              <div className="flex items-center gap-2 text-emerald-800 font-bold text-small">
-                <Sparkles className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>Smallest Number to MULTIPLY:</span>
+          <div className="p-2.5 sm:p-3 rounded-2xl bg-emerald-50/60 flex flex-col justify-between gap-1.5 min-w-0">
+            <div className="flex flex-col gap-0.5 min-w-0">
+              <div className="flex items-center gap-1.5 text-emerald-800 font-bold text-micro">
+                <Sparkles className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <span>MULTIPLY by {multiplier}</span>
               </div>
-              <div className="text-statement font-black text-emerald-950">
-                Multiply by {multiplier}
-              </div>
-              <p className="text-small text-emerald-900">
+              <p className="text-micro sm:text-small text-emerald-900">
                 {num} × <strong>{multiplier}</strong> = <strong>{resultingMultiplied}</strong>{' '}
-                ({groupMode === 'square' ? `√${resultingMultiplied}` : `∛${resultingMultiplied}`} ={' '}
-                <strong>{resultingMultipliedRoot}</strong>)
+                ({groupMode === 'square' ? `√` : `∛`} = <strong>{resultingMultipliedRoot}</strong>)
               </p>
             </div>
             <button
@@ -340,29 +420,23 @@ export const PrimeFactorGroupingHelper: React.FC<PrimeFactorGroupingHelperProps>
                   action: `before × ${multiplier}`,
                 })
               }
-              className="min-h-[44px] w-full px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-small font-bold flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer text-center whitespace-normal"
+              className="min-h-[38px] w-full px-2.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-micro sm:text-small font-bold flex items-center justify-center gap-1 shadow-2xs cursor-pointer text-center"
             >
-              <span className="min-w-0 break-words">
-                Make it a {groupMode} by multiplying (× {multiplier})
-              </span>
-              <ArrowRight className="w-4 h-4 shrink-0" />
+              <span>Apply × {multiplier}</span>
+              <ArrowRight className="w-3.5 h-3.5 shrink-0" />
             </button>
           </div>
 
           {/* Divide Card */}
-          <div className="p-3 sm:p-4 rounded-2xl bg-purple-50/60 flex flex-col justify-between gap-2.5 min-w-0">
-            <div className="flex flex-col gap-1 min-w-0">
-              <div className="flex items-center gap-2 text-purple-800 font-bold text-small">
-                <Sparkles className="w-4 h-4 text-purple-600 shrink-0" />
-                <span>Smallest Number to DIVIDE:</span>
+          <div className="p-2.5 sm:p-3 rounded-2xl bg-purple-50/60 flex flex-col justify-between gap-1.5 min-w-0">
+            <div className="flex flex-col gap-0.5 min-w-0">
+              <div className="flex items-center gap-1.5 text-purple-800 font-bold text-micro">
+                <Sparkles className="w-3.5 h-3.5 text-purple-600 shrink-0" />
+                <span>DIVIDE by {divider}</span>
               </div>
-              <div className="text-statement font-black text-purple-950">
-                Divide by {divider}
-              </div>
-              <p className="text-small text-purple-900">
+              <p className="text-micro sm:text-small text-purple-900">
                 {num} ÷ <strong>{divider}</strong> = <strong>{resultingDivided}</strong>{' '}
-                ({groupMode === 'square' ? `√${resultingDivided}` : `∛${resultingDivided}`} ={' '}
-                <strong>{resultingDividedRoot}</strong>)
+                ({groupMode === 'square' ? `√` : `∛`} = <strong>{resultingDividedRoot}</strong>)
               </p>
             </div>
             <button
@@ -373,46 +447,48 @@ export const PrimeFactorGroupingHelper: React.FC<PrimeFactorGroupingHelperProps>
                   action: `before ÷ ${divider}`,
                 })
               }
-              className="min-h-[44px] w-full px-3 py-2 rounded-xl bg-purple-700 hover:bg-purple-800 text-white text-small font-bold flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer text-center whitespace-normal"
+              className="min-h-[38px] w-full px-2.5 py-1.5 rounded-xl bg-purple-700 hover:bg-purple-800 text-white text-micro sm:text-small font-bold flex items-center justify-center gap-1 shadow-2xs cursor-pointer text-center"
             >
-              <span className="min-w-0 break-words">
-                Make it a {groupMode} by dividing (÷ {divider})
-              </span>
-              <ArrowRight className="w-4 h-4 shrink-0" />
+              <span>Apply ÷ {divider}</span>
+              <ArrowRight className="w-3.5 h-3.5 shrink-0" />
             </button>
           </div>
         </div>
       ) : (
-        <div className="p-3 rounded-2xl bg-emerald-50/75 text-center space-y-1 animate-fade-rise">
-          <div className="text-body font-extrabold text-emerald-900">
+        <div className="p-2.5 rounded-2xl bg-emerald-50/75 text-center space-y-0.5 animate-fade-rise">
+          <div className="text-small sm:text-body font-extrabold text-emerald-900">
             One from each {groupMode === 'square' ? 'pair' : 'triplet'}:{' '}
             {Object.entries(factorCounts)
               .flatMap(([f, c]) => Array(Math.floor(c / groupSize)).fill(f))
               .join(' × ')}{' '}
             = {groupMode === 'square' ? Math.round(Math.sqrt(num)) : Math.round(Math.cbrt(num))}
           </div>
-          <div className="text-title font-black text-emerald-800">
+          <div className="text-statement sm:text-title font-black text-emerald-800">
             {groupMode === 'square'
               ? `√${num} = ${Math.round(Math.sqrt(num))}`
               : `∛${num} = ${Math.round(Math.cbrt(num))}`}
           </div>
         </div>
       )}
+        </div>
+      )}
 
       {/* Step-by-Step Division Ladder */}
-      <div className="p-2.5 sm:p-3 rounded-2xl bg-slate-50/80 space-y-1.5">
-        <span className="text-micro font-bold text-slate-700">Prime Division Steps:</span>
-        <div className="flex items-center gap-1.5 flex-wrap font-mono text-small font-bold text-slate-800">
-          {steps.map((st, i) => (
-            <div key={i} className="flex items-center gap-1.5">
-              <span className="px-2 py-0.5 rounded bg-white border border-slate-200/80">
-                {st.quotient} ÷ <span className="text-rose-600 font-bold">{st.divisor}</span>
-              </span>
-              {i < steps.length - 1 && <ArrowRight className="w-3.5 h-3.5 text-slate-400" />}
-            </div>
-          ))}
+      {(!useTwoPanels || compactView === 'steps') && (
+        <div className={`p-2 sm:p-2.5 rounded-2xl bg-slate-50/80 space-y-1.5 ${useTwoPanels ? 'flex-1 min-h-0 flex flex-col justify-center' : 'shrink-0'}`}>
+          <span className="text-micro font-bold text-slate-700">Prime Division Steps:</span>
+          <div className="flex items-center gap-1.5 flex-wrap font-mono text-micro sm:text-small font-bold text-slate-800">
+            {steps.map((st, i) => (
+              <div key={i} className="flex items-center gap-1">
+                <span className="px-2 py-0.5 rounded bg-white border border-slate-200/80">
+                  {st.quotient} ÷ <span className="text-rose-600 font-bold">{st.divisor}</span>
+                </span>
+                {i < steps.length - 1 && <ArrowRight className="w-3 h-3 text-slate-400" />}
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

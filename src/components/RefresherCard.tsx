@@ -71,25 +71,25 @@ export const RefresherCard: React.FC<RefresherCardProps> = ({ clip, label }) => 
             </div>
 
             {/* Modal Body / Mini-scene Engine View */}
-            <div className="my-5 flex-1 overflow-y-auto space-y-4">
+            <div className="my-3 flex-1 min-h-0 overflow-hidden space-y-3 flex flex-col justify-center">
               {currentBeat.headline && (
-                <h4 className="text-xl font-bold text-center" style={{ color: COLORS.headingText }}>
+                <h4 className="text-statement sm:text-xl font-bold text-center" style={{ color: COLORS.headingText }}>
                   {currentBeat.headline}
                 </h4>
               )}
 
               {/* Mini canvas / LaTeX display */}
               <div
-                className="w-full rounded-2xl border flex flex-col items-center justify-center p-6 bg-[#FFFFFF] shadow-inner"
+                className="w-full rounded-2xl border flex flex-col items-center justify-center p-4 sm:p-5 bg-[#FFFFFF] shadow-inner"
                 style={{
-                  minHeight: '160px',
+                  minHeight: '120px',
                   borderColor: COLORS.divider,
                   backgroundImage: `radial-gradient(${COLORS.canvasGrid} 1.5px, transparent 1.5px)`,
                   backgroundSize: '16px 16px',
                 }}
               >
                 {currentBeat.latex && currentBeat.latex.map((l, i) => (
-                  <div key={i} className="my-1.5 text-lg font-medium" style={{ color: COLORS.primary }}>
+                  <div key={i} className="my-1 text-body sm:text-lg font-medium" style={{ color: COLORS.primary }}>
                     <Katex latex={l} displayMode={true} />
                   </div>
                 ))}
@@ -97,7 +97,7 @@ export const RefresherCard: React.FC<RefresherCardProps> = ({ clip, label }) => 
 
               {/* Narration */}
               <p
-                className="text-body text-center max-w-lg mx-auto font-medium leading-relaxed"
+                className="text-small sm:text-body text-center max-w-lg mx-auto font-medium leading-relaxed"
                 style={{ color: COLORS.bodyText }}
               >
                 {currentBeat.narration}

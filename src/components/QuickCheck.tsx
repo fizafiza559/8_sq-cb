@@ -9,6 +9,7 @@ import { Katex } from './Katex';
 import { HighlightHeadline } from './HighlightHeadline';
 import { COLORS } from '../design/tokens';
 import { CheckCircle2, ChevronRight, RotateCcw, XCircle } from 'lucide-react';
+import { useViewportTier } from '../hooks/useViewportTier';
 
 interface QuickCheckProps {
   questions: QuickCheckQuestion[];
@@ -35,6 +36,9 @@ export const QuickCheck: React.FC<QuickCheckProps> = ({
   onReviewScene,
   onNextScene,
 }) => {
+  const { tier, isNarrow } = useViewportTier();
+  const isCompact = tier === 'compact';
+
   if (!questions || questions.length === 0) return null;
 
   // Result Slide
@@ -43,7 +47,7 @@ export const QuickCheck: React.FC<QuickCheckProps> = ({
     const scoreText = `${correctCount} out of ${questions.length}`;
 
     return (
-      <div className="w-full max-w-[900px] max-h-full overflow-y-auto no-scrollbar mx-auto flex flex-col items-center text-center gap-4 py-3 animate-fade-rise">
+      <div className="w-full max-w-[900px] h-full max-h-full min-h-0 overflow-hidden mx-auto flex flex-col items-center justify-center text-center gap-3 sm:gap-4 py-2 animate-fade-rise">
         <HighlightHeadline
           text={`You got ${scoreText} right`}
           focusWord={scoreText}
@@ -95,80 +99,117 @@ export const QuickCheck: React.FC<QuickCheckProps> = ({
   );
   const hasMoreSteps = visibleStepCount < totalSteps;
 
+  const showCompactStepOnly = tier !== 'spacious' || isNarrow;
+  const collapseOptionsAfterAnswer = hasAnswered && (isCompact || isNarrow);
+  const activeStepIdx = visibleStepCount - 1;
+  const activeStep = steps[activeStepIdx];
+
   return (
     <div
       key={`qc-slide-${currentIndex}`}
-      className="w-full max-w-[900px] max-h-full overflow-y-auto no-scrollbar mx-auto flex flex-col items-center gap-2.5 sm:gap-3.5 py-1.5 px-1 animate-fade-rise"
+      className={`w-full max-w-[900px] h-full max-h-full min-h-0 overflow-hidden mx-auto flex flex-col items-center justify-between ${
+        isCompact ? 'gap-1.5 py-1' : 'gap-2.5 sm:gap-3.5 py-1.5'
+      } px-1 animate-fade-rise`}
     >
-      {/* Question as the slide headline */}
-      <HighlightHeadline text={q.prompt} />
+      {/* Question Header */}
+      <div className="w-full flex flex-col items-center gap-1.5 shrink-0">
+        <HighlightHeadline
+          text={q.prompt}
+          maxWidthClass={
+            isCompact
+              ? 'max-w-[900px] !text-statement leading-tight'
+              : isNarrow
+              ? 'max-w-[900px] !text-title leading-snug'
+              : 'max-w-[900px]'
+          }
+        />
 
-      {/* Optional KaTeX equation strip */}
-      {q.latex && q.latex.length > 0 && (
+        {/* Optional KaTeX equation strip */}
+        {q.latex && q.latex.length > 0 && (
+          <div
+            className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1 math-step font-medium"
+            style={{ color: COLORS.primary }}
+          >
+            {q.latex.map((l, i) => (
+              <Katex key={i} latex={l} displayMode={false} />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Answer Options (collapses to crisp 1-line summary after answering on compact/narrow) */}
+      {collapseOptionsAfterAnswer ? (
+        <div className="w-full max-w-2xl px-3 py-2 rounded-xl border border-slate-200 bg-white flex flex-wrap items-center justify-between gap-2 text-micro sm:text-small font-semibold shrink-0">
+          <span className={isCorrect ? 'text-emerald-700' : 'text-rose-700'}>
+            Your pick: <strong>{String.fromCharCode(65 + selectedOption)}. {q.options[selectedOption]}</strong>
+          </span>
+          {!isCorrect && (
+            <span className="text-emerald-700">
+              Correct: <strong>{String.fromCharCode(65 + q.correctIndex)}. {q.options[q.correctIndex]}</strong>
+            </span>
+          )}
+        </div>
+      ) : (
         <div
-          className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 math-step font-medium"
-          style={{ color: COLORS.primary }}
+          className={`w-full max-w-2xl grid ${
+            isCompact ? 'grid-cols-2 gap-2' : 'grid-cols-1 md:grid-cols-2 gap-2 sm:gap-3'
+          } shrink-0`}
         >
-          {q.latex.map((l, i) => (
-            <Katex key={i} latex={l} displayMode={false} />
-          ))}
+          {q.options.map((opt, idx) => {
+            let bg = '#FFFFFF';
+            let border = COLORS.divider;
+            let text = COLORS.headingText;
+
+            if (hasAnswered) {
+              if (idx === q.correctIndex) {
+                bg = '#DCFCE7';
+                border = '#16A34A';
+                text = '#15803D';
+              } else if (idx === selectedOption) {
+                bg = '#FEE2E2';
+                border = '#DC2626';
+                text = '#B91C1C';
+              }
+            }
+
+            return (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => !hasAnswered && onSelectOption(currentIndex, idx)}
+                disabled={hasAnswered}
+                className={`w-full text-left px-3 sm:px-4 ${
+                  isCompact ? 'py-2 min-h-[40px] text-small' : 'py-2.5 sm:py-3 min-h-[44px] text-ui-option'
+                } rounded-2xl border transition-colors flex items-center justify-between gap-2 cursor-pointer disabled:cursor-default font-semibold hover:border-[#005583]/60`}
+                style={{
+                  backgroundColor: bg,
+                  borderColor: border,
+                  color: text,
+                }}
+              >
+                <span className="flex items-center gap-2.5 min-w-0">
+                  <span
+                    className="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-micro tabular-nums font-bold border shrink-0"
+                    style={{ borderColor: border }}
+                  >
+                    {String.fromCharCode(65 + idx)}
+                  </span>
+                  <span className="leading-snug truncate sm:whitespace-normal">{opt}</span>
+                </span>
+                {hasAnswered && idx === q.correctIndex && (
+                  <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 shrink-0" />
+                )}
+                {hasAnswered && idx === selectedOption && idx !== q.correctIndex && (
+                  <XCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 shrink-0" />
+                )}
+              </button>
+            );
+          })}
         </div>
       )}
 
-      {/* Large Option Buttons: 2x2 on desktop, stacked on phones */}
-      <div className="w-full max-w-2xl grid grid-cols-1 md:grid-cols-2 gap-3">
-        {q.options.map((opt, idx) => {
-          let bg = '#FFFFFF';
-          let border = COLORS.divider;
-          let text = COLORS.headingText;
-
-          if (hasAnswered) {
-            if (idx === q.correctIndex) {
-              bg = '#DCFCE7';
-              border = '#16A34A';
-              text = '#15803D';
-            } else if (idx === selectedOption) {
-              bg = '#FEE2E2';
-              border = '#DC2626';
-              text = '#B91C1C';
-            }
-          }
-
-          return (
-            <button
-              key={idx}
-              type="button"
-              onClick={() => !hasAnswered && onSelectOption(currentIndex, idx)}
-              disabled={hasAnswered}
-              className="w-full text-left px-3.5 sm:px-5 py-3 sm:py-3.5 rounded-2xl border transition-colors flex items-center justify-between gap-2.5 sm:gap-3 cursor-pointer disabled:cursor-default text-ui-option font-semibold min-h-[48px] hover:border-[#005583]/60"
-              style={{
-                backgroundColor: bg,
-                borderColor: border,
-                color: text,
-              }}
-            >
-              <span className="flex items-center gap-3 min-w-0">
-                <span
-                  className="w-7 h-7 rounded-full flex items-center justify-center text-micro tabular-nums font-bold border shrink-0"
-                  style={{ borderColor: border }}
-                >
-                  {String.fromCharCode(65 + idx)}
-                </span>
-                <span className="leading-snug">{opt}</span>
-              </span>
-              {hasAnswered && idx === q.correctIndex && (
-                <CheckCircle2 className="w-5 h-5 text-green-600 shrink-0" />
-              )}
-              {hasAnswered && idx === selectedOption && idx !== q.correctIndex && (
-                <XCircle className="w-5 h-5 text-red-600 shrink-0" />
-              )}
-            </button>
-          );
-        })}
-      </div>
-
       {/* Step-by-Step Solution Reveal & Next */}
-      {hasAnswered && (
+      {hasAnswered ? (
         <div
           data-no-nav="true"
           onClick={() => {
@@ -177,7 +218,9 @@ export const QuickCheck: React.FC<QuickCheckProps> = ({
             if (sel && sel.length > 0) return;
             onRevealNextStep(currentIndex);
           }}
-          className={`w-full max-w-2xl rounded-2xl border p-4 sm:p-5 flex flex-col gap-3.5 text-left animate-fade-rise ${
+          className={`w-full max-w-2xl flex-1 min-h-0 overflow-hidden rounded-2xl border ${
+            isCompact ? 'p-2.5 gap-2' : 'p-3 sm:p-4 gap-2.5'
+          } flex flex-col justify-between text-left animate-fade-rise ${
             hasMoreSteps ? 'cursor-pointer' : ''
           }`}
           style={{
@@ -186,62 +229,67 @@ export const QuickCheck: React.FC<QuickCheckProps> = ({
           }}
         >
           {/* Feedback Header & Step Progress */}
-          <div className="flex items-center justify-between gap-2 flex-wrap">
+          <div className="flex items-center justify-between gap-2 flex-wrap shrink-0">
             <div className="flex items-center gap-2">
               <span
-                className="text-small font-extrabold"
+                className="text-micro sm:text-small font-extrabold"
                 style={{ color: isCorrect ? '#15803D' : '#B91C1C' }}
               >
-                {isCorrect ? '✓ Right! Step-by-Step Solution' : 'Look closely — Step-by-Step Solution'}
+                {isCorrect ? '✓ Right! Solution' : 'Look closely — Solution'}
               </span>
               <span className="px-2 py-0.5 rounded-md bg-white/90 border border-slate-200 text-micro font-bold text-slate-700 tabular-nums">
                 Step {visibleStepCount} of {totalSteps}
               </span>
             </div>
 
-            {hasMoreSteps && onRevealAllSteps && (
+            {hasMoreSteps && onRevealAllSteps && !showCompactStepOnly && (
               <button
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation();
                   onRevealAllSteps(currentIndex);
                 }}
-                className="min-h-[44px] text-micro font-bold text-[#005583] hover:underline cursor-pointer px-2.5 py-1 rounded-md hover:bg-white/70 transition-colors"
+                className="min-h-[36px] text-micro font-bold text-[#005583] hover:underline cursor-pointer px-2.5 py-1 rounded-md hover:bg-white/70 transition-colors"
               >
                 Show all steps
               </button>
             )}
           </div>
 
-          {/* Revealed Solution Steps */}
-          <div className="flex flex-col gap-2">
-            {steps.slice(0, visibleStepCount).map((st, sIdx) => (
-              <div
-                key={sIdx}
-                className="bg-white rounded-xl border border-slate-200/70 p-3 sm:p-4 flex flex-col gap-1.5 animate-fade-rise"
-              >
-                <div className="flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-lg bg-blue-50 text-blue-800 text-micro font-bold flex items-center justify-center shrink-0 tabular-nums">
-                    {sIdx + 1}
-                  </span>
-                  <span className="text-small font-bold text-slate-900">
-                    {st.title || `Step ${sIdx + 1}`}
-                  </span>
-                </div>
-
-                {st.latex && (
-                  <div className="my-0.5 p-2 rounded-lg bg-blue-50/50 text-center max-w-full break-words">
-                    <Katex latex={st.latex} displayMode={false} />
+          {/* Revealed Solution Steps (single active step on non-spacious, stacked on spacious) */}
+          <div className="flex flex-col gap-1.5 min-h-0 overflow-hidden">
+            {(showCompactStepOnly ? [activeStep] : steps.slice(0, visibleStepCount)).map((st, idx) => {
+              const displayIdx = showCompactStepOnly ? activeStepIdx : idx;
+              return (
+                <div
+                  key={displayIdx}
+                  className={`bg-white rounded-xl border border-slate-200/70 ${
+                    isCompact ? 'p-2.5 gap-1' : 'p-3 sm:p-3.5 gap-1.5'
+                  } flex flex-col animate-fade-rise`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-blue-50 text-blue-800 text-micro font-bold flex items-center justify-center shrink-0 tabular-nums">
+                      {displayIdx + 1}
+                    </span>
+                    <span className="text-small font-bold text-slate-900">
+                      {st.title || `Step ${displayIdx + 1}`}
+                    </span>
                   </div>
-                )}
 
-                <p className="text-small text-slate-700 leading-relaxed">{st.text}</p>
-              </div>
-            ))}
+                  {st.latex && (
+                    <div className="my-0.5 px-2 py-1 rounded-lg bg-blue-50/50 text-center max-w-full overflow-hidden">
+                      <Katex latex={st.latex} displayMode={false} />
+                    </div>
+                  )}
+
+                  <p className="text-micro sm:text-small text-slate-700 leading-snug">{st.text}</p>
+                </div>
+              );
+            })}
           </div>
 
           {/* Action CTA: Tap for Next Step OR Next Question */}
-          <div className="flex items-center justify-center pt-1">
+          <div className="flex items-center justify-center pt-0.5 shrink-0">
             {hasMoreSteps ? (
               <button
                 type="button"
@@ -249,7 +297,9 @@ export const QuickCheck: React.FC<QuickCheckProps> = ({
                   e.stopPropagation();
                   onRevealNextStep(currentIndex);
                 }}
-                className="w-full min-h-[44px] px-5 py-2.5 rounded-full text-ui font-semibold text-white flex items-center justify-center gap-1.5 transition-opacity hover:opacity-95 cursor-pointer shadow-2xs"
+                className={`w-full ${
+                  isCompact ? 'min-h-[40px] py-2' : 'min-h-[44px] py-2.5'
+                } px-5 rounded-full text-small sm:text-ui font-semibold text-white flex items-center justify-center gap-1.5 transition-opacity hover:opacity-95 cursor-pointer shadow-2xs`}
                 style={{ backgroundColor: COLORS.primary }}
               >
                 <span>
@@ -264,7 +314,9 @@ export const QuickCheck: React.FC<QuickCheckProps> = ({
                   e.stopPropagation();
                   onNext();
                 }}
-                className="px-7 py-2.5 rounded-full text-ui font-semibold min-h-[44px] text-white transition-colors cursor-pointer shadow-2xs"
+                className={`px-7 ${
+                  isCompact ? 'min-h-[40px] py-2' : 'min-h-[44px] py-2.5'
+                } rounded-full text-small sm:text-ui font-semibold text-white transition-colors cursor-pointer shadow-2xs`}
                 style={{ backgroundColor: COLORS.primary }}
               >
                 {currentIndex < questions.length - 1 ? 'Next' : 'Finish'} →
@@ -272,6 +324,8 @@ export const QuickCheck: React.FC<QuickCheckProps> = ({
             )}
           </div>
         </div>
+      ) : (
+        <div className="shrink-0" />
       )}
     </div>
   );

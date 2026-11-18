@@ -6,6 +6,7 @@
 import React, { useState } from 'react';
 import { Katex } from '../components/Katex';
 import { Grid, Box, Trees, Sparkles } from 'lucide-react';
+import { useViewportTier } from '../hooks/useViewportTier';
 
 export interface HistoryVisualStoryProps {
   slideIndex?: number; // 0 = Varga & Ghana (ph-1), 1 = Mula (ph-2)
@@ -20,6 +21,9 @@ export const HistoryVisualStory: React.FC<HistoryVisualStoryProps> = ({
   const [formationMode, setFormationMode] = useState<'varga' | 'ghana'>('varga');
   const [isAligned, setIsAligned] = useState<boolean>(true);
   const [rootExample, setRootExample] = useState<'square' | 'cube'>('square');
+  const { tier, isNarrow } = useViewportTier();
+  const isCompact = tier === 'compact';
+  const svgMaxH = isCompact ? 115 : isNarrow ? 145 : tier === 'standard' ? 185 : 220;
 
   // Keep synced with beat changes when parent advances beats
   React.useEffect(() => {
@@ -29,17 +33,21 @@ export const HistoryVisualStory: React.FC<HistoryVisualStoryProps> = ({
   return (
     <div
       data-no-nav="true"
-      className={`w-full max-w-4xl max-h-full overflow-y-auto no-scrollbar mx-auto rounded-3xl border border-slate-200/80 bg-white p-3 sm:p-4 shadow-xs flex flex-col gap-2.5 sm:gap-3 ${className}`}
+      className={`w-full max-w-4xl h-full max-h-full min-h-0 overflow-hidden mx-auto rounded-3xl border border-slate-200/80 bg-white ${
+        isCompact ? 'p-2 gap-1.5' : 'p-2.5 sm:p-4 gap-2 sm:gap-2.5'
+      } shadow-xs flex flex-col justify-between ${className}`}
     >
       {/* Header & 2-Slide Switcher */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 border-b border-slate-100 pb-2 shrink-0">
         <div className="min-w-0">
-          <div className="flex items-center gap-2 text-micro text-slate-500 font-semibold">
-            <span>A Pinch of History</span>
-            <span aria-hidden="true">·</span>
-            <span>Aryabhata (499 CE)</span>
-          </div>
-          <h3 className="text-statement font-extrabold text-slate-900 mt-0.5">
+          {!isCompact && (
+            <div className="hidden sm:flex items-center gap-2 text-micro text-slate-500 font-semibold">
+              <span>A Pinch of History</span>
+              <span aria-hidden="true">·</span>
+              <span>Aryabhata (499 CE)</span>
+            </div>
+          )}
+          <h3 className="text-small sm:text-statement font-extrabold text-slate-900 mt-0.5">
             {activeSlide === 0
               ? 'Slide 1: Varga (Square Army) & Ghana (Solid Cube)'
               : 'Slide 2: Mūla (The Root That Grows the Shape)'}
@@ -78,22 +86,22 @@ export const HistoryVisualStory: React.FC<HistoryVisualStoryProps> = ({
       {/* SLIDE 1: VARGA (SOLDIERS IN ROWS -> SQUARE) & GHANA (SOLID CUBE)  */}
       {/* ================================================================= */}
       {activeSlide === 0 && (
-        <div className="flex flex-col gap-3 animate-fade-rise">
-          <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 sm:px-3.5 rounded-2xl bg-slate-50/80">
-            <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-col justify-between gap-2 flex-1 min-h-0 overflow-hidden animate-fade-rise">
+          <div className={`flex flex-wrap items-center justify-between gap-2 ${isCompact ? 'p-1.5 px-2' : 'p-2 sm:px-3.5'} rounded-2xl bg-slate-50/80 shrink-0`}>
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
               <button
                 type="button"
                 onClick={() => {
                   setFormationMode('varga');
                   setIsAligned(true);
                 }}
-                className={`min-h-[44px] sm:min-h-[40px] px-3.5 py-2 rounded-xl text-small font-bold border transition-all cursor-pointer flex items-center gap-1.5 ${
+                className={`${isCompact ? 'min-h-[36px] px-2.5 text-micro' : 'min-h-[40px] px-3.5 text-small'} py-1 rounded-xl font-bold border transition-all cursor-pointer flex items-center gap-1.5 ${
                   formationMode === 'varga'
                     ? 'bg-[#0788D3] text-white border-[#0369A1] shadow-2xs'
                     : 'bg-white text-slate-700 border-slate-200/80 hover:bg-slate-100'
                 }`}
               >
-                <Grid className="w-4 h-4 shrink-0" />
+                <Grid className="w-3.5 h-3.5 shrink-0" />
                 <span>Varga (Square)</span>
               </button>
 
@@ -103,13 +111,13 @@ export const HistoryVisualStory: React.FC<HistoryVisualStoryProps> = ({
                   setFormationMode('ghana');
                   setIsAligned(true);
                 }}
-                className={`min-h-[44px] sm:min-h-[40px] px-3.5 py-2 rounded-xl text-small font-bold border transition-all cursor-pointer flex items-center gap-1.5 ${
+                className={`${isCompact ? 'min-h-[36px] px-2.5 text-micro' : 'min-h-[40px] px-3.5 text-small'} py-1 rounded-xl font-bold border transition-all cursor-pointer flex items-center gap-1.5 ${
                   formationMode === 'ghana'
                     ? 'bg-[#F27A00] text-white border-[#C2410C] shadow-2xs'
                     : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
                 }`}
               >
-                <Box className="w-4 h-4 shrink-0" />
+                <Box className="w-3.5 h-3.5 shrink-0" />
                 <span>Ghana (Cube)</span>
               </button>
             </div>
@@ -117,23 +125,23 @@ export const HistoryVisualStory: React.FC<HistoryVisualStoryProps> = ({
             <button
               type="button"
               onClick={() => setIsAligned((a) => !a)}
-              className="min-h-[44px] sm:min-h-[40px] px-3.5 py-2 rounded-xl bg-white border border-slate-300 hover:bg-slate-100 text-small font-bold text-slate-800 cursor-pointer text-center"
+              className={`${isCompact ? 'min-h-[36px] px-2.5 text-micro' : 'min-h-[40px] px-3.5 text-small'} py-1 rounded-xl bg-white border border-slate-300 hover:bg-slate-100 font-bold text-slate-800 cursor-pointer text-center`}
             >
               {formationMode === 'varga'
                 ? isAligned
-                  ? 'Scatter Line (1 × 16)'
+                  ? 'Scatter (2 × 8)'
                   : 'March into Varga (4 × 4)'
                 : isAligned
                 ? 'Unstack Layers'
-                : 'Stack into Ghana (3 × 3 × 3)'}
+                : 'Stack Ghana (3 × 3 × 3)'}
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-2.5 items-center flex-1 min-h-0 overflow-hidden">
             {/* SVG Canvas */}
-            <div className="md:col-span-7 rounded-2xl bg-slate-50/70 p-2 sm:p-3 flex items-center justify-center">
+            <div className="md:col-span-7 rounded-2xl bg-slate-50/70 p-1.5 sm:p-2 flex items-center justify-center min-h-0">
               {formationMode === 'varga' ? (
-                <svg viewBox="0 0 420 250" className="w-full h-auto max-h-[165px] sm:max-h-[225px] select-none">
+                <svg viewBox="0 0 420 250" className="w-full h-auto select-none" style={{ maxHeight: `${svgMaxH}px` }}>
                   {/* Ground Square Highlight when aligned */}
                   <rect
                     x={126}
@@ -204,7 +212,7 @@ export const HistoryVisualStory: React.FC<HistoryVisualStoryProps> = ({
                   </text>
                 </svg>
               ) : (
-                <svg viewBox="0 0 420 250" className="w-full h-auto max-h-[165px] sm:max-h-[225px] select-none">
+                <svg viewBox="0 0 420 250" className="w-full h-auto select-none" style={{ maxHeight: `${svgMaxH}px` }}>
                   {/* 3x3x3 Isometric Ghana Solid Block */}
                   {Array.from({ length: 3 }).map((_, z) =>
                     Array.from({ length: 3 }).map((__, y) =>
@@ -270,24 +278,26 @@ export const HistoryVisualStory: React.FC<HistoryVisualStoryProps> = ({
             </div>
 
             {/* Cultural Meaning Card */}
-            <div className="md:col-span-5 flex flex-col gap-2.5">
-              <div className="p-3 sm:p-3.5 rounded-2xl bg-slate-50/80 flex flex-col gap-1.5">
+            <div className="md:col-span-5 flex flex-col gap-2">
+              <div className={`${isCompact ? 'p-2' : 'p-2.5 sm:p-3.5'} rounded-2xl bg-slate-50/80 flex flex-col gap-1`}>
                 <span className="text-micro font-bold text-[#005583]">
                   Sanskrit Word Origin
                 </span>
-                <h4 className="text-statement font-extrabold text-slate-900">
+                <h4 className="text-small sm:text-statement font-extrabold text-slate-900">
                   {formationMode === 'varga'
                     ? 'Varga = Squad of Soldiers'
                     : 'Ghana = Dense Solid Block'}
                 </h4>
-                <p className="text-small text-slate-700 leading-relaxed">
-                  {formationMode === 'varga'
-                    ? 'In 499 CE, Aryabhata used varga for equal rows and columns—just like soldiers marching in a square squad!'
-                    : 'Ancient Indian scholars called a cube ghana—meaning a dense, solid 3D block packed equally on all three sides.'}
-                </p>
+                {!isCompact && (
+                  <p className="text-micro sm:text-small text-slate-700 leading-snug">
+                    {formationMode === 'varga'
+                      ? 'In 499 CE, Aryabhata used varga for equal rows and columns—like soldiers in a square squad!'
+                      : 'Ancient Indian scholars called a cube ghana—meaning a dense, solid 3D block.'}
+                  </p>
+                )}
               </div>
 
-              <div className="p-3 rounded-2xl bg-blue-50/60 flex flex-wrap items-center justify-center text-center">
+              <div className={`${isCompact ? 'p-1.5' : 'p-2.5'} rounded-2xl bg-blue-50/60 flex flex-wrap items-center justify-center text-center`}>
                 <Katex
                   latex={
                     formationMode === 'varga'
@@ -306,16 +316,16 @@ export const HistoryVisualStory: React.FC<HistoryVisualStoryProps> = ({
       {/* SLIDE 2: MULA (TREE ROOT THAT GENERATES THE WHOLE STRUCTURE)      */}
       {/* ================================================================= */}
       {activeSlide === 1 && (
-        <div className="flex flex-col gap-3 animate-fade-rise">
-          <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 sm:px-3.5 rounded-2xl bg-slate-50/80">
-            <span className="text-small font-bold text-slate-700">
+        <div className="flex flex-col justify-between gap-2 flex-1 min-h-0 overflow-hidden animate-fade-rise">
+          <div className={`flex flex-wrap items-center justify-between gap-2 ${isCompact ? 'p-1.5 px-2' : 'p-2 sm:px-3.5'} rounded-2xl bg-slate-50/80 shrink-0`}>
+            <span className="text-micro sm:text-small font-bold text-slate-700">
               See what Mūla (Root) grows:
             </span>
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-1.5">
               <button
                 type="button"
                 onClick={() => setRootExample('square')}
-                className={`min-h-[44px] sm:min-h-[38px] px-3.5 py-1.5 rounded-xl text-small font-bold border transition-all cursor-pointer ${
+                className={`${isCompact ? 'min-h-[36px] px-2.5 text-micro' : 'min-h-[40px] px-3.5 text-small'} py-1 rounded-xl font-bold border transition-all cursor-pointer ${
                   rootExample === 'square'
                     ? 'bg-emerald-600 text-white border-emerald-700 shadow-2xs'
                     : 'bg-white text-slate-700 border-slate-200/80 hover:bg-slate-100'
@@ -326,7 +336,7 @@ export const HistoryVisualStory: React.FC<HistoryVisualStoryProps> = ({
               <button
                 type="button"
                 onClick={() => setRootExample('cube')}
-                className={`min-h-[44px] sm:min-h-[38px] px-3.5 py-1.5 rounded-xl text-small font-bold border transition-all cursor-pointer ${
+                className={`${isCompact ? 'min-h-[36px] px-2.5 text-micro' : 'min-h-[40px] px-3.5 text-small'} py-1 rounded-xl font-bold border transition-all cursor-pointer ${
                   rootExample === 'cube'
                     ? 'bg-purple-700 text-white border-purple-800 shadow-2xs'
                     : 'bg-white text-slate-700 border-slate-200/80 hover:bg-slate-100'
@@ -337,10 +347,10 @@ export const HistoryVisualStory: React.FC<HistoryVisualStoryProps> = ({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-2.5 items-center flex-1 min-h-0 overflow-hidden">
             {/* Botanical Root -> Canopy SVG */}
-            <div className="md:col-span-7 rounded-2xl bg-gradient-to-b from-sky-50/70 via-white to-amber-50/70 p-2 sm:p-3 flex items-center justify-center">
-              <svg viewBox="0 0 420 260" className="w-full h-auto max-h-[175px] sm:max-h-[225px] select-none">
+            <div className="md:col-span-7 rounded-2xl bg-gradient-to-b from-sky-50/70 via-white to-amber-50/70 p-1.5 sm:p-2 flex items-center justify-center min-h-0">
+              <svg viewBox="0 0 420 260" className="w-full h-auto select-none" style={{ maxHeight: `${svgMaxH}px` }}>
                 {/* Soil Horizon */}
                 <line x1={20} y1={170} x2={400} y2={170} stroke="#B45309" strokeWidth={2.5} strokeDasharray="6 4" />
                 <text x={36} y={188} fill="#92400E" fontSize={11} fontWeight={700}>
@@ -440,23 +450,25 @@ export const HistoryVisualStory: React.FC<HistoryVisualStoryProps> = ({
             </div>
 
             {/* Meaning Box */}
-            <div className="md:col-span-5 flex flex-col gap-2.5">
-              <div className="p-3 sm:p-3.5 rounded-2xl bg-emerald-50/60 flex flex-col gap-1.5">
+            <div className="md:col-span-5 flex flex-col gap-2">
+              <div className={`${isCompact ? 'p-2' : 'p-2.5 sm:p-3.5'} rounded-2xl bg-emerald-50/60 flex flex-col gap-1`}>
                 <div className="flex items-center gap-1.5 text-micro font-bold text-emerald-800">
                   <Sparkles className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                   <span>Why Do We Say &ldquo;Root&rdquo;?</span>
                 </div>
-                <h4 className="text-statement font-extrabold text-slate-900">
+                <h4 className="text-small sm:text-statement font-extrabold text-slate-900">
                   Mūla Means Tree Root
                 </h4>
-                <p className="text-small text-slate-700 leading-relaxed">
-                  Just as a tiny root underground grows a whole tree, the number{' '}
-                  <strong>{rootExample === 'square' ? '6' : '4'}</strong> is the hidden side that grows{' '}
-                  <strong>{rootExample === 'square' ? '36' : '64'}</strong>!
-                </p>
+                {!isCompact && (
+                  <p className="text-micro sm:text-small text-slate-700 leading-snug">
+                    Just as a tiny root grows a whole tree,{' '}
+                    <strong>{rootExample === 'square' ? '6' : '4'}</strong> is the side that grows{' '}
+                    <strong>{rootExample === 'square' ? '36' : '64'}</strong>!
+                  </p>
+                )}
               </div>
 
-              <div className="p-3 rounded-2xl bg-slate-50/80 flex flex-wrap items-center justify-center text-center">
+              <div className={`${isCompact ? 'p-1.5' : 'p-2.5'} rounded-2xl bg-slate-50/80 flex flex-wrap items-center justify-center text-center`}>
                 <Katex
                   latex={
                     rootExample === 'square'

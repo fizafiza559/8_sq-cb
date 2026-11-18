@@ -148,10 +148,10 @@ export const chapterData: Chapter = {
       beats: [
         {
           id: 'sa-1',
-          headline: 'A square has equal length and width.',
-          focusWord: 'equal length',
+          headline: 'Squaring a number builds a 2D floor.',
+          focusWord: '2D floor',
           focusColor: 'area',
-          narration: 'Area equals side times side.',
+          narration: 'Squaring just means finding the area of a square with that side length: s \\times s = s^2.',
           latex: ['A = s \\times s = s^2'],
         },
         {
@@ -196,10 +196,10 @@ export const chapterData: Chapter = {
       beats: [
         {
           id: 'ld-1',
-          headline: 'Look at the last digits of 1² to 30².',
-          focusWord: 'last digits',
+          headline: 'Look closely at the ones digits of 1² to 10².',
+          focusWord: 'ones digits',
           focusColor: 'number',
-          narration: 'Check the ending digits as numbers grow up to 30 squared.',
+          narration: 'Notice which digits never show up at the end: 2, 3, 7, and 8 are completely missing!',
           latex: ['1^2=1, \\; 4^2=16, \\; 9^2=81, \\; 10^2=100'],
         },
         {
@@ -315,10 +315,10 @@ export const chapterData: Chapter = {
       beats: [
         {
           id: 'on-1',
-          headline: 'Gaps between squares are always odd numbers.',
-          focusWord: 'odd numbers',
+          headline: 'Add an L-shaped border to grow the square.',
+          focusWord: 'L-shaped border',
           focusColor: 'odd',
-          narration: 'Look at the jumps: 3, 5, 7, and 9.',
+          narration: 'Every jump from one square to the next is the next odd number: +3, +5, +7, +9.',
           latex: ['4-1=3, \\; 9-4=5, \\; 16-9=7, \\; 25-16=9'],
         },
         {
@@ -521,10 +521,10 @@ export const chapterData: Chapter = {
       beats: [
         {
           id: 'rm-1',
-          headline: 'Square root undoes squaring.',
-          focusWord: 'undoes',
+          headline: 'If squaring builds the area, what does the root do?',
+          focusWord: 'what does the root do',
           focusColor: 'root',
-          narration: 'If 6² is 36, then the square root of 36 is 6.',
+          narration: 'It walks backwards from the total area to find the length of one side: \\sqrt{36} = 6.',
           latex: ['\\sqrt{36} = 6'],
           interactive: true,
         },
@@ -575,10 +575,10 @@ export const chapterData: Chapter = {
         },
         {
           id: 'fr-2',
-          headline: 'Pair up prime factors to find the root.',
-          focusWord: 'Pair up',
+          headline: 'Hunt for identical factor twins.',
+          focusWord: 'factor twins',
           focusColor: 'number',
-          narration: 'Pick one number from each prime pair. Lonely factors mean not square!',
+          narration: 'We need twin pairs for a square. One number from each pair steps out into the root!',
           latex: ['324 = 2^2 \\times 3^4 \\implies \\sqrt{324} = 18'],
           interactive: true,
         },
@@ -611,10 +611,10 @@ export const chapterData: Chapter = {
       beats: [
         {
           id: 'er-1',
-          headline: 'Trap the square root between two tens.',
-          focusWord: 'Trap',
+          headline: 'Between which two tens does this square live?',
+          focusWord: 'Between which two tens',
           focusColor: 'root',
-          narration: 'Since 1600 < 1936 < 2500, √1936 sits between 40 and 50.',
+          narration: 'Since 40^2 = 1600 and 50^2 = 2500, \\sqrt{1936} is trapped neatly between 40 and 50.',
           latex: ['40^2 = 1600 < 1936 < 2500 = 50^2'],
           interactive: true,
         },
@@ -659,10 +659,10 @@ export const chapterData: Chapter = {
       beats: [
         {
           id: 'bc-1',
-          headline: 'A cube multiplies a number three times.',
-          focusWord: 'three times',
+          headline: 'Cubing builds the 3D volume of a solid box.',
+          focusWord: '3D volume',
           focusColor: 'volume',
-          narration: 'Length times breadth times height gives a solid cube!',
+          narration: 'Stacking flat tile floors into a tall block gives volume: length \\times breadth \\times height.',
           latex: ['n \\times n \\times n = n^3, \\quad 3^3 = 27'],
           interactive: true,
         },
@@ -705,10 +705,10 @@ export const chapterData: Chapter = {
       beats: [
         {
           id: 'cp-1',
-          headline: 'Cubes can end in any digit!',
-          focusWord: 'any digit',
+          headline: 'Unlike squares, cubes leave no digit behind.',
+          focusWord: 'leave no digit behind',
           focusColor: 'number',
-          narration: 'Unlike squares, cube endings cover every digit from 0 to 9.',
+          narration: 'Test 0 to 9: every single digit shows up at the end of a cube number!',
           latex: ['\\text{Cubes can end in } 0, 1, 2, 3, 4, 5, 6, 7, 8, 9'],
         },
         {
@@ -748,10 +748,10 @@ export const chapterData: Chapter = {
       beats: [
         {
           id: 'tc-1',
-          headline: 'Meet 1729, Hardy and Ramanujan’s taxi number!',
-          focusWord: '1729',
+          headline: "The 'Dull' Taxi Number That Amazed Ramanujan.",
+          focusWord: 'Taxi Number',
           focusColor: 'pair',
-          narration: 'Compare two cube pairs on the balance scale. Both weigh 1729!',
+          narration: "In 1919, G.H. Hardy called taxi #1729 dull. Ramanujan smiled: 'No, it is the smallest number written as the sum of two cubes in two different ways!'",
           latex: ['1729 = 1^3 + 12^3 = 9^3 + 10^3'],
           interactive: true,
         },
@@ -839,10 +839,10 @@ export const chapterData: Chapter = {
       beats: [
         {
           id: 'cr-1',
-          headline: 'Cube root finds the edge of a cube.',
-          focusWord: 'edge',
+          headline: 'Why group in triplets instead of pairs?',
+          focusWord: 'triplets instead of pairs',
           focusColor: 'root',
-          narration: 'Ask yourself: which number times itself three times gives this volume?',
+          narration: 'A cube has 3 dimensions (length, width, height), so each prime factor needs a team of three!',
           latex: ['\\sqrt[3]{216} = 6 \\text{ because } 6^3 = 216'],
           interactive: true,
         },

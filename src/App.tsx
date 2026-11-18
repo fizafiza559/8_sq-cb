@@ -38,6 +38,7 @@ import { IsometricCubeRenderer } from './components/IsometricCubeRenderer';
 import { PrimeFactorGroupingHelper } from './components/PrimeFactorGroupingHelper';
 import { COLORS } from './design/tokens';
 import { selfCheck } from './math/facts';
+import { useViewportTier } from './hooks/useViewportTier';
 
 const ALL_SUBTABS: { sectionId: SectionId; subTab: SubTabConfig }[] = CHAPTER_SECTIONS.flatMap((sec) =>
   sec.subTabs.map((subTab) => ({ sectionId: sec.id, subTab }))
@@ -48,6 +49,7 @@ const REFRESHERS: Record<string, RefresherMiniClip> = {
 };
 
 export default function App() {
+  const { tier, isNarrow } = useViewportTier();
   const [activeChapter, setActiveChapter] = useState<string>('ch-2');
   const [activeSectionId, setActiveSectionId] = useState<SectionId>('sec-0');
   const [activeSubTabId, setActiveSubTabId] = useState<SubTabId>('locker-puzzle');
@@ -193,7 +195,6 @@ export default function App() {
     currentScene.beats[Math.min(timeline.beatIndex, currentScene.beats.length - 1)] || currentScene.beats[0];
 
   const activeRefresher = currentScene.refresherId ? REFRESHERS[currentScene.refresherId] : undefined;
-  const visibleLatexLines = currentBeat.latex || [];
 
   // Tap-navigator units & Next/Back logic
   const qcQuestions = currentScene.quickCheck ?? [];
@@ -520,22 +521,33 @@ export default function App() {
           onNextScene={advanceAfterQuickCheck}
         />
       ) : isSceneSubTab && !inQuickCheck ? (
-        <div className="w-full h-full min-w-0 min-h-0 flex flex-col items-center justify-between gap-1.5 sm:gap-2 overflow-hidden">
-          <div className="w-full min-w-0 flex flex-col items-center gap-0.5 sm:gap-1 px-1 shrink-0">
-            <div className="flex flex-wrap items-center justify-center gap-2 max-w-[900px] min-w-0">
+        <div
+          className={`w-full h-full min-w-0 min-h-0 flex flex-col items-center justify-between ${
+            tier === 'compact' ? 'gap-1' : 'gap-1.5 sm:gap-2'
+          } overflow-hidden`}
+        >
+          <div className="w-full min-w-0 flex flex-col items-center gap-0.5 px-1 shrink-0 overflow-hidden">
+            <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 max-w-[900px] min-w-0">
               <HighlightHeadline
                 text={currentBeat.headline || currentBeat.narration}
                 focusWord={currentBeat.focusWord}
                 focusColor={currentBeat.focusColor}
                 highlightSymbols={currentBeat.highlight}
+                maxWidthClass={
+                  tier === 'compact'
+                    ? 'max-w-[900px] !text-statement leading-tight'
+                    : isNarrow
+                    ? 'max-w-[900px] !text-title leading-snug'
+                    : 'max-w-[900px]'
+                }
               />
               {activeRefresher && <RefresherCard clip={activeRefresher} />}
             </div>
 
-            {currentBeat.caption && (
+            {currentBeat.caption && tier !== 'compact' && (
               <p
                 key={`cap-${currentBeat.id}`}
-                className="text-micro sm:text-small text-center max-w-2xl leading-snug animate-fade-rise break-words"
+                className="text-micro sm:text-small text-center max-w-2xl leading-snug animate-fade-rise break-words line-clamp-2"
                 style={{ color: COLORS.mutedText }}
               >
                 {currentBeat.caption}
@@ -549,32 +561,6 @@ export default function App() {
           >
             {renderSceneVisual()}
           </div>
-
-          {visibleLatexLines.length > 0 && (
-            <div className="w-full max-w-3xl mx-auto px-1 py-0.5 shrink-0">
-              <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 math-strip font-medium text-center break-words">
-                {visibleLatexLines.map((line, i) => {
-                  const isNewest = i === visibleLatexLines.length - 1;
-                  const formattedLine =
-                    line.includes('\\frac') && !line.includes('\\displaystyle')
-                      ? `\\displaystyle ${line}`
-                      : line;
-                  return (
-                    <span
-                      key={`${currentBeat.id}-eq-${i}`}
-                      className="transition-opacity duration-300 max-w-full"
-                      style={{
-                        color: isNewest ? COLORS.primary : COLORS.mutedText,
-                        opacity: isNewest ? 1 : 0.55,
-                      }}
-                    >
-                      <Katex latex={formattedLine} displayMode={false} />
-                    </span>
-                  );
-                })}
-              </div>
-            </div>
-          )}
         </div>
       ) : (
         <div className="w-full max-w-2xl mx-auto py-8 text-center">

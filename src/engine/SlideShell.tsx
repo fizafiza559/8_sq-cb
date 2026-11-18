@@ -9,6 +9,7 @@ import { COLORS } from '../design/tokens';
 import { SectionConfig, SectionId } from '../content/sections';
 import { RevealUnit, useTapNavigator } from './useTapNavigator';
 import { IndexDrawer } from '../components/IndexDrawer';
+import { useViewportTier } from '../hooks/useViewportTier';
 
 export interface SlideStepItem {
   id: string;
@@ -80,6 +81,7 @@ export const SlideShell: React.FC<SlideShellProps> = ({
   children,
 }) => {
   const [focusMode, setFocusMode] = useState(false);
+  const { stageH } = useViewportTier(focusMode);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showIndex, setShowIndex] = useState(false);
   const [hasTappedOnce, setHasTappedOnce] = useState(false);
@@ -404,17 +406,20 @@ export const SlideShell: React.FC<SlideShellProps> = ({
           </div>
         )}
 
-        {/* 4. STAGE: #F8FAFF with faint 28px square grid (#E3EAF8), zero-scroll 100vh lock */}
+        {/* 4. STAGE: #F8FAFF with faint 28px square grid (#E3EAF8), zero-scroll 100dvh lock */}
         <main
           {...stagePointerProps}
-          className="flex-1 min-w-0 min-h-0 flex flex-col justify-between items-center overflow-hidden p-2 sm:p-3 select-none relative"
-          style={{
-            backgroundColor: '#F8FAFF',
-            backgroundImage:
-              'linear-gradient(to right, rgba(227, 234, 248, 0.72) 1px, transparent 1px), linear-gradient(to bottom, rgba(227, 234, 248, 0.72) 1px, transparent 1px)',
-            backgroundSize: '28px 28px',
-            touchAction: 'manipulation',
-          }}
+          className="flex-1 min-w-0 min-h-0 flex flex-col justify-between items-center overflow-hidden p-1.5 sm:p-2.5 lg:p-3 select-none relative"
+          style={
+            {
+              '--stage-h': `${stageH}px`,
+              backgroundColor: '#F8FAFF',
+              backgroundImage:
+                'linear-gradient(to right, rgba(227, 234, 248, 0.72) 1px, transparent 1px), linear-gradient(to bottom, rgba(227, 234, 248, 0.72) 1px, transparent 1px)',
+              backgroundSize: '28px 28px',
+              touchAction: 'manipulation',
+            } as React.CSSProperties
+          }
         >
           {/* Floating utility icons when Focus mode hides the header */}
           {focusMode && (
@@ -455,11 +460,13 @@ export const SlideShell: React.FC<SlideShellProps> = ({
         </main>
       </div>
 
-      {/* 5. BOTTOM NAVIGATION DOCK: Wraps cleanly instead of horizontal scrolling */}
+      {/* 5. BOTTOM NAVIGATION DOCK: Fixed 56px height */}
       {!focusMode && (
         <footer
           data-no-nav="true"
-          className="min-h-14 px-2.5 sm:px-5 lg:px-6 py-1.5 border-t border-slate-200/80 bg-white/95 backdrop-blur-sm flex items-center justify-between gap-2 sm:gap-3 shrink-0 z-20"
+          className={`${
+            controlsDock ? 'min-h-14 py-1.5' : 'h-14'
+          } px-2.5 sm:px-5 lg:px-6 border-t border-slate-200/80 bg-white/95 backdrop-blur-sm flex items-center justify-between gap-2 sm:gap-3 shrink-0 z-20`}
         >
           {controlsDock ? (
             <div className="w-full max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-2 min-w-0">
@@ -488,7 +495,7 @@ export const SlideShell: React.FC<SlideShellProps> = ({
                 )}
 
                 {totalSteps > 1 ? (
-                  <div className="flex-1 min-w-0 flex flex-wrap items-center justify-center gap-x-1 gap-y-0.5">
+                  <div className="flex-1 min-w-0 flex flex-nowrap items-center justify-center gap-x-0.5 overflow-hidden">
                     {steps.map((step, idx) => {
                       const isActive = idx === clampedStep;
                       return (

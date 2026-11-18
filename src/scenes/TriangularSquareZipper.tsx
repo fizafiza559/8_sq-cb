@@ -7,6 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { COLORS } from '../design/tokens';
 import { Katex } from '../components/Katex';
 import { Sparkles, Play, RotateCcw, ArrowRight } from 'lucide-react';
+import { useViewportTier } from '../hooks/useViewportTier';
 
 export interface TriangularSquareZipperProps {
   initialN?: 3 | 4;
@@ -22,6 +23,9 @@ export const TriangularSquareZipper: React.FC<TriangularSquareZipperProps> = ({
   const [n, setN] = useState<3 | 4>(initialN);
   const [zipPercent, setZipPercent] = useState<number>(0);
   const [isAnimating, setIsAnimating] = useState<boolean>(false);
+  const { tier, isNarrow } = useViewportTier();
+  const isCompact = tier === 'compact';
+  const svgMaxH = isCompact ? 115 : isNarrow ? 150 : tier === 'standard' ? 185 : 235;
 
   useEffect(() => {
     if (beatIndex === undefined) return;
@@ -128,16 +132,20 @@ export const TriangularSquareZipper: React.FC<TriangularSquareZipperProps> = ({
   return (
     <div
       data-no-nav="true"
-      className={`w-full max-w-4xl max-h-full overflow-y-auto no-scrollbar mx-auto rounded-3xl border border-slate-200/80 bg-white p-3 sm:p-4 shadow-xs flex flex-col gap-2.5 sm:gap-3 ${className}`}
+      className={`w-full max-w-4xl h-full max-h-full min-h-0 overflow-hidden mx-auto rounded-3xl border border-slate-200/80 bg-white ${
+        isCompact ? 'p-2 gap-1.5' : 'p-3 sm:p-4 gap-2 sm:gap-2.5'
+      } shadow-xs flex flex-col justify-between ${className}`}
     >
       {/* Header & Presets */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2 shrink-0">
         <div className="min-w-0">
-          <span className="text-micro font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-[#F27A00] shrink-0" />
-            <span>Triangular Staircase Zipper</span>
-          </span>
-          <h3 className="text-statement font-extrabold text-slate-900 mt-0.5">
+          {!isCompact && (
+            <span className="text-micro font-bold uppercase tracking-wider text-slate-500 hidden sm:flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-[#F27A00] shrink-0" />
+              <span>Triangular Staircase Zipper</span>
+            </span>
+          )}
+          <h3 className="text-small sm:text-statement font-extrabold text-slate-900 mt-0.5">
             Two Neighboring Triangular Numbers Zip Into a Square!
           </h3>
         </div>
@@ -176,8 +184,8 @@ export const TriangularSquareZipper: React.FC<TriangularSquareZipperProps> = ({
       </div>
 
       {/* Interactive Slider & Zip Button */}
-      <div className="p-2.5 sm:p-3 rounded-2xl bg-slate-50/80 flex flex-col sm:flex-row items-center gap-2.5 sm:gap-3">
-        <div className="flex-1 w-full flex items-center gap-2.5 sm:gap-3">
+      <div className={`${isCompact ? 'p-1.5 px-2.5' : 'p-2 sm:p-2.5'} rounded-2xl bg-slate-50/80 flex flex-col sm:flex-row items-center gap-2 shrink-0`}>
+        <div className="flex-1 w-full flex items-center gap-2 sm:gap-3">
           <span className="text-micro font-bold text-slate-600 shrink-0 whitespace-nowrap">
             <span className="hidden sm:inline">Separate (0%)</span>
             <span className="sm:hidden">0%</span>
@@ -208,9 +216,9 @@ export const TriangularSquareZipper: React.FC<TriangularSquareZipperProps> = ({
               if (zipPercent >= 98) setZipPercent(0);
               setIsAnimating(true);
             }}
-            className="min-h-[44px] sm:min-h-[40px] px-4 py-2 rounded-xl bg-[#F27A00] hover:bg-[#D96B00] text-white text-small font-bold flex items-center gap-1.5 shadow-2xs cursor-pointer shrink-0"
+            className={`${isCompact ? 'min-h-[38px]' : 'min-h-[42px] sm:min-h-[38px]'} px-3.5 py-1.5 rounded-xl bg-[#F27A00] hover:bg-[#D96B00] text-white text-micro sm:text-small font-bold flex items-center gap-1.5 shadow-2xs cursor-pointer shrink-0`}
           >
-            <Play className="w-4 h-4" />
+            <Play className="w-3.5 h-3.5" />
             <span>{zipPercent >= 98 ? 'Replay Zip' : 'Zip Together'}</span>
           </button>
           <button
@@ -219,17 +227,17 @@ export const TriangularSquareZipper: React.FC<TriangularSquareZipperProps> = ({
               setIsAnimating(false);
               setZipPercent(0);
             }}
-            className="min-h-[44px] sm:min-h-[40px] w-11 sm:w-10 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 flex items-center justify-center cursor-pointer shrink-0"
+            className={`${isCompact ? 'min-h-[38px] w-9' : 'min-h-[42px] sm:min-h-[38px] w-10'} rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 flex items-center justify-center cursor-pointer shrink-0`}
             title="Separate Triangles"
           >
-            <RotateCcw className="w-4 h-4" />
+            <RotateCcw className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
 
       {/* SVG Zipper Stage */}
       <div
-        className="w-full rounded-2xl border p-2 flex flex-col items-center justify-center overflow-hidden transition-colors duration-300"
+        className="w-full flex-1 min-h-0 rounded-2xl border p-1.5 flex flex-col items-center justify-center overflow-hidden transition-colors duration-300"
         style={{
           borderColor: isLocked ? '#F27A00' : COLORS.divider,
           backgroundColor: isLocked ? '#FFFBF5' : '#FFFFFF',
@@ -237,7 +245,7 @@ export const TriangularSquareZipper: React.FC<TriangularSquareZipperProps> = ({
           backgroundSize: '20px 20px',
         }}
       >
-        <svg viewBox={`0 0 ${svgW} ${svgH}`} className="w-full h-auto max-h-[165px] sm:max-h-[215px] lg:max-h-[245px] select-none">
+        <svg viewBox={`0 0 ${svgW} ${svgH}`} className="w-full h-auto select-none" style={{ maxHeight: `${svgMaxH}px` }}>
           {/* Square Target Frame */}
           <rect
             x={baseLeftX - dotR - 10}

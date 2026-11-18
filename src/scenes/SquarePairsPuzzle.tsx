@@ -13,6 +13,7 @@ import {
   AlertCircle,
   Sparkles,
 } from 'lucide-react';
+import { useViewportTier } from '../hooks/useViewportTier';
 
 export interface SquarePairsPuzzleProps {
   className?: string;
@@ -36,6 +37,8 @@ export const SquarePairsPuzzle: React.FC<SquarePairsPuzzleProps> = ({
     status: 'idle' | 'valid' | 'incomplete' | 'invalid';
     text: string;
   }>({ status: 'idle', text: '' });
+  const { tier, isNarrow } = useViewportTier();
+  const isCompact = tier === 'compact';
 
   // Compute reference solution dynamically from math engine
   const sampleSolution = useMemo(() => solveSquarePairsRow(TOTAL_CARDS).samplePath, []);
@@ -184,22 +187,26 @@ export const SquarePairsPuzzle: React.FC<SquarePairsPuzzleProps> = ({
   return (
     <div
       data-no-nav="true"
-      className={`w-full max-w-4xl max-h-full overflow-y-auto no-scrollbar mx-auto rounded-3xl border border-slate-200/80 bg-white p-3 sm:p-4 shadow-2xs flex flex-col gap-2.5 sm:gap-3 ${className}`}
+      className={`w-full max-w-4xl h-full max-h-full min-h-0 overflow-hidden mx-auto rounded-3xl border border-slate-200/80 bg-white ${
+        isCompact ? 'p-2 gap-1.5' : 'p-2.5 sm:p-4 gap-2 sm:gap-2.5'
+      } shadow-2xs flex flex-col justify-between ${className}`}
     >
       {/* Header & Progress */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 border-b border-slate-100 pb-2 shrink-0">
         <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-1.5 text-micro text-slate-500 font-semibold">
-            <span>Challenge Game</span>
-            <span aria-hidden="true">·</span>
-            <span>Sums Must Be 4, 9, 16, or 25</span>
-          </div>
-          <h3 className="text-statement font-bold text-slate-900 mt-0.5">
+          {!isCompact && (
+            <div className="hidden sm:flex flex-wrap items-center gap-1.5 text-micro text-slate-500 font-semibold">
+              <span>Challenge Game</span>
+              <span aria-hidden="true">·</span>
+              <span>Sums Must Be 4, 9, 16, or 25</span>
+            </div>
+          )}
+          <h3 className="text-small sm:text-statement font-bold text-slate-900 mt-0.5">
             Square Pairs 1–17 Puzzle
           </h3>
         </div>
 
-        <div className="flex items-center gap-3 text-small font-semibold tabular-nums">
+        <div className="flex items-center gap-3 text-micro sm:text-small font-semibold tabular-nums">
           <span className="text-slate-600">
             Placed <strong className="text-slate-900">{placedCount}/17</strong>
           </span>
@@ -211,49 +218,49 @@ export const SquarePairsPuzzle: React.FC<SquarePairsPuzzleProps> = ({
       </div>
 
       {/* Unified Action Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-1.5 shrink-0">
+        <div className="flex flex-wrap items-center gap-1.5">
           <button
             type="button"
             onClick={() => setShowEndpointHint((h) => !h)}
-            className={`min-h-[44px] px-3 py-2 rounded-xl text-small font-bold border flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 ${
+            className={`${isCompact ? 'min-h-[34px] px-2.5' : 'min-h-[38px] px-3'} py-1 rounded-xl text-micro sm:text-small font-bold border flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 ${
               showEndpointHint
                 ? 'bg-amber-100 text-amber-950 border-amber-400'
                 : 'bg-amber-50/80 text-amber-900 border-amber-200/80 hover:bg-amber-100'
             }`}
           >
-            <Lightbulb className="w-4 h-4 text-amber-600 shrink-0" />
+            <Lightbulb className="w-3.5 h-3.5 text-amber-600 shrink-0" />
             <span>{showEndpointHint ? 'Hide Hint' : 'Hint (16 & 17)'}</span>
           </button>
 
           <button
             type="button"
             onClick={handleShowSolution}
-            className="min-h-[44px] px-3 py-2 rounded-xl text-small font-bold border border-slate-200/80 bg-slate-50/80 hover:bg-slate-100 text-slate-700 flex items-center gap-1.5 cursor-pointer shrink-0"
+            className={`${isCompact ? 'min-h-[34px] px-2.5' : 'min-h-[38px] px-3'} py-1 rounded-xl text-micro sm:text-small font-bold border border-slate-200/80 bg-slate-50/80 hover:bg-slate-100 text-slate-700 flex items-center gap-1.5 cursor-pointer shrink-0`}
           >
-            <Wand2 className="w-4 h-4 text-purple-600 shrink-0" />
+            <Wand2 className="w-3.5 h-3.5 text-purple-600 shrink-0" />
             <span>Example Path</span>
           </button>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <button
             type="button"
             onClick={handleAutoCheck}
-            className="min-h-[44px] px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-small font-bold flex items-center gap-1.5 cursor-pointer shrink-0"
+            className={`${isCompact ? 'min-h-[34px] px-2.5' : 'min-h-[38px] px-3'} py-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-micro sm:text-small font-bold flex items-center gap-1.5 cursor-pointer shrink-0`}
           >
-            <CheckCircle2 className="w-4 h-4 shrink-0" />
-            <span>Check Sequence</span>
+            <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+            <span>Check</span>
           </button>
 
           <button
             type="button"
             onClick={handleReset}
-            className="min-h-[44px] w-11 rounded-xl border border-slate-200/80 bg-white hover:bg-slate-50 text-slate-600 flex items-center justify-center cursor-pointer shrink-0"
+            className={`${isCompact ? 'min-h-[34px] w-9' : 'min-h-[38px] w-10'} rounded-xl border border-slate-200/80 bg-white hover:bg-slate-50 text-slate-600 flex items-center justify-center cursor-pointer shrink-0`}
             title="Clear Board"
             aria-label="Clear Board"
           >
-            <RotateCcw className="w-4 h-4" />
+            <RotateCcw className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
@@ -270,19 +277,19 @@ export const SquarePairsPuzzle: React.FC<SquarePairsPuzzleProps> = ({
       )}
 
       {/* Sequence Board (17 Slots with Neighbor Bridge Badges) */}
-      <div className="p-2.5 sm:p-3.5 rounded-2xl bg-slate-50/75 flex flex-col gap-2.5">
-        <div className="flex flex-wrap items-center justify-between gap-2 text-micro text-slate-500 font-medium">
+      <div className={`${isCompact ? 'p-2 gap-1.5' : 'p-2.5 sm:p-3 gap-2'} rounded-2xl bg-slate-50/75 flex flex-col justify-center flex-1 min-h-0 overflow-hidden`}>
+        <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] sm:text-micro text-slate-500 font-medium shrink-0">
           <span>
-            Tap cards below to fill · Tap two slots to swap · Drag on desktop
+            Tap cards below to fill · Tap two slots to swap
           </span>
           {selectedSlotIdx !== null && (
             <span className="font-bold text-[#005583]">
-              Slot #{selectedSlotIdx + 1} selected — tap another slot to swap, or tap again to remove
+              Slot #{selectedSlotIdx + 1} selected — tap another to swap
             </span>
           )}
         </div>
 
-        <div className="flex flex-wrap items-center gap-y-2.5 gap-x-1.5">
+        <div className="flex flex-wrap items-center gap-y-1.5 gap-x-1">
           {slots.map((val, idx) => {
             const isSelected = selectedSlotIdx === idx;
             const isEndpoint = idx === 0 || idx === TOTAL_CARDS - 1;
@@ -300,7 +307,11 @@ export const SquarePairsPuzzle: React.FC<SquarePairsPuzzleProps> = ({
                   onDragOver={(e) => e.preventDefault()}
                   onDrop={() => handleDropOnSlot(idx)}
                   onClick={() => handleSlotTap(idx)}
-                  className={`min-w-[44px] min-h-[48px] px-2 rounded-xl border-2 font-mono text-small font-black tabular-nums transition-all cursor-pointer flex flex-col items-center justify-center relative ${
+                  className={`${
+                    isCompact || isNarrow
+                      ? 'min-w-[32px] min-h-[34px] px-1 text-micro rounded-lg'
+                      : 'min-w-[40px] min-h-[42px] px-2 text-small rounded-xl'
+                  } border-2 font-mono font-black tabular-nums transition-all cursor-pointer flex flex-col items-center justify-center relative ${
                     isSelected
                       ? 'bg-[#005583] text-white border-[#003F62] ring-2 ring-sky-300'
                       : val !== null
@@ -313,8 +324,8 @@ export const SquarePairsPuzzle: React.FC<SquarePairsPuzzleProps> = ({
                   }`}
                 >
                   <span>{val !== null ? val : idx + 1}</span>
-                  {val === null && (
-                    <span className="text-[9px] font-sans font-semibold opacity-75">
+                  {val === null && !isCompact && (
+                    <span className="text-[8px] font-sans font-semibold opacity-75 leading-none">
                       {isEndpoint && showEndpointHint ? 'End' : 'slot'}
                     </span>
                   )}
@@ -323,7 +334,7 @@ export const SquarePairsPuzzle: React.FC<SquarePairsPuzzleProps> = ({
                 {/* Bridge Between Adjacent Slots */}
                 {bridge && (
                   <div
-                    className={`px-1.5 py-0.5 rounded-md text-[11px] font-mono font-bold tabular-nums border transition-colors ${
+                    className={`px-1 py-0.5 rounded-md text-[10px] font-mono font-bold tabular-nums border transition-colors ${
                       bridge.sum === null
                         ? 'border-transparent text-slate-300'
                         : bridge.valid
@@ -348,11 +359,13 @@ export const SquarePairsPuzzle: React.FC<SquarePairsPuzzleProps> = ({
       </div>
 
       {/* Number Card Tray (1 to 17) */}
-      <div className="flex flex-col gap-2 pt-1.5 border-t border-slate-100">
-        <span className="text-micro font-bold text-slate-500">
-          Available Cards (1 to 17):
-        </span>
-        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+      <div className="flex flex-col gap-1.5 pt-1 border-t border-slate-100 shrink-0">
+        {!isCompact && (
+          <span className="text-micro font-bold text-slate-500">
+            Available Cards (1 to 17):
+          </span>
+        )}
+        <div className="flex flex-wrap items-center gap-1 sm:gap-1.5">
           {Array.from({ length: TOTAL_CARDS }, (_, i) => i + 1).map((num) => {
             const isUsed = usedSet.has(num);
             const isHintEnd = showEndpointHint && (num === 16 || num === 17);
@@ -364,7 +377,11 @@ export const SquarePairsPuzzle: React.FC<SquarePairsPuzzleProps> = ({
                 draggable={!isUsed}
                 onDragStart={() => setDraggedCard({ num, fromSlotIdx: null })}
                 onClick={() => handleTrayCardTap(num)}
-                className={`min-w-[44px] min-h-[44px] px-2.5 rounded-xl border-2 font-mono text-small font-black tabular-nums transition-colors flex items-center justify-center ${
+                className={`${
+                  isCompact || isNarrow
+                    ? 'min-w-[32px] min-h-[34px] px-1.5 text-micro rounded-lg'
+                    : 'min-w-[40px] min-h-[40px] px-2 text-small rounded-xl'
+                } border-2 font-mono font-black tabular-nums transition-colors flex items-center justify-center ${
                   isUsed
                     ? 'bg-slate-100 text-slate-300 border-slate-200/70 cursor-not-allowed'
                     : isHintEnd

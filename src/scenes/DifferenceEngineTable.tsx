@@ -8,6 +8,7 @@ import { COLORS } from '../design/tokens';
 import { Katex } from '../components/Katex';
 import { successiveDifferences } from '../math/facts';
 import { ChevronDown, RotateCcw, Sparkles, GitCommitHorizontal } from 'lucide-react';
+import { useViewportTier } from '../hooks/useViewportTier';
 
 export interface DifferenceEngineTableProps {
   initialMode?: 'squares' | 'cubes';
@@ -28,6 +29,8 @@ export const DifferenceEngineTable: React.FC<DifferenceEngineTableProps> = ({
     level: 1,
     idx: 1,
   });
+  const { tier, isNarrow } = useViewportTier();
+  const isCompact = tier === 'compact';
 
   useEffect(() => {
     if (beatIndex === undefined) return;
@@ -117,16 +120,20 @@ export const DifferenceEngineTable: React.FC<DifferenceEngineTableProps> = ({
   return (
     <div
       data-no-nav="true"
-      className={`w-full max-w-4xl max-h-full overflow-y-auto no-scrollbar mx-auto rounded-3xl border border-slate-200/80 bg-white p-3 sm:p-4 shadow-xs flex flex-col gap-2.5 sm:gap-3 ${className}`}
+      className={`w-full max-w-4xl h-full max-h-full min-h-0 overflow-hidden mx-auto rounded-3xl border border-slate-200/80 bg-white ${
+        isCompact ? 'p-2 gap-1.5' : 'p-2.5 sm:p-4 gap-2 sm:gap-2.5'
+      } shadow-xs flex flex-col justify-between ${className}`}
     >
       {/* Header & Mode Controls */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-1.5 border-b border-slate-100 pb-2 shrink-0">
         <div>
-          <div className="flex items-center gap-2 text-micro text-slate-500 font-semibold">
-            <GitCommitHorizontal className="w-3.5 h-3.5 text-[#005583]" />
-            <span>Successive Differences Engine</span>
-          </div>
-          <h3 className="text-statement font-extrabold text-slate-900 mt-0.5">
+          {!isCompact && (
+            <div className="hidden sm:flex items-center gap-2 text-micro text-slate-500 font-semibold">
+              <GitCommitHorizontal className="w-3.5 h-3.5 text-[#005583]" />
+              <span>Successive Differences Engine</span>
+            </div>
+          )}
+          <h3 className="text-small sm:text-statement font-extrabold text-slate-900 mt-0.5">
             Live Subtraction Pyramid: {mode === 'squares' ? 'Squares (n²)' : 'Cubes (n³)'}
           </h3>
         </div>
@@ -161,12 +168,12 @@ export const DifferenceEngineTable: React.FC<DifferenceEngineTableProps> = ({
       </div>
 
       {/* Step & Term Count Controls */}
-      <div className="p-2.5 sm:px-3 rounded-2xl bg-slate-50/80 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
-        <div className="flex items-center gap-2.5 flex-wrap">
-          <span className="text-small font-bold text-slate-700 whitespace-nowrap">
-            Terms shown:
+      <div className={`${isCompact ? 'p-1.5 px-2' : 'p-2 sm:px-3'} rounded-2xl bg-slate-50/80 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-1.5 shrink-0`}>
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-micro sm:text-small font-bold text-slate-700 whitespace-nowrap">
+            Terms:
           </span>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1">
             {[5, 6, 7, 8].map((cnt) => (
               <button
                 key={cnt}
@@ -175,7 +182,7 @@ export const DifferenceEngineTable: React.FC<DifferenceEngineTableProps> = ({
                   setTermCount(cnt);
                   setFocusedNode(null);
                 }}
-                className={`min-h-[44px] sm:min-h-[38px] w-11 sm:w-10 rounded-xl text-small font-bold border transition-all cursor-pointer tabular-nums ${
+                className={`${isCompact ? 'min-h-[34px] w-9' : 'min-h-[38px] w-10'} rounded-xl text-micro sm:text-small font-bold border transition-all cursor-pointer tabular-nums ${
                   termCount === cnt
                     ? 'bg-[#005583] text-white border-[#003F62] shadow-2xs'
                     : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
@@ -187,7 +194,7 @@ export const DifferenceEngineTable: React.FC<DifferenceEngineTableProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-1.5 shrink-0">
           <button
             type="button"
             onClick={() => {
@@ -198,11 +205,11 @@ export const DifferenceEngineTable: React.FC<DifferenceEngineTableProps> = ({
                 setRevealedLevel((l) => Math.min(maxLevels, l + 1));
               }
             }}
-            className="min-h-[44px] sm:min-h-[40px] flex-1 sm:flex-none px-4 py-2 rounded-xl bg-[#005583] hover:bg-[#003F62] text-white text-small font-bold flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer shrink-0"
+            className={`${isCompact ? 'min-h-[34px] px-3' : 'min-h-[38px] px-3.5'} flex-1 sm:flex-none py-1 rounded-xl bg-[#005583] hover:bg-[#003F62] text-white text-micro sm:text-small font-bold flex items-center justify-center gap-1 shadow-2xs cursor-pointer shrink-0`}
           >
-            <ChevronDown className="w-4 h-4 shrink-0" />
+            <ChevronDown className="w-3.5 h-3.5 shrink-0" />
             <span>
-              {revealedLevel >= maxLevels ? 'Restart Pyramid' : `Reveal Level ${revealedLevel + 1}`}
+              {revealedLevel >= maxLevels ? 'Restart' : `Level ${revealedLevel + 1}`}
             </span>
           </button>
 
@@ -212,7 +219,7 @@ export const DifferenceEngineTable: React.FC<DifferenceEngineTableProps> = ({
               setRevealedLevel(maxLevels);
               setFocusedNode({ level: 1, idx: 1 });
             }}
-            className="min-h-[44px] sm:min-h-[40px] px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 text-micro font-bold flex items-center gap-1 cursor-pointer shrink-0"
+            className={`${isCompact ? 'min-h-[34px]' : 'min-h-[38px]'} px-2.5 py-1 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 text-micro font-bold flex items-center gap-1 cursor-pointer shrink-0`}
             title="Show all levels"
           >
             <RotateCcw className="w-3.5 h-3.5" />
@@ -222,25 +229,26 @@ export const DifferenceEngineTable: React.FC<DifferenceEngineTableProps> = ({
       </div>
 
       {/* Live Subtraction Tree (Pyramid Rows) */}
-      <div className="w-full flex flex-col gap-1.5">
-        <div className="w-full">
-          <div className="w-full flex flex-col gap-1.5 p-2 sm:p-2.5 rounded-2xl bg-slate-50/60">
+      <div className="w-full flex-1 min-h-0 flex flex-col justify-center overflow-hidden">
+        <div className="w-full flex flex-col gap-1 sm:gap-1.5 p-2 rounded-2xl bg-slate-50/60 overflow-x-auto no-scrollbar">
           {levels.slice(0, revealedLevel + 1).map((row, levelIdx) => {
             const meta = levelMeta(levelIdx);
             const isConstantRow = levelIdx === maxLevels;
 
             return (
-              <div key={`lvl-${levelIdx}`} className="flex flex-col gap-1.5 animate-fade-rise">
+              <div key={`lvl-${levelIdx}`} className="flex flex-col gap-0.5 sm:gap-1 animate-fade-rise">
                 {/* Row Descriptor (Unboxed Clean Metadata) */}
-                <div className="flex items-center justify-between text-micro px-1">
+                <div className="flex items-center justify-between text-[11px] sm:text-micro px-1">
                   <span className="font-extrabold" style={{ color: meta.text }}>
                     {meta.title}
                   </span>
-                  <span className="text-slate-500 font-medium">{meta.rule}</span>
+                  {!isCompact && (
+                    <span className="text-slate-500 font-medium hidden sm:inline">{meta.rule}</span>
+                  )}
                 </div>
 
                 {/* Centered Nodes */}
-                <div className="flex flex-wrap items-center justify-center gap-1 sm:gap-2">
+                <div className="flex flex-wrap items-center justify-center gap-1 sm:gap-1.5">
                   {row.map((val, idx) => {
                     const isSelected =
                       focusedNode?.level === levelIdx && focusedNode?.idx === idx;
@@ -256,7 +264,11 @@ export const DifferenceEngineTable: React.FC<DifferenceEngineTableProps> = ({
                         onClick={() => {
                           if (levelIdx > 0) setFocusedNode({ level: levelIdx, idx });
                         }}
-                        className={`min-w-[34px] sm:min-w-[48px] min-h-[36px] px-1.5 sm:px-2 py-1 rounded-xl border-2 font-mono text-micro sm:text-small font-extrabold tabular-nums transition-all flex flex-col items-center justify-center ${
+                        className={`${
+                          isCompact || isNarrow
+                            ? 'min-w-[32px] min-h-[30px] px-1 py-0.5 text-[11px]'
+                            : 'min-w-[44px] min-h-[34px] px-2 py-0.5 text-small'
+                        } rounded-xl border-2 font-mono font-extrabold tabular-nums transition-all flex flex-col items-center justify-center ${
                           levelIdx > 0 ? 'cursor-pointer hover:scale-105' : 'cursor-default'
                         } ${
                           isSelected
@@ -272,8 +284,8 @@ export const DifferenceEngineTable: React.FC<DifferenceEngineTableProps> = ({
                         }}
                       >
                         <span>{val}</span>
-                        {levelIdx === 0 && (
-                          <span className="text-[10px] font-sans font-semibold opacity-70">
+                        {levelIdx === 0 && !isCompact && (
+                          <span className="text-[9px] font-sans font-semibold opacity-70 leading-none">
                             {idx + 1}
                             {mode === 'squares' ? '²' : '³'}
                           </span>
@@ -285,12 +297,11 @@ export const DifferenceEngineTable: React.FC<DifferenceEngineTableProps> = ({
               </div>
             );
           })}
-          </div>
         </div>
       </div>
 
       {/* Interactive Subtraction Inspector & Formula Banner */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 items-stretch">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 items-stretch shrink-0">
         {/* Clicked Subtraction Detail */}
         <div className="p-2.5 sm:p-3 rounded-2xl bg-slate-50/80 flex flex-col justify-center gap-0.5">
           <span className="text-micro font-bold text-slate-500">

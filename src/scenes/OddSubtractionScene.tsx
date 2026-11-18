@@ -14,6 +14,7 @@ import {
   AlertTriangle,
   Sparkles,
 } from 'lucide-react';
+import { useViewportTier } from '../hooks/useViewportTier';
 
 export interface OddSubtractionSceneProps {
   className?: string;
@@ -53,7 +54,11 @@ export const OddSubtractionScene: React.FC<OddSubtractionSceneProps> = ({
 }) => {
   const [currentStep, setCurrentStep] = useState<number>(initialStep);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [mobileFocus, setMobileFocus] = useState<'25' | '38'>('25');
   const timerRef = useRef<number | null>(null);
+  const { tier, isNarrow } = useViewportTier();
+  const isCompact = tier === 'compact';
+  const useSingleColumnToggle = isCompact || isNarrow;
 
   const maxSteps = 7;
 
@@ -101,31 +106,35 @@ export const OddSubtractionScene: React.FC<OddSubtractionSceneProps> = ({
   return (
     <div
       data-no-nav="true"
-      className={`w-full max-w-4xl max-h-full overflow-y-auto no-scrollbar mx-auto flex flex-col gap-2.5 sm:gap-3 bg-white p-3 sm:p-4 rounded-3xl border border-slate-200/80 shadow-xs ${className}`}
+      className={`w-full max-w-4xl h-full max-h-full min-h-0 overflow-hidden mx-auto flex flex-col justify-between ${
+        isCompact ? 'gap-1.5 p-2' : 'gap-2 sm:gap-2.5 p-2.5 sm:p-4'
+      } bg-white rounded-3xl border border-slate-200/80 shadow-xs ${className}`}
     >
       {/* Header & Controls */}
-      <div className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
-        <div>
-          <span className="text-micro font-bold uppercase tracking-wider text-slate-500">
-            Repeated Odd Subtraction Test
-          </span>
-          <h3 className="text-statement font-extrabold text-slate-900 mt-0.5">
-            Subtract 1, 3, 5, 7, 9... Side by Side: 25 vs 38
+      <div className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-100 pb-2 shrink-0">
+        <div className="min-w-0">
+          {!isCompact && (
+            <span className="text-micro font-bold uppercase tracking-wider text-slate-500 hidden sm:block">
+              Repeated Odd Subtraction Test
+            </span>
+          )}
+          <h3 className="text-small sm:text-statement font-extrabold text-slate-900 mt-0.5">
+            Subtract 1, 3, 5, 7, 9... (25 vs 38)
           </h3>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0 flex-wrap">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 flex-wrap">
           <button
             type="button"
             onClick={handleStepNext}
             disabled={currentStep >= maxSteps}
-            className={`min-h-[44px] sm:min-h-[40px] px-3.5 py-2 rounded-xl text-small font-bold flex items-center gap-1.5 transition-all cursor-pointer shrink-0 ${
+            className={`${isCompact ? 'min-h-[38px] px-2.5' : 'min-h-[42px] sm:min-h-[38px] px-3'} py-1.5 rounded-xl text-micro sm:text-small font-bold flex items-center gap-1 transition-all cursor-pointer shrink-0 ${
               currentStep >= maxSteps
                 ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
                 : 'bg-blue-600 hover:bg-blue-700 text-white shadow-2xs'
             }`}
           >
-            <span>Step Subtraction</span>
+            <span>Step</span>
             <ChevronRight className="w-4 h-4" />
           </button>
 
@@ -135,32 +144,57 @@ export const OddSubtractionScene: React.FC<OddSubtractionSceneProps> = ({
               if (currentStep >= maxSteps) setCurrentStep(0);
               setIsPlaying((p) => !p);
             }}
-            className={`min-h-[44px] sm:min-h-[40px] px-3.5 py-2 rounded-xl text-small font-bold flex items-center gap-1.5 transition-all cursor-pointer shrink-0 ${
+            className={`${isCompact ? 'min-h-[38px] px-2.5' : 'min-h-[42px] sm:min-h-[38px] px-3'} py-1.5 rounded-xl text-micro sm:text-small font-bold flex items-center gap-1.5 transition-all cursor-pointer shrink-0 ${
               isPlaying
                 ? 'bg-amber-600 text-white'
                 : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-2xs'
             }`}
           >
-            {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-            <span>{isPlaying ? 'Pause' : 'Auto-Play'}</span>
+            {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+            <span>{isPlaying ? 'Pause' : 'Play'}</span>
           </button>
 
           <button
             type="button"
             onClick={handleReset}
-            className="min-h-[44px] sm:min-h-[40px] w-11 sm:w-10 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-600 cursor-pointer flex items-center justify-center shrink-0"
+            className={`${isCompact ? 'min-h-[38px] w-9' : 'min-h-[42px] sm:min-h-[38px] w-10'} rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-600 cursor-pointer flex items-center justify-center shrink-0`}
             title="Reset"
           >
-            <RotateCcw className="w-4 h-4" />
+            <RotateCcw className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
 
+      {/* Compact/Narrow Number Switcher */}
+      {useSingleColumnToggle && (
+        <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-100 shrink-0">
+          <button
+            type="button"
+            onClick={() => setMobileFocus('25')}
+            className={`flex-1 min-h-[36px] rounded-lg text-micro font-bold cursor-pointer ${
+              mobileFocus === '25' ? 'bg-white text-emerald-700 shadow-2xs' : 'text-slate-600'
+            }`}
+          >
+            Test 25 (Perfect Square)
+          </button>
+          <button
+            type="button"
+            onClick={() => setMobileFocus('38')}
+            className={`flex-1 min-h-[36px] rounded-lg text-micro font-bold cursor-pointer ${
+              mobileFocus === '38' ? 'bg-white text-amber-800 shadow-2xs' : 'text-slate-600'
+            }`}
+          >
+            Test 38 (Not a Square)
+          </button>
+        </div>
+      )}
+
       {/* Side-by-Side Comparison Ladders */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full">
+      <div className={`grid ${useSingleColumnToggle ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'} gap-2.5 w-full flex-1 min-h-0 overflow-hidden`}>
         {/* LEFT COLUMN: 25 (Perfect Square) */}
+        {(!useSingleColumnToggle || mobileFocus === '25') && (
         <div
-          className={`p-3 rounded-2xl border flex flex-col gap-2 transition-all ${
+          className={`p-2.5 sm:p-3 rounded-2xl border flex flex-col justify-between gap-1.5 transition-all min-h-0 ${
             is25Finished
               ? 'bg-emerald-50/75 border-emerald-300 ring-2 ring-emerald-400/20'
               : 'bg-slate-50/70 border-slate-200'
@@ -187,10 +221,10 @@ export const OddSubtractionScene: React.FC<OddSubtractionSceneProps> = ({
             )}
           </div>
 
-          <div className="flex flex-col gap-1 min-h-[76px] md:min-h-[120px]">
+          <div className="flex flex-col gap-1 min-h-0">
             {currentStep === 0 ? (
-              <div className="my-auto text-center p-2.5 text-small text-slate-500">
-                Tap <strong>Step Subtraction</strong> or <strong>Auto-Play</strong> to subtract 1, 3, 5, 7, 9...
+              <div className="my-auto text-center p-2 text-small text-slate-500">
+                Tap <strong>Step</strong> or <strong>Play</strong> to subtract 1, 3, 5, 7, 9...
               </div>
             ) : (
               STEPS_25.slice(0, currentStep).map((st) => {
@@ -198,7 +232,7 @@ export const OddSubtractionScene: React.FC<OddSubtractionSceneProps> = ({
                 return (
                   <div
                     key={st.stepNum}
-                    className={`px-2.5 py-1.5 rounded-xl border flex items-center justify-between text-micro sm:text-small transition-all animate-fade-rise ${
+                    className={`px-2.5 py-1 rounded-xl border flex items-center justify-between text-micro sm:text-small transition-all animate-fade-rise ${
                       isFinal
                         ? 'bg-emerald-100 text-emerald-950 border-emerald-400 font-bold'
                         : 'bg-white text-slate-800 border-slate-200'
@@ -228,27 +262,28 @@ export const OddSubtractionScene: React.FC<OddSubtractionSceneProps> = ({
           </div>
 
           {is25Finished ? (
-            <div className="p-3.5 rounded-xl bg-white border border-emerald-300 shadow-2xs flex flex-col gap-1 animate-fade-rise">
-              <div className="flex items-center gap-1.5 text-emerald-800 font-bold text-small">
+            <div className="p-2 sm:p-2.5 rounded-xl bg-white border border-emerald-300 shadow-2xs flex flex-wrap items-center justify-between gap-1.5 animate-fade-rise shrink-0">
+              <div className="flex items-center gap-1.5 text-emerald-800 font-bold text-micro sm:text-small">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                 <span>Hits 0 in 5 steps!</span>
               </div>
-              <div className="text-small text-slate-800 flex items-center gap-2">
-                <span>Square root is the step count:</span>
+              <div className="text-small text-slate-800 flex items-center gap-1">
                 <Katex latex={`\\sqrt{25} = 5`} displayMode={false} />
               </div>
             </div>
           ) : (
-            <div className="text-micro text-slate-500 text-center">
+            <div className="text-micro text-slate-500 text-center shrink-0">
               Leftover now:{' '}
               <strong>{STEPS_25[Math.min(4, Math.max(0, currentStep - 1))]?.result ?? 25}</strong>
             </div>
           )}
         </div>
+        )}
 
         {/* RIGHT COLUMN: 38 (Not a Square) */}
+        {(!useSingleColumnToggle || mobileFocus === '38') && (
         <div
-          className={`p-3 rounded-2xl border flex flex-col gap-2 transition-all ${
+          className={`p-2.5 sm:p-3 rounded-2xl border flex flex-col justify-between gap-1.5 transition-all min-h-0 ${
             is38Overshot
               ? 'bg-amber-50/75 border-amber-300 ring-2 ring-amber-400/20'
               : 'bg-slate-50/70 border-slate-200'
@@ -275,10 +310,10 @@ export const OddSubtractionScene: React.FC<OddSubtractionSceneProps> = ({
             )}
           </div>
 
-          <div className="flex flex-col gap-1 min-h-[76px] md:min-h-[120px]">
+          <div className="flex flex-col gap-1 min-h-0">
             {currentStep === 0 ? (
-              <div className="my-auto text-center p-2.5 text-small text-slate-500">
-                Watch what happens when we subtract 1, 3, 5, 7, 9, 11, 13 from 38!
+              <div className="my-auto text-center p-2 text-small text-slate-500">
+                Watch subtracting 1, 3, 5, 7, 9, 11, 13 from 38!
               </div>
             ) : (
               STEPS_38.slice(0, currentStep).map((st) => {
@@ -286,7 +321,7 @@ export const OddSubtractionScene: React.FC<OddSubtractionSceneProps> = ({
                 return (
                   <div
                     key={st.stepNum}
-                    className={`px-2.5 py-1.5 rounded-xl border flex items-center justify-between text-micro sm:text-small transition-all animate-fade-rise ${
+                    className={`px-2.5 py-0.5 sm:py-1 rounded-xl border flex items-center justify-between text-micro sm:text-small transition-all animate-fade-rise ${
                       isOvershoot
                         ? 'bg-rose-100 text-rose-950 border-rose-300 font-bold'
                         : st.stepNum === 6
@@ -307,7 +342,7 @@ export const OddSubtractionScene: React.FC<OddSubtractionSceneProps> = ({
                       <span className="font-mono font-black text-small">{st.result}</span>
                       {st.stepNum === 6 && (
                         <span className="text-micro font-bold text-amber-900 bg-white px-2 py-0.5 rounded-md border border-amber-300">
-                          Remainder 2
+                          Rem 2
                         </span>
                       )}
                       {isOvershoot && (
@@ -323,31 +358,31 @@ export const OddSubtractionScene: React.FC<OddSubtractionSceneProps> = ({
           </div>
 
           {is38Overshot ? (
-            <div className="p-3.5 rounded-xl bg-white border border-amber-300 shadow-2xs flex flex-col gap-1 animate-fade-rise">
-              <div className="flex items-center gap-1.5 text-amber-800 font-bold text-small">
+            <div className="p-2 sm:p-2.5 rounded-xl bg-white border border-amber-300 shadow-2xs flex flex-col gap-0.5 animate-fade-rise shrink-0">
+              <div className="flex items-center gap-1.5 text-amber-800 font-bold text-micro sm:text-small">
                 <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
-                <span>Overshot 0! 38 is NOT a perfect square.</span>
+                <span>Overshot 0! 38 is NOT a square (2 − 13 = −11).</span>
               </div>
-              <p className="text-small text-slate-700">
-                After subtracting 11, only <strong>2</strong> is left. Subtracting the next odd (13) jumps past 0 to <strong>−11</strong>!
-              </p>
             </div>
           ) : (
-            <div className="text-micro text-slate-500 text-center">
+            <div className="text-micro text-slate-500 text-center shrink-0">
               Leftover now:{' '}
               <strong>{STEPS_38[Math.min(6, Math.max(0, currentStep - 1))]?.result ?? 38}</strong>
             </div>
           )}
         </div>
+        )}
       </div>
 
       {/* Summary Footer */}
-      <div className="w-full p-2.5 sm:p-3 rounded-2xl bg-slate-50/80 flex items-center gap-2.5">
-        <Sparkles className="w-4 h-4 text-blue-600 shrink-0" />
-        <p className="text-micro sm:text-small font-medium text-slate-800 leading-snug">
-          If subtracting 1, 3, 5, 7... stops cleanly at <strong>0</strong>, the number is a perfect square—and the number of steps is its <strong>square root</strong>!
-        </p>
-      </div>
+      {!isCompact && (
+        <div className="w-full p-2 sm:p-2.5 rounded-2xl bg-slate-50/80 flex items-center gap-2 shrink-0">
+          <Sparkles className="w-4 h-4 text-blue-600 shrink-0" />
+          <p className="text-micro sm:text-small font-medium text-slate-800 leading-snug">
+            If subtracting 1, 3, 5, 7... stops cleanly at <strong>0</strong>, the number is a square—and the step count is its <strong>square root</strong>!
+          </p>
+        </div>
+      )}
     </div>
   );
 };
