@@ -143,8 +143,8 @@ export const IsometricCubeRenderer: React.FC<IsometricCubeRendererProps> = ({
       className={`w-full max-w-4xl max-h-full overflow-y-auto no-scrollbar mx-auto rounded-3xl border border-slate-200/80 bg-white p-3 sm:p-4 shadow-xs flex flex-col gap-2.5 sm:gap-3 ${className}`}
     >
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
-        <div>
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2">
+        <div className="min-w-0">
           <span className="text-micro font-bold uppercase tracking-wider text-slate-500">
             3D Isometric Volume Builder
           </span>
@@ -158,7 +158,7 @@ export const IsometricCubeRenderer: React.FC<IsometricCubeRendererProps> = ({
           <button
             type="button"
             onClick={() => setExplodeLayers((e) => !e)}
-            className={`min-h-[40px] px-3.5 py-1.5 rounded-xl text-small font-bold border flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+            className={`min-h-[44px] sm:min-h-[40px] px-3.5 py-1.5 rounded-xl text-small font-bold border flex items-center gap-1.5 transition-all cursor-pointer shrink-0 ${
               explodeLayers
                 ? 'bg-[#F27A00] text-white border-[#C2410C] shadow-xs'
                 : 'bg-orange-50 text-orange-900 border-orange-300 hover:bg-orange-100'
@@ -174,7 +174,7 @@ export const IsometricCubeRenderer: React.FC<IsometricCubeRendererProps> = ({
               if (visibleLayers >= n) setVisibleLayers(1);
               setIsAutoStacking((p) => !p);
             }}
-            className={`min-h-[40px] px-3.5 py-1.5 rounded-xl text-small font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+            className={`min-h-[44px] sm:min-h-[40px] px-3.5 py-1.5 rounded-xl text-small font-bold flex items-center gap-1.5 transition-all cursor-pointer shrink-0 ${
               isAutoStacking
                 ? 'bg-amber-600 text-white'
                 : 'bg-[#005583] hover:bg-[#003F62] text-white shadow-2xs'
@@ -189,7 +189,7 @@ export const IsometricCubeRenderer: React.FC<IsometricCubeRendererProps> = ({
       {/* Controls Bar */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 p-2.5 sm:p-3 rounded-2xl bg-slate-50/80">
         {/* Edge Length Controller */}
-        <div className="flex items-center justify-between md:justify-start gap-3">
+        <div className="flex flex-wrap items-center justify-between md:justify-start gap-2.5">
           <span className="text-small font-bold whitespace-nowrap" style={{ color: COLORS.headingText }}>
             Side (<span style={{ color: COLORS.side.solid }}>n</span>):
           </span>
@@ -198,7 +198,8 @@ export const IsometricCubeRenderer: React.FC<IsometricCubeRendererProps> = ({
               type="button"
               onClick={() => handleNChange(n - 1)}
               disabled={n <= 1}
-              className="w-9 h-9 rounded-xl border bg-white flex items-center justify-center font-bold text-slate-700 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-100 cursor-pointer"
+              className="w-11 h-11 sm:w-9 sm:h-9 rounded-xl border bg-white flex items-center justify-center font-bold text-slate-700 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-100 cursor-pointer"
+              aria-label="Decrease cube side length"
             >
               <Minus className="w-4 h-4" />
             </button>
@@ -212,7 +213,8 @@ export const IsometricCubeRenderer: React.FC<IsometricCubeRendererProps> = ({
               type="button"
               onClick={() => handleNChange(n + 1)}
               disabled={n >= 5}
-              className="w-9 h-9 rounded-xl border bg-white flex items-center justify-center font-bold text-slate-700 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-100 cursor-pointer"
+              className="w-11 h-11 sm:w-9 sm:h-9 rounded-xl border bg-white flex items-center justify-center font-bold text-slate-700 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-100 cursor-pointer"
+              aria-label="Increase cube side length"
             >
               <Plus className="w-4 h-4" />
             </button>
@@ -247,7 +249,7 @@ export const IsometricCubeRenderer: React.FC<IsometricCubeRendererProps> = ({
                     setIsAutoStacking(false);
                     setVisibleLayers(layerCount);
                   }}
-                  className={`min-h-[36px] px-2.5 py-1 rounded-xl text-micro font-bold border transition-all cursor-pointer whitespace-nowrap ${
+                  className={`min-h-[44px] sm:min-h-[36px] px-2.5 py-1 rounded-xl text-micro font-bold border transition-all cursor-pointer whitespace-nowrap ${
                     isSelected
                       ? 'bg-purple-700 text-white shadow-xs border-purple-800'
                       : 'bg-white text-slate-700 hover:bg-purple-50 border-slate-200'
@@ -271,7 +273,7 @@ export const IsometricCubeRenderer: React.FC<IsometricCubeRendererProps> = ({
       >
         <svg
           viewBox={`0 0 ${viewWidth} ${viewHeight}`}
-          className="w-full h-auto max-h-[220px] sm:max-h-[280px] select-none"
+          className="w-full h-auto max-h-[175px] sm:max-h-[235px] lg:max-h-[260px] select-none"
         >
           {/* Left Badge */}
           <g transform="translate(22, 22)">
@@ -381,7 +383,7 @@ export const IsometricCubeRenderer: React.FC<IsometricCubeRendererProps> = ({
 
       {/* Formula Strip */}
       <div className="p-2.5 sm:p-3 rounded-2xl bg-slate-50/80 text-center space-y-0.5">
-        <div className="text-body sm:text-statement font-bold overflow-x-auto" style={{ color: COLORS.volume.text }}>
+        <div className="text-body sm:text-statement font-bold max-w-full flex flex-wrap justify-center" style={{ color: COLORS.volume.text }}>
           <Katex
             latex={`\\text{Volume} = ${n} \\times ${n} \\times ${n} = ${n}^3 = ${totalVolume} \\quad (${Array.from({ length: visibleLayers }, (_, i) => (i + 1) * perLayer).join(' \\to ')})`}
             displayMode={false}

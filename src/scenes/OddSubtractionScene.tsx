@@ -120,7 +120,7 @@ export const OddSubtractionScene: React.FC<OddSubtractionSceneProps> = ({
             type="button"
             onClick={handleStepNext}
             disabled={currentStep >= maxSteps}
-            className={`min-h-[40px] px-3.5 py-2 rounded-xl text-small font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+            className={`min-h-[44px] sm:min-h-[40px] px-3.5 py-2 rounded-xl text-small font-bold flex items-center gap-1.5 transition-all cursor-pointer shrink-0 ${
               currentStep >= maxSteps
                 ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
                 : 'bg-blue-600 hover:bg-blue-700 text-white shadow-2xs'
@@ -136,7 +136,7 @@ export const OddSubtractionScene: React.FC<OddSubtractionSceneProps> = ({
               if (currentStep >= maxSteps) setCurrentStep(0);
               setIsPlaying((p) => !p);
             }}
-            className={`min-h-[40px] px-3.5 py-2 rounded-xl text-small font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+            className={`min-h-[44px] sm:min-h-[40px] px-3.5 py-2 rounded-xl text-small font-bold flex items-center gap-1.5 transition-all cursor-pointer shrink-0 ${
               isPlaying
                 ? 'bg-amber-600 text-white'
                 : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-2xs'
@@ -149,7 +149,7 @@ export const OddSubtractionScene: React.FC<OddSubtractionSceneProps> = ({
           <button
             type="button"
             onClick={handleReset}
-            className="min-h-[40px] w-10 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-600 cursor-pointer flex items-center justify-center shrink-0"
+            className="min-h-[44px] sm:min-h-[40px] w-11 sm:w-10 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-600 cursor-pointer flex items-center justify-center shrink-0"
             title="Reset"
           >
             <RotateCcw className="w-4 h-4" />
@@ -188,9 +188,9 @@ export const OddSubtractionScene: React.FC<OddSubtractionSceneProps> = ({
             )}
           </div>
 
-          <div className="flex flex-col gap-1 min-h-[100px] md:min-h-[150px]">
+          <div className="flex flex-col gap-1 min-h-[76px] md:min-h-[120px]">
             {currentStep === 0 ? (
-              <div className="my-auto text-center p-3 text-small text-slate-500">
+              <div className="my-auto text-center p-2.5 text-small text-slate-500">
                 Tap <strong>Step Subtraction</strong> or <strong>Auto-Play</strong> to subtract 1, 3, 5, 7, 9...
               </div>
             ) : (
@@ -276,9 +276,9 @@ export const OddSubtractionScene: React.FC<OddSubtractionSceneProps> = ({
             )}
           </div>
 
-          <div className="flex flex-col gap-1 min-h-[100px] md:min-h-[150px]">
+          <div className="flex flex-col gap-1 min-h-[76px] md:min-h-[120px]">
             {currentStep === 0 ? (
-              <div className="my-auto text-center p-3 text-small text-slate-500">
+              <div className="my-auto text-center p-2.5 text-small text-slate-500">
                 Watch what happens when we subtract 1, 3, 5, 7, 9, 11, 13 from 38!
               </div>
             ) : (

@@ -212,7 +212,7 @@ export const SlideShell: React.FC<SlideShellProps> = ({
         }}
         title={focusMode ? 'Exit focus mode' : 'Focus mode'}
         aria-label={focusMode ? 'Exit focus mode' : 'Focus mode'}
-        className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl border border-slate-200/80 bg-white hover:bg-slate-50 cursor-pointer transition-colors"
+        className="w-11 h-11 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl border border-slate-200/80 bg-white hover:bg-slate-50 cursor-pointer transition-colors"
         style={{ color: focusMode ? COLORS.primary : COLORS.mutedText }}
       >
         {focusMode ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -239,7 +239,7 @@ export const SlideShell: React.FC<SlideShellProps> = ({
         aria-label="Open Chapter Index and Navigation"
         aria-expanded={showIndex}
         aria-controls="index-drawer"
-        className="h-9 sm:h-10 px-3 sm:px-3.5 flex items-center justify-center gap-1.5 rounded-xl font-bold text-micro sm:text-small shadow-xs cursor-pointer transition-all whitespace-nowrap shrink-0"
+        className="h-11 sm:h-10 px-3 sm:px-3.5 flex items-center justify-center gap-1.5 rounded-xl font-bold text-micro sm:text-small shadow-xs cursor-pointer transition-all whitespace-nowrap shrink-0"
         style={{
           backgroundColor: showIndex ? '#003F62' : COLORS.primary,
           color: '#FFFFFF',
@@ -253,7 +253,7 @@ export const SlideShell: React.FC<SlideShellProps> = ({
 
   return (
     <div
-      className="h-screen w-full flex flex-col overflow-hidden select-none"
+      className="h-[100dvh] w-full flex flex-col overflow-hidden select-none"
       style={{ backgroundColor: '#F8FAFF', color: COLORS.bodyText }}
     >
       {/* Screen-reader live announcement for current step */}
@@ -291,7 +291,7 @@ export const SlideShell: React.FC<SlideShellProps> = ({
               <button
                 type="button"
                 onClick={() => setChapterMenuOpen((o) => !o)}
-                className="min-h-[30px] px-2 py-0.5 rounded-lg text-micro font-bold border border-sky-200/80 bg-sky-50/80 hover:bg-sky-100/80 flex items-center gap-1 transition-colors cursor-pointer whitespace-nowrap"
+                className="min-h-[44px] sm:min-h-[34px] px-2.5 py-0.5 rounded-lg text-micro font-bold border border-sky-200/80 bg-sky-50/80 hover:bg-sky-100/80 flex items-center gap-1 transition-colors cursor-pointer whitespace-nowrap"
                 style={{ color: COLORS.primary }}
                 aria-expanded={chapterMenuOpen}
                 aria-label="Chapter indicator"
@@ -310,7 +310,7 @@ export const SlideShell: React.FC<SlideShellProps> = ({
                       onSelectChapter?.('ch-1');
                       setChapterMenuOpen(false);
                     }}
-                    className={`min-h-[40px] px-3 py-2 rounded-xl text-left text-small transition-colors cursor-pointer flex items-center justify-between ${
+                    className={`min-h-[44px] px-3 py-2 rounded-xl text-left text-small transition-colors cursor-pointer flex items-center justify-between ${
                       activeChapter === 'ch-1'
                         ? 'bg-blue-50 text-blue-900 font-bold'
                         : 'hover:bg-slate-50 text-slate-700'
@@ -328,7 +328,7 @@ export const SlideShell: React.FC<SlideShellProps> = ({
                       onSelectChapter?.('ch-2');
                       setChapterMenuOpen(false);
                     }}
-                    className={`min-h-[40px] px-3 py-2 rounded-xl text-left text-small transition-colors cursor-pointer flex items-center justify-between ${
+                    className={`min-h-[44px] px-3 py-2 rounded-xl text-left text-small transition-colors cursor-pointer flex items-center justify-between ${
                       activeChapter === 'ch-2' || !activeChapter
                         ? 'bg-blue-50 text-blue-900 font-bold'
                         : 'hover:bg-slate-50 text-slate-700'
@@ -430,8 +430,8 @@ export const SlideShell: React.FC<SlideShellProps> = ({
           )}
 
           {/* Zero-overflow stage content - aligned cleanly to top */}
-          <div className="w-full flex-1 min-h-0 max-w-6xl mx-auto px-1 sm:px-3 md:px-4 flex flex-col items-center justify-start overflow-hidden">
-            <div className="w-full flex-1 min-h-0 flex flex-col items-center justify-start transition-opacity duration-200 ease-out">
+          <div className="w-full flex-1 min-w-0 min-h-0 max-w-6xl mx-auto px-1 sm:px-3 md:px-4 flex flex-col items-center justify-start overflow-hidden">
+            <div className="w-full flex-1 min-w-0 min-h-0 flex flex-col items-center justify-start transition-opacity duration-200 ease-out">
               {children}
             </div>
           </div>
@@ -455,19 +455,19 @@ export const SlideShell: React.FC<SlideShellProps> = ({
         </main>
       </div>
 
-      {/* 5. BOTTOM NAVIGATION DOCK: Fixed h-14 (56px), leaving calc(100vh - 112px) for the stage */}
+      {/* 5. BOTTOM NAVIGATION DOCK: Wraps cleanly instead of horizontal scrolling */}
       {!focusMode && (
         <footer
           data-no-nav="true"
-          className="h-14 px-3 sm:px-5 lg:px-6 border-t border-slate-200/80 bg-white/95 backdrop-blur-sm flex items-center justify-between gap-3 shrink-0 z-20"
+          className="min-h-14 px-2.5 sm:px-5 lg:px-6 py-1.5 border-t border-slate-200/80 bg-white/95 backdrop-blur-sm flex items-center justify-between gap-2 sm:gap-3 shrink-0 z-20"
         >
           {controlsDock ? (
-            <div className="w-full max-w-6xl mx-auto flex items-center justify-between gap-2 min-w-0">
-              <div className="flex-1 min-w-0 overflow-x-auto no-scrollbar">{controlsDock}</div>
+            <div className="w-full max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-2 min-w-0">
+              <div className="flex-1 min-w-0 flex flex-wrap items-center gap-1.5">{controlsDock}</div>
               <button
                 type="button"
                 onClick={() => onNext()}
-                className="shrink-0 inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-small font-semibold text-white min-h-[38px] cursor-pointer transition-opacity hover:opacity-90 whitespace-nowrap"
+                className="shrink-0 inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-small font-semibold text-white min-h-[44px] cursor-pointer transition-opacity hover:opacity-90 whitespace-nowrap"
                 style={{ backgroundColor: COLORS.primary }}
               >
                 <span>Continue</span>
@@ -488,33 +488,31 @@ export const SlideShell: React.FC<SlideShellProps> = ({
                 )}
 
                 {totalSteps > 1 ? (
-                  <div className="flex-1 min-w-0 overflow-x-auto no-scrollbar flex items-center justify-center">
-                    <div className="flex items-center gap-1 min-w-max">
-                      {steps.map((step, idx) => {
-                        const isActive = idx === clampedStep;
-                        return (
-                          <button
-                            key={step.id}
-                            type="button"
-                            onClick={() => onSelectStep(idx)}
-                            onTouchStart={(e) => handleTouchStartStep(e.currentTarget, step.title, true)}
-                            onTouchEnd={clearStepTooltip}
-                            onTouchCancel={clearStepTooltip}
-                            aria-label={`Step ${idx + 1}: ${step.title}`}
-                            aria-current={isActive ? 'step' : undefined}
-                            className="h-9 px-1 flex items-center justify-center cursor-pointer shrink-0"
-                          >
-                            <span
-                              className="h-2.5 rounded-full transition-all block"
-                              style={{
-                                width: isActive ? '22px' : '8px',
-                                backgroundColor: isActive ? COLORS.primary : '#CBD5E1',
-                              }}
-                            />
-                          </button>
-                        );
-                      })}
-                    </div>
+                  <div className="flex-1 min-w-0 flex flex-wrap items-center justify-center gap-x-1 gap-y-0.5">
+                    {steps.map((step, idx) => {
+                      const isActive = idx === clampedStep;
+                      return (
+                        <button
+                          key={step.id}
+                          type="button"
+                          onClick={() => onSelectStep(idx)}
+                          onTouchStart={(e) => handleTouchStartStep(e.currentTarget, step.title, true)}
+                          onTouchEnd={clearStepTooltip}
+                          onTouchCancel={clearStepTooltip}
+                          aria-label={`Step ${idx + 1}: ${step.title}`}
+                          aria-current={isActive ? 'step' : undefined}
+                          className="min-h-[44px] min-w-[24px] px-1 flex items-center justify-center cursor-pointer shrink-0"
+                        >
+                          <span
+                            className="h-2.5 rounded-full transition-all block"
+                            style={{
+                              width: isActive ? '22px' : '8px',
+                              backgroundColor: isActive ? COLORS.primary : '#CBD5E1',
+                            }}
+                          />
+                        </button>
+                      );
+                    })}
                   </div>
                 ) : (
                   <span className="text-micro font-medium text-slate-500 truncate mx-auto">

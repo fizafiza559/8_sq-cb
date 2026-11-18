@@ -68,14 +68,14 @@ export const DotGridSquareVisualizer: React.FC<DotGridSquareVisualizerProps> = (
   return (
     <div
       data-no-nav="true"
-      className={`w-full max-w-3xl mx-auto rounded-3xl border border-slate-200/80 bg-white p-5 sm:p-7 shadow-xs flex flex-col gap-5 ${className}`}
+      className={`w-full max-w-3xl max-h-full overflow-y-auto no-scrollbar mx-auto rounded-3xl border border-slate-200/80 bg-white p-3 sm:p-4 shadow-xs flex flex-col gap-2.5 sm:gap-3 ${className}`}
     >
       {/* Header & Mode Switcher */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
-        <div>
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+        <div className="min-w-0">
           <h3 className="text-statement font-extrabold flex items-center gap-2" style={{ color: COLORS.headingText }}>
-            <Grid className="w-5 h-5 text-[#005583]" />
-            Dot-Grid Square Visualizer
+            <Grid className="w-5 h-5 text-[#005583] shrink-0" />
+            <span>Dot-Grid Square Visualizer</span>
           </h3>
           <p className="text-micro font-medium mt-0.5" style={{ color: COLORS.mutedText }}>
             Build squares tile by tile or peel back L-shaped odd borders
@@ -83,33 +83,33 @@ export const DotGridSquareVisualizer: React.FC<DotGridSquareVisualizerProps> = (
         </div>
 
         {/* Mode Toggle */}
-        <div className="flex flex-wrap items-center gap-1 p-1 rounded-xl bg-slate-100/90">
+        <div className="flex flex-wrap items-center justify-center gap-1 p-1 rounded-xl bg-slate-100/90 w-full sm:w-auto">
           <button
             type="button"
             onClick={() => setMode('square')}
-            className={`min-h-[38px] px-3 py-1.5 rounded-lg text-micro font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+            className={`min-h-[44px] sm:min-h-[38px] px-3 py-1.5 rounded-lg text-micro font-bold flex items-center gap-1.5 transition-all cursor-pointer shrink-0 ${
               mode === 'square' ? 'bg-white text-[#005583] shadow-2xs' : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            <Grid className="w-3.5 h-3.5" />
-            Square Area
+            <Grid className="w-3.5 h-3.5 shrink-0" />
+            <span>Square Area</span>
           </button>
           <button
             type="button"
             onClick={() => setMode('odd-borders')}
-            className={`min-h-[38px] px-3 py-1.5 rounded-lg text-micro font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+            className={`min-h-[44px] sm:min-h-[38px] px-3 py-1.5 rounded-lg text-micro font-bold flex items-center gap-1.5 transition-all cursor-pointer shrink-0 ${
               mode === 'odd-borders' ? 'bg-white text-[#005583] shadow-2xs' : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            <Layers className="w-3.5 h-3.5" />
-            Odd Sums (L-Borders)
+            <Layers className="w-3.5 h-3.5 shrink-0" />
+            <span>Odd Sums (L-Borders)</span>
           </button>
         </div>
       </div>
 
       {/* Interactive Controls Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 p-3.5 sm:px-4 rounded-2xl bg-slate-50/80">
-        <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-2.5 p-2.5 sm:px-3.5 rounded-2xl bg-slate-50/80">
+        <div className="flex flex-wrap items-center gap-2.5">
           <span className="text-ui font-bold" style={{ color: COLORS.headingText }}>
             Side length (<span style={{ color: COLORS.side.solid }}>n</span>):
           </span>
@@ -118,7 +118,7 @@ export const DotGridSquareVisualizer: React.FC<DotGridSquareVisualizerProps> = (
               type="button"
               onClick={() => handleNChange(n - 1)}
               disabled={n <= 1}
-              className="w-9 h-9 rounded-lg border border-slate-200/80 bg-white flex items-center justify-center font-bold text-slate-700 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-100 cursor-pointer"
+              className="w-11 h-11 sm:w-9 sm:h-9 rounded-lg border border-slate-200/80 bg-white flex items-center justify-center font-bold text-slate-700 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-100 cursor-pointer"
               aria-label="Decrease side length"
             >
               <Minus className="w-4 h-4" />
@@ -133,7 +133,7 @@ export const DotGridSquareVisualizer: React.FC<DotGridSquareVisualizerProps> = (
               type="button"
               onClick={() => handleNChange(n + 1)}
               disabled={n >= 10}
-              className="w-9 h-9 rounded-lg border border-slate-200/80 bg-white flex items-center justify-center font-bold text-slate-700 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-100 cursor-pointer"
+              className="w-11 h-11 sm:w-9 sm:h-9 rounded-lg border border-slate-200/80 bg-white flex items-center justify-center font-bold text-slate-700 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-100 cursor-pointer"
               aria-label="Increase side length"
             >
               <Plus className="w-4 h-4" />
@@ -173,7 +173,7 @@ export const DotGridSquareVisualizer: React.FC<DotGridSquareVisualizerProps> = (
       >
         <svg
           viewBox={`0 0 ${viewWidth} ${viewHeight}`}
-          className="w-full h-auto max-h-[300px] sm:max-h-[380px] select-none"
+          className="w-full h-auto max-h-[180px] sm:max-h-[240px] lg:max-h-[270px] select-none"
         >
           {/* Top Dimension Marker: Side length n (Green #16A34A) */}
           <g transform={`translate(${startX}, ${startY - 18})`}>
@@ -356,14 +356,14 @@ export const DotGridSquareVisualizer: React.FC<DotGridSquareVisualizerProps> = (
       </div>
 
       {/* Formula Strip */}
-      <div className="p-4 rounded-2xl bg-slate-50/80 text-center">
+      <div className="p-2.5 sm:p-3 rounded-2xl bg-slate-50/80 text-center">
         {mode === 'square' ? (
-          <div className="text-statement font-bold" style={{ color: COLORS.area.text }}>
+          <div className="text-statement font-bold max-w-full flex flex-wrap justify-center" style={{ color: COLORS.area.text }}>
             <Katex latex={`\\text{Area} = \\text{side}^2 = ${n}^2 = ${n * n}`} displayMode={false} />
           </div>
         ) : (
           <div className="space-y-1">
-            <div className="text-body sm:text-statement font-bold overflow-x-auto py-1" style={{ color: COLORS.primary }}>
+            <div className="text-body sm:text-statement font-bold py-0.5 flex flex-wrap justify-center max-w-full" style={{ color: COLORS.primary }}>
               <Katex latex={oddSumFormula} displayMode={false} />
             </div>
             <p className="text-micro font-medium" style={{ color: COLORS.mutedText }}>

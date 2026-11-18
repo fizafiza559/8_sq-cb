@@ -133,11 +133,11 @@ export const DifferenceEngineTable: React.FC<DifferenceEngineTableProps> = ({
 
         <div className="flex flex-wrap items-center gap-2">
           {/* Mode Segmented Toggle */}
-          <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-100/90">
+          <div className="flex flex-wrap items-center gap-1 p-1 rounded-xl bg-slate-100/90">
             <button
               type="button"
               onClick={() => handleModeChange('squares')}
-              className={`min-h-[38px] px-3 py-1.5 rounded-lg text-micro font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+              className={`min-h-[44px] sm:min-h-[38px] px-3 py-1.5 rounded-lg text-micro font-bold transition-all cursor-pointer shrink-0 ${
                 mode === 'squares'
                   ? 'bg-white text-[#0788D3] shadow-2xs'
                   : 'text-slate-600 hover:text-slate-900'
@@ -148,7 +148,7 @@ export const DifferenceEngineTable: React.FC<DifferenceEngineTableProps> = ({
             <button
               type="button"
               onClick={() => handleModeChange('cubes')}
-              className={`min-h-[38px] px-3 py-1.5 rounded-lg text-micro font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+              className={`min-h-[44px] sm:min-h-[38px] px-3 py-1.5 rounded-lg text-micro font-bold transition-all cursor-pointer shrink-0 ${
                 mode === 'cubes'
                   ? 'bg-white text-[#8B5CF6] shadow-2xs'
                   : 'text-slate-600 hover:text-slate-900'
@@ -162,7 +162,7 @@ export const DifferenceEngineTable: React.FC<DifferenceEngineTableProps> = ({
 
       {/* Step & Term Count Controls */}
       <div className="p-2.5 sm:px-3 rounded-2xl bg-slate-50/80 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
-        <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex items-center gap-2.5 flex-wrap">
           <span className="text-small font-bold text-slate-700 whitespace-nowrap">
             Terms shown:
           </span>
@@ -175,7 +175,7 @@ export const DifferenceEngineTable: React.FC<DifferenceEngineTableProps> = ({
                   setTermCount(cnt);
                   setFocusedNode(null);
                 }}
-                className={`min-h-[38px] w-10 rounded-xl text-small font-bold border transition-all cursor-pointer tabular-nums ${
+                className={`min-h-[44px] sm:min-h-[38px] w-11 sm:w-10 rounded-xl text-small font-bold border transition-all cursor-pointer tabular-nums ${
                   termCount === cnt
                     ? 'bg-[#005583] text-white border-[#003F62] shadow-2xs'
                     : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
@@ -198,9 +198,9 @@ export const DifferenceEngineTable: React.FC<DifferenceEngineTableProps> = ({
                 setRevealedLevel((l) => Math.min(maxLevels, l + 1));
               }
             }}
-            className="min-h-[40px] flex-1 sm:flex-none px-4 py-2 rounded-xl bg-[#005583] hover:bg-[#003F62] text-white text-small font-bold flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer whitespace-nowrap shrink-0"
+            className="min-h-[44px] sm:min-h-[40px] flex-1 sm:flex-none px-4 py-2 rounded-xl bg-[#005583] hover:bg-[#003F62] text-white text-small font-bold flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer shrink-0"
           >
-            <ChevronDown className="w-4 h-4" />
+            <ChevronDown className="w-4 h-4 shrink-0" />
             <span>
               {revealedLevel >= maxLevels ? 'Restart Pyramid' : `Reveal Level ${revealedLevel + 1}`}
             </span>
@@ -212,7 +212,7 @@ export const DifferenceEngineTable: React.FC<DifferenceEngineTableProps> = ({
               setRevealedLevel(maxLevels);
               setFocusedNode({ level: 1, idx: 1 });
             }}
-            className="min-h-[40px] px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 text-micro font-bold flex items-center gap-1 cursor-pointer whitespace-nowrap shrink-0"
+            className="min-h-[44px] sm:min-h-[40px] px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 text-micro font-bold flex items-center gap-1 cursor-pointer shrink-0"
             title="Show all levels"
           >
             <RotateCcw className="w-3.5 h-3.5" />
@@ -223,11 +223,8 @@ export const DifferenceEngineTable: React.FC<DifferenceEngineTableProps> = ({
 
       {/* Live Subtraction Tree (Pyramid Rows) */}
       <div className="w-full flex flex-col gap-1.5">
-        <span className="sm:hidden text-[11px] font-medium text-slate-400 text-center">
-          Swipe horizontally to view full pyramid ↔
-        </span>
-        <div className="w-full overflow-x-auto pb-0.5">
-          <div className="min-w-[500px] flex flex-col gap-1.5 p-2.5 rounded-2xl bg-slate-50/60">
+        <div className="w-full">
+          <div className="w-full flex flex-col gap-1.5 p-2 sm:p-2.5 rounded-2xl bg-slate-50/60">
           {levels.slice(0, revealedLevel + 1).map((row, levelIdx) => {
             const meta = levelMeta(levelIdx);
             const isConstantRow = levelIdx === maxLevels;
@@ -243,7 +240,7 @@ export const DifferenceEngineTable: React.FC<DifferenceEngineTableProps> = ({
                 </div>
 
                 {/* Centered Nodes */}
-                <div className="flex items-center justify-center gap-2 sm:gap-3">
+                <div className="flex flex-wrap items-center justify-center gap-1 sm:gap-2">
                   {row.map((val, idx) => {
                     const isSelected =
                       focusedNode?.level === levelIdx && focusedNode?.idx === idx;
@@ -259,7 +256,7 @@ export const DifferenceEngineTable: React.FC<DifferenceEngineTableProps> = ({
                         onClick={() => {
                           if (levelIdx > 0) setFocusedNode({ level: levelIdx, idx });
                         }}
-                        className={`min-w-[44px] sm:min-w-[50px] min-h-[34px] px-2 py-1 rounded-xl border-2 font-mono text-micro sm:text-small font-extrabold tabular-nums transition-all flex flex-col items-center justify-center ${
+                        className={`min-w-[34px] sm:min-w-[48px] min-h-[36px] px-1.5 sm:px-2 py-1 rounded-xl border-2 font-mono text-micro sm:text-small font-extrabold tabular-nums transition-all flex flex-col items-center justify-center ${
                           levelIdx > 0 ? 'cursor-pointer hover:scale-105' : 'cursor-default'
                         } ${
                           isSelected
@@ -326,7 +323,7 @@ export const DifferenceEngineTable: React.FC<DifferenceEngineTableProps> = ({
                 : 'Cubes lock at Level 3 (Constant 6)'}
             </span>
           </div>
-          <div className="text-small text-emerald-950 overflow-x-auto">
+          <div className="text-small text-emerald-950 flex flex-wrap max-w-full">
             <Katex
               latex={
                 mode === 'squares'

@@ -33,11 +33,11 @@ export const ChapterSummaryScene: React.FC<ChapterSummarySceneProps> = ({
   return (
     <div
       data-no-nav="true"
-      className={`w-full max-w-4xl mx-auto rounded-3xl border border-slate-200/80 bg-white p-5 sm:p-7 shadow-xs flex flex-col gap-5 ${className}`}
+      className={`w-full max-w-4xl max-h-full overflow-y-auto no-scrollbar mx-auto rounded-3xl border border-slate-200/80 bg-white p-3 sm:p-4 shadow-xs flex flex-col gap-2.5 sm:gap-3 ${className}`}
     >
       {/* Header & Side Selector */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
-        <div>
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+        <div className="min-w-0">
           <span className="text-micro font-bold uppercase tracking-wider text-slate-500">
             Chapter Recap · Squares &amp; Cubes Side by Side
           </span>
@@ -52,7 +52,7 @@ export const ChapterSummaryScene: React.FC<ChapterSummarySceneProps> = ({
               key={val}
               type="button"
               onClick={() => setN(val)}
-              className={`min-h-[40px] px-3.5 py-1.5 rounded-xl font-mono text-small font-extrabold border transition-all cursor-pointer tabular-nums whitespace-nowrap shrink-0 ${
+              className={`min-h-[44px] sm:min-h-[40px] px-3 sm:px-3.5 py-1.5 rounded-xl font-mono text-small font-extrabold border transition-all cursor-pointer tabular-nums shrink-0 ${
                 n === val
                   ? 'bg-[#005583] text-white border-[#003F62] shadow-2xs'
                   : 'bg-slate-50 text-slate-700 border-slate-200/80 hover:bg-slate-100'
@@ -65,8 +65,8 @@ export const ChapterSummaryScene: React.FC<ChapterSummarySceneProps> = ({
       </div>
 
       {/* 2D Square vs 3D Cube Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="p-5 rounded-2xl bg-orange-50/50 flex flex-col gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="p-3 sm:p-4 rounded-2xl bg-orange-50/50 flex flex-col gap-2.5">
           <div className="flex items-center justify-between gap-2">
             <span className="inline-flex items-center gap-1.5 text-small font-extrabold text-orange-900">
               <Grid className="w-4 h-4 text-[#F27A00] shrink-0" />
@@ -77,7 +77,7 @@ export const ChapterSummaryScene: React.FC<ChapterSummarySceneProps> = ({
             </span>
           </div>
 
-          <div className="p-4 rounded-2xl bg-white border border-orange-100 flex items-center justify-center min-h-[120px]">
+          <div className="p-3 rounded-2xl bg-white border border-orange-100 flex items-center justify-center min-h-[96px] sm:min-h-[112px]">
             <div
               className="grid gap-1"
               style={{ gridTemplateColumns: `repeat(${n}, minmax(0, 1fr))` }}
@@ -85,13 +85,13 @@ export const ChapterSummaryScene: React.FC<ChapterSummarySceneProps> = ({
               {Array.from({ length: sq }).map((_, idx) => (
                 <div
                   key={idx}
-                  className="w-5 h-5 rounded-md bg-orange-200 border border-[#F27A00]"
+                  className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-orange-200 border border-[#F27A00]"
                 />
               ))}
             </div>
           </div>
 
-          <div className="text-center">
+          <div className="text-center max-w-full flex flex-wrap justify-center">
             <Katex
               latex={`${n}^2 = ${sq} \\iff \\sqrt{${sq}} = ${n}`}
               displayMode={false}
@@ -102,7 +102,7 @@ export const ChapterSummaryScene: React.FC<ChapterSummarySceneProps> = ({
           </p>
         </div>
 
-        <div className="p-5 rounded-2xl bg-purple-50/50 flex flex-col gap-3">
+        <div className="p-3 sm:p-4 rounded-2xl bg-purple-50/50 flex flex-col gap-2.5">
           <div className="flex items-center justify-between gap-2">
             <span className="inline-flex items-center gap-1.5 text-small font-extrabold text-purple-900">
               <Box className="w-4 h-4 text-purple-700 shrink-0" />
@@ -113,18 +113,18 @@ export const ChapterSummaryScene: React.FC<ChapterSummarySceneProps> = ({
             </span>
           </div>
 
-          <div className="p-4 rounded-2xl bg-white border border-purple-100 flex items-center justify-center min-h-[120px]">
-            <div className="flex flex-col items-center gap-1.5">
+          <div className="p-3 rounded-2xl bg-white border border-purple-100 flex items-center justify-center min-h-[96px] sm:min-h-[112px]">
+            <div className="flex flex-col items-center gap-1">
               <div className="font-mono text-headline font-black text-purple-800 tabular-nums">
                 {cb}
               </div>
-              <span className="text-micro font-bold text-slate-500">
+              <span className="text-micro font-bold text-slate-500 text-center">
                 {n} stacked layers of {sq} cubes each
               </span>
             </div>
           </div>
 
-          <div className="text-center">
+          <div className="text-center max-w-full flex flex-wrap justify-center">
             <Katex
               latex={`${n}^3 = ${cb} \\iff \\sqrt[3]{${cb}} = ${n}`}
               displayMode={false}
@@ -137,7 +137,7 @@ export const ChapterSummaryScene: React.FC<ChapterSummarySceneProps> = ({
       </div>
 
       {/* Next Up Action Strip */}
-      <div className="p-4 rounded-2xl bg-slate-50/80 flex flex-wrap items-center justify-between gap-3">
+      <div className="p-2.5 sm:p-3 rounded-2xl bg-slate-50/80 flex flex-wrap items-center justify-between gap-2.5">
         <div className="flex items-center gap-2 text-small font-bold text-slate-800">
           <Sparkles className="w-4 h-4 text-[#F27A00] shrink-0" />
           <span>Ready to challenge yourself?</span>
@@ -148,20 +148,20 @@ export const ChapterSummaryScene: React.FC<ChapterSummarySceneProps> = ({
             <button
               type="button"
               onClick={onJumpToSquarePairs}
-              className="min-h-[40px] px-4 py-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-slate-800 text-small font-bold flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+              className="min-h-[44px] sm:min-h-[40px] px-3.5 py-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-slate-800 text-small font-bold flex items-center gap-1.5 cursor-pointer text-center"
             >
               <span>Play Square Pairs 1–17</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4 shrink-0" />
             </button>
           )}
           {onJumpToPractice && (
             <button
               type="button"
               onClick={onJumpToPractice}
-              className="min-h-[40px] px-4 py-2 rounded-xl bg-[#005583] hover:bg-[#003F62] text-white text-small font-bold flex items-center gap-1.5 cursor-pointer whitespace-nowrap shadow-2xs"
+              className="min-h-[44px] sm:min-h-[40px] px-3.5 py-2 rounded-xl bg-[#005583] hover:bg-[#003F62] text-white text-small font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs text-center"
             >
               <span>Go to Figure It Out Practice</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4 shrink-0" />
             </button>
           )}
         </div>

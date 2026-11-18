@@ -32,7 +32,7 @@ export const RefresherCard: React.FC<RefresherCardProps> = ({ clip, label }) => 
         }}
         title={`Refresher: ${clip.title}`}
         aria-label={`Refresher: ${clip.title}`}
-        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border bg-white text-micro font-semibold hover:bg-slate-50 transition-all cursor-pointer shadow-2xs"
+        className="min-h-[44px] sm:min-h-[36px] inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border bg-white text-micro font-semibold hover:bg-slate-50 transition-all cursor-pointer shadow-2xs"
         style={{
           borderColor: COLORS.divider,
           color: COLORS.primary,
@@ -49,21 +49,22 @@ export const RefresherCard: React.FC<RefresherCardProps> = ({ clip, label }) => 
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-fade-rise"
         >
           <div
-            className="w-full max-w-2xl rounded-2xl border p-6 shadow-2xl relative flex flex-col max-h-[90vh]"
+            className="w-full max-w-2xl rounded-2xl border p-4 sm:p-6 shadow-2xl relative flex flex-col max-h-[90dvh]"
             style={{ backgroundColor: COLORS.surface, borderColor: COLORS.divider }}
           >
             {/* Modal Header */}
-            <div className="flex items-center justify-between pb-4 border-b" style={{ borderColor: COLORS.divider }}>
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5" style={{ color: COLORS.primary }} />
-                <h3 className="text-title font-bold" style={{ color: COLORS.headingText }}>
+            <div className="flex items-center justify-between pb-3 border-b gap-2" style={{ borderColor: COLORS.divider }}>
+              <div className="flex items-center gap-2 min-w-0">
+                <Sparkles className="w-5 h-5 shrink-0" style={{ color: COLORS.primary }} />
+                <h3 className="text-title font-bold truncate" style={{ color: COLORS.headingText }}>
                   {clip.title}
                 </h3>
               </div>
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
-                className="p-2 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer text-slate-500 hover:text-slate-800"
+                aria-label="Close refresher"
+                className="w-11 h-11 flex items-center justify-center rounded-xl hover:bg-slate-100 transition-colors cursor-pointer text-slate-500 hover:text-slate-800 shrink-0"
               >
                 <X className="w-5 h-5" />
               </button>

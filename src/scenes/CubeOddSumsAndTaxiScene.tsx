@@ -183,11 +183,11 @@ export const CubeOddSumsAndTaxiScene: React.FC<CubeOddSumsAndTaxiSceneProps> = (
   return (
     <div
       data-no-nav="true"
-      className={`w-full max-w-4xl mx-auto rounded-3xl border border-slate-200/80 bg-white p-5 sm:p-7 shadow-xs flex flex-col gap-5 ${className}`}
+      className={`w-full max-w-4xl max-h-full overflow-y-auto no-scrollbar mx-auto rounded-3xl border border-slate-200/80 bg-white p-3 sm:p-4 shadow-xs flex flex-col gap-2.5 sm:gap-3 ${className}`}
     >
       {/* Header & Tabs */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
-        <div>
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+        <div className="min-w-0">
           <span className="text-micro font-bold uppercase tracking-wider text-slate-500">
             Cubes From Odd Numbers &amp; Taxicab Numbers
           </span>
@@ -198,29 +198,29 @@ export const CubeOddSumsAndTaxiScene: React.FC<CubeOddSumsAndTaxiSceneProps> = (
           </h3>
         </div>
 
-        <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-100/90">
+        <div className="flex flex-wrap items-center justify-center gap-1 p-1 rounded-xl bg-slate-100/90 w-full sm:w-auto">
           <button
             type="button"
             onClick={() => setActiveTab('odd-sums')}
-            className={`min-h-[38px] px-3 py-1.5 rounded-lg text-micro font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
+            className={`min-h-[44px] sm:min-h-[38px] px-3 py-1.5 rounded-lg text-micro font-bold flex items-center gap-1.5 transition-all cursor-pointer shrink-0 ${
               activeTab === 'odd-sums'
                 ? 'bg-white text-purple-700 shadow-2xs'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            <Layers className="w-3.5 h-3.5" />
+            <Layers className="w-3.5 h-3.5 shrink-0" />
             <span>Odd Sums Tape (n³)</span>
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('taxicab')}
-            className={`min-h-[38px] px-3 py-1.5 rounded-lg text-micro font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
+            className={`min-h-[44px] sm:min-h-[38px] px-3 py-1.5 rounded-lg text-micro font-bold flex items-center gap-1.5 transition-all cursor-pointer shrink-0 ${
               activeTab === 'taxicab'
                 ? 'bg-white text-[#F27A00] shadow-2xs'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            <Scale className="w-3.5 h-3.5" />
+            <Scale className="w-3.5 h-3.5 shrink-0" />
             <span>Taxicab Scale</span>
           </button>
         </div>
@@ -230,9 +230,9 @@ export const CubeOddSumsAndTaxiScene: React.FC<CubeOddSumsAndTaxiSceneProps> = (
       {/* PART A: CONSECUTIVE ODD SUMS TAPE */}
       {/* ================================================================= */}
       {activeTab === 'odd-sums' && (
-        <div className="flex flex-col gap-5 animate-fade-rise">
+        <div className="flex flex-col gap-3 animate-fade-rise">
           {/* Cube selector buttons */}
-          <div className="flex flex-wrap items-center justify-center gap-2">
+          <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
             {ODD_CUBE_GROUPS.map((g) => {
               const active = g.n === selectedN;
               return (
@@ -240,7 +240,7 @@ export const CubeOddSumsAndTaxiScene: React.FC<CubeOddSumsAndTaxiSceneProps> = (
                   key={g.n}
                   type="button"
                   onClick={() => setSelectedN(g.n)}
-                  className={`min-h-[40px] px-4 py-2 rounded-xl text-small font-bold border transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+                  className={`min-h-[44px] sm:min-h-[40px] px-3 sm:px-4 py-1.5 rounded-xl text-small font-bold border transition-all cursor-pointer shrink-0 ${
                     active
                       ? 'bg-purple-700 text-white border-purple-800 shadow-xs scale-[1.03]'
                       : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-purple-50'
@@ -253,12 +253,12 @@ export const CubeOddSumsAndTaxiScene: React.FC<CubeOddSumsAndTaxiSceneProps> = (
           </div>
 
           {/* Horizontal Consecutive Odds Number Tape */}
-          <div className="p-4 rounded-2xl bg-slate-50/80 flex flex-col gap-3">
+          <div className="p-2.5 sm:p-3 rounded-2xl bg-slate-50/80 flex flex-col gap-2.5">
             <span className="text-micro font-bold uppercase tracking-wider text-slate-500">
               Consecutive Odd Numbers Tape (Tap any block to jump to its cube)
             </span>
 
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
               {ALL_ODDS_TAPE.map((oddVal, idx) => {
                 const ownerGroup = ODD_CUBE_GROUPS.find(
                   (g) => idx >= g.startIndex && idx < g.startIndex + g.n
@@ -271,9 +271,9 @@ export const CubeOddSumsAndTaxiScene: React.FC<CubeOddSumsAndTaxiSceneProps> = (
                     key={oddVal}
                     type="button"
                     onClick={() => setSelectedN(ownerGroup.n)}
-                    className={`relative min-w-[46px] min-h-[46px] px-2.5 py-2 rounded-xl border-2 font-mono text-small font-black transition-all cursor-pointer flex flex-col items-center justify-center ${
+                    className={`relative min-w-[44px] min-h-[44px] px-2 py-1.5 rounded-xl border-2 font-mono text-small font-black transition-all cursor-pointer flex flex-col items-center justify-center ${
                       isSelected
-                        ? 'bg-[#F27A00] text-white border-[#9A3412] shadow-sm -translate-y-1'
+                        ? 'bg-[#F27A00] text-white border-[#9A3412] shadow-sm -translate-y-0.5'
                         : 'bg-white text-slate-600 border-slate-200/80 hover:border-purple-300'
                     }`}
                   >
@@ -294,8 +294,8 @@ export const CubeOddSumsAndTaxiScene: React.FC<CubeOddSumsAndTaxiSceneProps> = (
           </div>
 
           {/* Highlighted Sum Equation Card */}
-          <div className="p-5 rounded-2xl bg-purple-50/60 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex flex-col gap-1">
+          <div className="p-3 sm:p-4 rounded-2xl bg-purple-50/60 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="flex flex-col gap-1 min-w-0">
               <span className="text-micro font-bold uppercase tracking-wider text-purple-800">
                 Highlighted Group for {activeGroup.n}³
               </span>
@@ -304,7 +304,7 @@ export const CubeOddSumsAndTaxiScene: React.FC<CubeOddSumsAndTaxiSceneProps> = (
               </p>
             </div>
 
-            <div className="text-body sm:text-title font-extrabold text-purple-950 bg-white px-4 py-2.5 rounded-2xl border border-purple-100 overflow-x-auto max-w-full">
+            <div className="text-body sm:text-title font-extrabold text-purple-950 bg-white px-3.5 py-2 rounded-2xl border border-purple-100 max-w-full flex flex-wrap justify-center text-center">
               <Katex
                 latex={`${activeGroup.odds.join(' + ')} = ${activeGroup.sum} = ${activeGroup.n}^3`}
                 displayMode={false}
@@ -318,10 +318,10 @@ export const CubeOddSumsAndTaxiScene: React.FC<CubeOddSumsAndTaxiSceneProps> = (
       {/* PART B: RAMANUJAN TAXICAB DUAL BALANCE SCALE (1729, 4104, 13832) */}
       {/* ================================================================= */}
       {activeTab === 'taxicab' && (
-        <div className="flex flex-col gap-5 animate-fade-rise">
+        <div className="flex flex-col gap-2.5 sm:gap-3 animate-fade-rise">
           {/* Taxicab Number Preset Pills */}
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
               <span className="text-micro font-bold text-slate-500">Taxicab Number:</span>
               {([1729, 4104, 13832] as TaxicabId[]).map((id) => (
                 <button
@@ -332,7 +332,7 @@ export const CubeOddSumsAndTaxiScene: React.FC<CubeOddSumsAndTaxiSceneProps> = (
                     setLeftPanMode('way1');
                     setRightPanMode('way2');
                   }}
-                  className={`min-h-[40px] px-4 py-1.5 rounded-xl font-mono text-small font-extrabold border transition-all cursor-pointer whitespace-nowrap shrink-0 tabular-nums ${
+                  className={`min-h-[44px] sm:min-h-[40px] px-3.5 sm:px-4 py-1.5 rounded-xl font-mono text-small font-extrabold border transition-all cursor-pointer shrink-0 tabular-nums ${
                     taxicabId === id
                       ? 'bg-[#F27A00] text-white border-[#C2410C] shadow-2xs scale-[1.02]'
                       : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-orange-50'
@@ -345,17 +345,17 @@ export const CubeOddSumsAndTaxiScene: React.FC<CubeOddSumsAndTaxiSceneProps> = (
           </div>
 
           {/* Hardy-Ramanujan Mini Story */}
-          <div className="p-4 rounded-2xl bg-amber-50/60 flex items-start gap-3">
-            <Sparkles className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-            <p className="text-small text-amber-950 leading-relaxed">
+          <div className="p-2.5 sm:p-3 rounded-2xl bg-amber-50/60 flex items-start gap-2.5">
+            <Sparkles className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+            <p className="text-micro sm:text-small text-amber-950 leading-snug">
               <strong>The Hospital Taxi Story:</strong> G.H. Hardy told Srinivasa Ramanujan his taxi number{' '}
               <strong>1729</strong> seemed dull. Ramanujan replied right away: &ldquo;No! It is the smallest number equal to the sum of two cubes in <strong>two different ways</strong>!&rdquo;
             </p>
           </div>
 
           {/* Pan Weight Selector Bar */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="p-3.5 rounded-2xl bg-slate-50/80 flex flex-col gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <div className="p-2.5 sm:p-3 rounded-2xl bg-slate-50/80 flex flex-col gap-1.5 min-w-0">
               <span className="text-micro font-bold uppercase tracking-wider text-slate-600">
                 Left Scale Pan
               </span>
@@ -367,7 +367,7 @@ export const CubeOddSumsAndTaxiScene: React.FC<CubeOddSumsAndTaxiSceneProps> = (
                       key={modeKey}
                       type="button"
                       onClick={() => setLeftPanMode(modeKey)}
-                      className={`min-h-[38px] px-3 py-1.5 rounded-xl text-micro font-bold border cursor-pointer transition-all whitespace-nowrap tabular-nums ${
+                      className={`min-h-[44px] sm:min-h-[38px] px-3 py-1.5 rounded-xl text-micro font-bold border cursor-pointer transition-all text-center whitespace-normal tabular-nums ${
                         leftPanMode === modeKey
                           ? 'bg-[#005583] text-white border-[#003F62] shadow-2xs'
                           : 'bg-white text-slate-700 border-slate-200/80 hover:bg-slate-100'
@@ -380,7 +380,7 @@ export const CubeOddSumsAndTaxiScene: React.FC<CubeOddSumsAndTaxiSceneProps> = (
               </div>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-slate-50/80 flex flex-col gap-2">
+            <div className="p-2.5 sm:p-3 rounded-2xl bg-slate-50/80 flex flex-col gap-1.5 min-w-0">
               <span className="text-micro font-bold uppercase tracking-wider text-slate-600">
                 Right Scale Pan
               </span>
@@ -392,7 +392,7 @@ export const CubeOddSumsAndTaxiScene: React.FC<CubeOddSumsAndTaxiSceneProps> = (
                       key={modeKey}
                       type="button"
                       onClick={() => setRightPanMode(modeKey)}
-                      className={`min-h-[38px] px-3 py-1.5 rounded-xl text-micro font-bold border cursor-pointer transition-all whitespace-nowrap tabular-nums ${
+                      className={`min-h-[44px] sm:min-h-[38px] px-3 py-1.5 rounded-xl text-micro font-bold border cursor-pointer transition-all text-center whitespace-normal tabular-nums ${
                         rightPanMode === modeKey
                           ? 'bg-[#F27A00] text-white border-[#C2410C] shadow-2xs'
                           : 'bg-white text-slate-700 border-slate-200/80 hover:bg-slate-100'
@@ -407,7 +407,7 @@ export const CubeOddSumsAndTaxiScene: React.FC<CubeOddSumsAndTaxiSceneProps> = (
           </div>
 
           {/* Interactive Dual Balance Scale Visual */}
-          <div className="p-3.5 sm:p-5 rounded-2xl bg-slate-50/60 flex flex-col items-center gap-4 overflow-hidden">
+          <div className="p-3 sm:p-4 rounded-2xl bg-slate-50/60 flex flex-col items-center gap-3 overflow-hidden">
             {/* Balance Status Pill */}
             <div
               className={`px-4 py-1.5 rounded-full text-micro sm:text-small font-extrabold border transition-all tabular-nums text-center ${
@@ -435,8 +435,8 @@ export const CubeOddSumsAndTaxiScene: React.FC<CubeOddSumsAndTaxiSceneProps> = (
                 style={{ transform: `rotate(${tiltDeg}deg)` }}
               >
                 {/* PAN A */}
-                <div className="flex flex-col items-center gap-2 min-w-0">
-                  <div className="min-h-[112px] sm:min-h-[120px] w-full p-2 sm:p-3.5 rounded-2xl bg-white border-2 border-[#0788D3] shadow-2xs flex flex-wrap sm:flex-nowrap items-end justify-center gap-1.5 sm:gap-4">
+                <div className="flex flex-col items-center gap-1.5 min-w-0">
+                  <div className="min-h-[92px] sm:min-h-[116px] w-full p-2 sm:p-3 rounded-2xl bg-white border-2 border-[#0788D3] shadow-2xs flex flex-wrap sm:flex-nowrap items-end justify-center gap-1.5 sm:gap-4">
                     <MiniIsoCube
                       size={scaleCubeSize(leftPan.a)}
                       label={`${leftPan.a}³ = ${leftPan.aCube}`}
@@ -462,8 +462,8 @@ export const CubeOddSumsAndTaxiScene: React.FC<CubeOddSumsAndTaxiSceneProps> = (
                 </div>
 
                 {/* PAN B */}
-                <div className="flex flex-col items-center gap-2 min-w-0">
-                  <div className="min-h-[112px] sm:min-h-[120px] w-full p-2 sm:p-3.5 rounded-2xl bg-white border-2 border-[#F27A00] shadow-2xs flex flex-wrap sm:flex-nowrap items-end justify-center gap-1.5 sm:gap-4">
+                <div className="flex flex-col items-center gap-1.5 min-w-0">
+                  <div className="min-h-[92px] sm:min-h-[116px] w-full p-2 sm:p-3 rounded-2xl bg-white border-2 border-[#F27A00] shadow-2xs flex flex-wrap sm:flex-nowrap items-end justify-center gap-1.5 sm:gap-4">
                     <MiniIsoCube
                       size={scaleCubeSize(rightPan.a)}
                       label={`${rightPan.a}³ = ${rightPan.aCube}`}
@@ -500,7 +500,7 @@ export const CubeOddSumsAndTaxiScene: React.FC<CubeOddSumsAndTaxiSceneProps> = (
             </div>
 
             {/* Equation Badge */}
-            <div className="p-3.5 rounded-2xl bg-white border border-slate-200/70 text-center flex items-center gap-2 flex-wrap justify-center overflow-x-auto max-w-full">
+            <div className="p-2.5 sm:p-3 rounded-2xl bg-white border border-slate-200/70 text-center flex items-center gap-2 flex-wrap justify-center max-w-full">
               <Box className="w-4 h-4 text-[#F27A00] shrink-0" />
               <Katex latex={cfg.latex} displayMode={false} />
             </div>

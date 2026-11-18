@@ -98,7 +98,7 @@ export const QuickCheck: React.FC<QuickCheckProps> = ({
   return (
     <div
       key={`qc-slide-${currentIndex}`}
-      className="w-full max-w-[900px] max-h-full overflow-y-auto no-scrollbar mx-auto flex flex-col items-center gap-4 py-2 animate-fade-rise"
+      className="w-full max-w-[900px] max-h-full overflow-y-auto no-scrollbar mx-auto flex flex-col items-center gap-2.5 sm:gap-3.5 py-1.5 px-1 animate-fade-rise"
     >
       {/* Question as the slide headline */}
       <HighlightHeadline text={q.prompt} />
@@ -140,7 +140,7 @@ export const QuickCheck: React.FC<QuickCheckProps> = ({
               type="button"
               onClick={() => !hasAnswered && onSelectOption(currentIndex, idx)}
               disabled={hasAnswered}
-              className="w-full text-left px-5 py-4 rounded-2xl border transition-colors flex items-center justify-between gap-3 cursor-pointer disabled:cursor-default text-ui-option font-semibold min-h-[52px] hover:border-[#005583]/60"
+              className="w-full text-left px-3.5 sm:px-5 py-3 sm:py-3.5 rounded-2xl border transition-colors flex items-center justify-between gap-2.5 sm:gap-3 cursor-pointer disabled:cursor-default text-ui-option font-semibold min-h-[48px] hover:border-[#005583]/60"
               style={{
                 backgroundColor: bg,
                 borderColor: border,
@@ -206,7 +206,7 @@ export const QuickCheck: React.FC<QuickCheckProps> = ({
                   e.stopPropagation();
                   onRevealAllSteps(currentIndex);
                 }}
-                className="text-micro font-bold text-[#005583] hover:underline cursor-pointer px-2 py-1 rounded-md hover:bg-white/70 transition-colors"
+                className="min-h-[44px] text-micro font-bold text-[#005583] hover:underline cursor-pointer px-2.5 py-1 rounded-md hover:bg-white/70 transition-colors"
               >
                 Show all steps
               </button>
@@ -214,11 +214,11 @@ export const QuickCheck: React.FC<QuickCheckProps> = ({
           </div>
 
           {/* Revealed Solution Steps */}
-          <div className="flex flex-col gap-2.5">
+          <div className="flex flex-col gap-2">
             {steps.slice(0, visibleStepCount).map((st, sIdx) => (
               <div
                 key={sIdx}
-                className="bg-white rounded-xl border border-slate-200/70 p-3.5 sm:p-4 flex flex-col gap-1.5 animate-fade-rise"
+                className="bg-white rounded-xl border border-slate-200/70 p-3 sm:p-4 flex flex-col gap-1.5 animate-fade-rise"
               >
                 <div className="flex items-center gap-2">
                   <span className="w-6 h-6 rounded-lg bg-blue-50 text-blue-800 text-micro font-bold flex items-center justify-center shrink-0 tabular-nums">
@@ -230,7 +230,7 @@ export const QuickCheck: React.FC<QuickCheckProps> = ({
                 </div>
 
                 {st.latex && (
-                  <div className="my-0.5 p-2.5 rounded-lg bg-blue-50/50 overflow-x-auto text-center">
+                  <div className="my-0.5 p-2 rounded-lg bg-blue-50/50 text-center max-w-full break-words">
                     <Katex latex={st.latex} displayMode={false} />
                   </div>
                 )}

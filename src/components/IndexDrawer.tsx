@@ -335,7 +335,7 @@ export const IndexDrawer: React.FC<IndexDrawerProps> = ({
               type="button"
               onClick={onClose}
               aria-label="Close chapter index"
-              className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer shrink-0"
+              className="w-11 h-11 flex items-center justify-center rounded-xl hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer shrink-0"
             >
               <X className="w-5 h-5" />
             </button>
@@ -438,7 +438,7 @@ export const IndexDrawer: React.FC<IndexDrawerProps> = ({
                       onClick={() => toggleSectionCollapse(sec.id)}
                       aria-expanded={!isCollapsed}
                       aria-label={`Toggle ${sec.label}`}
-                      className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer shrink-0 transition-colors"
+                      className="w-11 h-11 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer shrink-0 transition-colors"
                     >
                       <ChevronDown
                         className={`w-4 h-4 transition-transform duration-200 ${
@@ -513,7 +513,7 @@ export const IndexDrawer: React.FC<IndexDrawerProps> = ({
             type="button"
             onClick={() => setHowToUseOpen((prev) => !prev)}
             aria-expanded={howToUseOpen}
-            className="w-full min-h-[40px] px-2.5 py-1.5 rounded-xl flex items-center justify-between text-small font-semibold text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
+            className="w-full min-h-[44px] px-2.5 py-1.5 rounded-xl flex items-center justify-between text-small font-semibold text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
           >
             <span>Quick Navigation Tips</span>
             <ChevronDown

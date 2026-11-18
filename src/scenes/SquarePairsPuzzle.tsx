@@ -185,12 +185,12 @@ export const SquarePairsPuzzle: React.FC<SquarePairsPuzzleProps> = ({
   return (
     <div
       data-no-nav="true"
-      className={`w-full max-w-4xl mx-auto rounded-3xl border border-slate-200/80 bg-white p-5 sm:p-7 shadow-2xs flex flex-col gap-5 ${className}`}
+      className={`w-full max-w-4xl max-h-full overflow-y-auto no-scrollbar mx-auto rounded-3xl border border-slate-200/80 bg-white p-3 sm:p-4 shadow-2xs flex flex-col gap-2.5 sm:gap-3 ${className}`}
     >
       {/* Header & Progress */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
-        <div>
-          <div className="flex items-center gap-2 text-micro text-slate-500 font-semibold">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-1.5 text-micro text-slate-500 font-semibold">
             <span>Challenge Game</span>
             <span aria-hidden="true">·</span>
             <span>Sums Must Be 4, 9, 16, or 25</span>
@@ -212,12 +212,12 @@ export const SquarePairsPuzzle: React.FC<SquarePairsPuzzleProps> = ({
       </div>
 
       {/* Unified Action Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-2.5">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={() => setShowEndpointHint((h) => !h)}
-            className={`min-h-[42px] px-3.5 py-2 rounded-xl text-small font-bold border flex items-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
+            className={`min-h-[44px] px-3 py-2 rounded-xl text-small font-bold border flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 ${
               showEndpointHint
                 ? 'bg-amber-100 text-amber-950 border-amber-400'
                 : 'bg-amber-50/80 text-amber-900 border-amber-200/80 hover:bg-amber-100'
@@ -230,7 +230,7 @@ export const SquarePairsPuzzle: React.FC<SquarePairsPuzzleProps> = ({
           <button
             type="button"
             onClick={handleShowSolution}
-            className="min-h-[42px] px-3.5 py-2 rounded-xl text-small font-bold border border-slate-200/80 bg-slate-50/80 hover:bg-slate-100 text-slate-700 flex items-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0"
+            className="min-h-[44px] px-3 py-2 rounded-xl text-small font-bold border border-slate-200/80 bg-slate-50/80 hover:bg-slate-100 text-slate-700 flex items-center gap-1.5 cursor-pointer shrink-0"
           >
             <Wand2 className="w-4 h-4 text-purple-600 shrink-0" />
             <span>Example Path</span>
@@ -241,7 +241,7 @@ export const SquarePairsPuzzle: React.FC<SquarePairsPuzzleProps> = ({
           <button
             type="button"
             onClick={handleAutoCheck}
-            className="min-h-[42px] px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-small font-bold flex items-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0"
+            className="min-h-[44px] px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-small font-bold flex items-center gap-1.5 cursor-pointer shrink-0"
           >
             <CheckCircle2 className="w-4 h-4 shrink-0" />
             <span>Check Sequence</span>
@@ -250,7 +250,7 @@ export const SquarePairsPuzzle: React.FC<SquarePairsPuzzleProps> = ({
           <button
             type="button"
             onClick={handleReset}
-            className="min-h-[42px] w-11 rounded-xl border border-slate-200/80 bg-white hover:bg-slate-50 text-slate-600 flex items-center justify-center cursor-pointer shrink-0"
+            className="min-h-[44px] w-11 rounded-xl border border-slate-200/80 bg-white hover:bg-slate-50 text-slate-600 flex items-center justify-center cursor-pointer shrink-0"
             title="Clear Board"
             aria-label="Clear Board"
           >
@@ -261,7 +261,7 @@ export const SquarePairsPuzzle: React.FC<SquarePairsPuzzleProps> = ({
 
       {/* Endpoint Hint Box */}
       {showEndpointHint && (
-        <div className="p-4 rounded-2xl bg-amber-50/75 border border-amber-200/80 text-small text-amber-950 flex items-start gap-2.5 animate-fade-rise">
+        <div className="p-3 rounded-2xl bg-amber-50/75 border border-amber-200/80 text-small text-amber-950 flex items-start gap-2.5 animate-fade-rise">
           <Sparkles className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
           <div className="leading-relaxed">
             <strong>Endpoint Secret:</strong> 17 only pairs with <strong>8</strong> (17 + 8 = 25), and 16 only pairs with{' '}
@@ -271,7 +271,7 @@ export const SquarePairsPuzzle: React.FC<SquarePairsPuzzleProps> = ({
       )}
 
       {/* Sequence Board (17 Slots with Neighbor Bridge Badges) */}
-      <div className="p-4 sm:p-5 rounded-2xl bg-slate-50/75 flex flex-col gap-3.5">
+      <div className="p-2.5 sm:p-3.5 rounded-2xl bg-slate-50/75 flex flex-col gap-2.5">
         <div className="flex flex-wrap items-center justify-between gap-2 text-micro text-slate-500 font-medium">
           <span>
             Tap cards below to fill · Tap two slots to swap · Drag on desktop
@@ -349,11 +349,11 @@ export const SquarePairsPuzzle: React.FC<SquarePairsPuzzleProps> = ({
       </div>
 
       {/* Number Card Tray (1 to 17) */}
-      <div className="flex flex-col gap-2.5 pt-1 border-t border-slate-100">
+      <div className="flex flex-col gap-2 pt-1.5 border-t border-slate-100">
         <span className="text-micro font-bold text-slate-500">
           Available Cards (1 to 17):
         </span>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
           {Array.from({ length: TOTAL_CARDS }, (_, i) => i + 1).map((num) => {
             const isUsed = usedSet.has(num);
             const isHintEnd = showEndpointHint && (num === 16 || num === 17);
@@ -383,7 +383,7 @@ export const SquarePairsPuzzle: React.FC<SquarePairsPuzzleProps> = ({
       {/* Validation Message Banner */}
       {checkMessage.status !== 'idle' && (
         <div
-          className={`p-4 rounded-2xl border flex items-center gap-2.5 text-small font-bold animate-fade-rise ${
+          className={`p-3 rounded-2xl border flex items-center gap-2.5 text-small font-bold animate-fade-rise ${
             checkMessage.status === 'valid'
               ? 'bg-emerald-50 text-emerald-900 border-emerald-300'
               : checkMessage.status === 'incomplete'

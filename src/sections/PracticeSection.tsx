@@ -145,10 +145,10 @@ export const PracticeSection: React.FC<PracticeSectionProps> = ({
       data-no-nav="true"
       className="w-full max-w-6xl mx-auto h-full min-h-0 flex flex-col gap-2.5 sm:gap-3 animate-fade-rise overflow-hidden"
     >
-      {/* 1. COMPACT 44PX TOP SUB-HEADER & QUESTION NAVIGATOR */}
+      {/* 1. TOP SUB-HEADER & QUESTION NAVIGATOR */}
       <div className="w-full min-h-[44px] shrink-0 bg-white/95 border border-slate-200/80 rounded-2xl px-2.5 sm:px-3.5 py-1.5 flex flex-wrap items-center justify-between gap-2">
-        {/* Category Selector Pills */}
-        <div className="flex items-center gap-1 bg-slate-100/80 p-1 rounded-xl overflow-x-auto no-scrollbar max-w-full">
+        {/* Category Selector Buttons (Wrap cleanly instead of horizontal scroll) */}
+        <div className="flex flex-wrap items-center justify-center sm:justify-start gap-1 bg-slate-100/80 p-1 rounded-xl w-full sm:w-auto">
           {[
             { id: 'ncert-unsolved' as SubTabId, label: 'NCERT Unsolved', icon: BookOpen },
             { id: 'solved-examples' as SubTabId, label: 'Solved Examples', icon: Sparkles },
@@ -161,7 +161,7 @@ export const PracticeSection: React.FC<PracticeSectionProps> = ({
                 key={cat.id}
                 type="button"
                 onClick={() => onSelectSubTab?.(cat.id)}
-                className={`h-8 px-2.5 sm:px-3 rounded-lg text-micro font-bold flex items-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
+                className={`min-h-[44px] sm:min-h-[38px] px-2.5 sm:px-3 py-1 rounded-lg text-micro font-bold flex items-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
                   active
                     ? 'bg-[#005583] text-white shadow-2xs'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-white/70'
@@ -175,12 +175,12 @@ export const PracticeSection: React.FC<PracticeSectionProps> = ({
         </div>
 
         {/* Right: Topic Dropdown + Prev / Counter / Next */}
-        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+        <div className="flex items-center justify-between sm:justify-end gap-1.5 sm:gap-2 flex-wrap w-full sm:w-auto">
           <select
             aria-label="Filter by topic"
             value={selectedTopic}
             onChange={(e) => setSelectedTopic(e.target.value as TopicFilter)}
-            className="h-8 px-2.5 rounded-xl border border-slate-200 bg-slate-50/80 text-micro font-semibold text-slate-700 focus:outline-none focus:border-[#005583] cursor-pointer"
+            className="min-h-[44px] sm:min-h-[38px] px-2.5 rounded-xl border border-slate-200 bg-slate-50/80 text-micro font-semibold text-slate-700 focus:outline-none focus:border-[#005583] cursor-pointer"
           >
             {TOPIC_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -194,23 +194,23 @@ export const PracticeSection: React.FC<PracticeSectionProps> = ({
               type="button"
               onClick={goPrev}
               disabled={safeIndex <= 0 || filteredQuestions.length === 0}
-              className="h-8 px-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-micro font-bold text-slate-700 inline-flex items-center gap-1 cursor-pointer transition-colors whitespace-nowrap"
+              className="min-h-[44px] sm:min-h-[38px] px-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-micro font-bold text-slate-700 inline-flex items-center gap-1 cursor-pointer transition-colors whitespace-nowrap"
             >
               <ChevronLeft className="w-3.5 h-3.5" />
               <span>Prev</span>
             </button>
 
-            <span className="px-2 text-micro font-bold text-slate-700 tabular-nums whitespace-nowrap">
+            <span className="px-1.5 sm:px-2 text-micro font-bold text-slate-700 tabular-nums whitespace-nowrap">
               {filteredQuestions.length > 0
-                ? `Question ${safeIndex + 1} of ${filteredQuestions.length}`
-                : '0 of 0'}
+                ? `${safeIndex + 1} / ${filteredQuestions.length}`
+                : '0 / 0'}
             </span>
 
             <button
               type="button"
               onClick={goNext}
               disabled={safeIndex >= filteredQuestions.length - 1 || filteredQuestions.length === 0}
-              className="h-8 px-2.5 rounded-xl text-micro font-bold text-white bg-[#005583] hover:bg-[#003F62] disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center gap-1 cursor-pointer transition-colors whitespace-nowrap"
+              className="min-h-[44px] sm:min-h-[38px] px-2.5 rounded-xl text-micro font-bold text-white bg-[#005583] hover:bg-[#003F62] disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center gap-1 cursor-pointer transition-colors whitespace-nowrap"
             >
               <span>Next</span>
               <ChevronRight className="w-3.5 h-3.5" />
@@ -235,13 +235,13 @@ export const PracticeSection: React.FC<PracticeSectionProps> = ({
           </button>
         </div>
       ) : (
-        <div className="flex-1 min-h-0 flex flex-col lg:flex-row gap-3 lg:gap-4 overflow-y-auto no-scrollbar lg:overflow-hidden">
-          {/* LEFT COLUMN (42% Width) — THE QUESTION PANEL */}
+        <div className="flex-1 min-h-0 flex flex-col md:flex-row gap-2.5 md:gap-3 lg:gap-4 overflow-y-auto no-scrollbar md:overflow-hidden">
+          {/* LEFT COLUMN — THE QUESTION PANEL */}
           <section
             aria-label="Active question"
-            className="w-full lg:w-[42%] lg:h-full max-h-[calc(100vh-140px)] bg-white border border-slate-200/80 rounded-3xl p-4 sm:p-5 flex flex-col justify-between gap-3 overflow-y-auto no-scrollbar shadow-2xs shrink-0"
+            className="w-full md:w-[44%] lg:w-[42%] md:h-full bg-white border border-slate-200/80 rounded-3xl p-3.5 sm:p-4 flex flex-col justify-between gap-2.5 md:overflow-y-auto no-scrollbar shadow-2xs shrink-0"
           >
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2">
               {/* Source & Metadata */}
               <div className="flex items-center justify-between gap-2 flex-wrap text-micro">
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-lg bg-sky-50 text-[#005583] font-bold">
@@ -274,12 +274,12 @@ export const PracticeSection: React.FC<PracticeSectionProps> = ({
                 <h3 className="text-statement font-extrabold text-slate-900 leading-snug">
                   {activeQuestion.title}
                 </h3>
-                <p className="text-small sm:text-body text-slate-700 mt-2 whitespace-pre-line leading-relaxed">
+                <p className="text-small sm:text-body text-slate-700 mt-1.5 whitespace-pre-line leading-relaxed break-words">
                   {activeQuestion.statement}
                 </p>
 
                 {activeQuestion.statementLatex && (
-                  <div className="mt-2.5 px-3.5 py-2 rounded-xl bg-slate-50/90 border border-slate-200/60 inline-block max-w-full overflow-x-auto no-scrollbar">
+                  <div className="mt-2 px-3 py-1.5 rounded-xl bg-slate-50/90 border border-slate-200/60 inline-block max-w-full break-words">
                     <Katex latex={activeQuestion.statementLatex} displayMode={false} />
                   </div>
                 )}
@@ -330,7 +330,7 @@ export const PracticeSection: React.FC<PracticeSectionProps> = ({
                         key={optIdx}
                         type="button"
                         onClick={() => handleSelectPrediction(activeQuestion, optIdx)}
-                        className={`min-h-[38px] px-3 py-1.5 rounded-xl border text-micro sm:text-small text-left flex items-center justify-between gap-2 cursor-pointer transition-all ${optionStyle}`}
+                        className={`min-h-[44px] px-3 py-1.5 rounded-xl border text-micro sm:text-small text-left flex items-center justify-between gap-2 cursor-pointer transition-all ${optionStyle}`}
                       >
                         <div className="flex items-center gap-2 min-w-0">
                           <span className="w-5 h-5 rounded-full bg-slate-100 font-mono text-[11px] font-bold text-slate-600 flex items-center justify-center shrink-0">
@@ -353,7 +353,7 @@ export const PracticeSection: React.FC<PracticeSectionProps> = ({
             )}
           </section>
 
-          {/* RIGHT COLUMN (58% Width) — STEP-BY-STEP ANSWER & HINTS PANEL */}
+          {/* RIGHT COLUMN — STEP-BY-STEP ANSWER & HINTS PANEL */}
           <section
             aria-label="Step-by-step solution and hints"
             role="button"
@@ -365,7 +365,7 @@ export const PracticeSection: React.FC<PracticeSectionProps> = ({
                 advanceRevealStep(activeQuestion);
               }
             }}
-            className={`w-full lg:w-[58%] lg:h-full max-h-[calc(100vh-140px)] bg-slate-50/80 border border-slate-200/80 rounded-3xl p-4 sm:p-5 flex flex-col justify-between gap-3 overflow-y-auto no-scrollbar transition-colors ${
+            className={`w-full md:w-[56%] lg:w-[58%] md:h-full bg-slate-50/80 border border-slate-200/80 rounded-3xl p-3.5 sm:p-4 flex flex-col justify-between gap-2.5 md:overflow-y-auto no-scrollbar transition-colors ${
               isAllRevealed ? 'cursor-default' : 'cursor-pointer hover:border-[#005583]/40'
             }`}
           >
@@ -389,7 +389,7 @@ export const PracticeSection: React.FC<PracticeSectionProps> = ({
                   }}
                   aria-label="Reset steps to Step 0"
                   title="Reset steps"
-                  className="w-8 h-8 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-500 hover:text-slate-800 flex items-center justify-center cursor-pointer transition-colors shrink-0"
+                  className="w-11 h-11 sm:w-9 sm:h-9 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-500 hover:text-slate-800 flex items-center justify-center cursor-pointer transition-colors shrink-0"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
                 </button>
@@ -397,13 +397,13 @@ export const PracticeSection: React.FC<PracticeSectionProps> = ({
             </div>
 
             {/* Middle Step-by-Step Content */}
-            <div className="flex-1 min-h-0 flex flex-col justify-center gap-2.5 overflow-y-auto no-scrollbar py-1">
+            <div className="flex-1 min-h-0 flex flex-col justify-center gap-2 overflow-y-auto no-scrollbar py-0.5">
               {revealedStepIndex === 0 ? (
-                <div className="my-auto py-8 px-4 flex flex-col items-center justify-center text-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-amber-100/90 text-amber-700 flex items-center justify-center animate-pulse">
-                    <Lightbulb className="w-6 h-6" />
+                <div className="my-auto py-3 sm:py-6 px-3 flex flex-col items-center justify-center text-center gap-2">
+                  <div className="w-10 h-10 rounded-2xl bg-amber-100/90 text-amber-700 flex items-center justify-center animate-pulse">
+                    <Lightbulb className="w-5 h-5" />
                   </div>
-                  <p className="text-statement font-bold text-slate-800 max-w-md animate-pulse">
+                  <p className="text-small sm:text-statement font-bold text-slate-800 max-w-md animate-pulse">
                     💡 Tap anywhere on this card to reveal the first step
                   </p>
                   <p className="text-micro font-medium text-slate-500">
@@ -437,7 +437,7 @@ export const PracticeSection: React.FC<PracticeSectionProps> = ({
                       </div>
 
                       {step.latex && (
-                        <div className="px-2.5 py-1.5 rounded-xl bg-sky-50/70 text-center overflow-x-auto no-scrollbar">
+                        <div className="px-2.5 py-1.5 rounded-xl bg-sky-50/70 text-center max-w-full break-words">
                           <Katex latex={step.latex} displayMode={false} />
                         </div>
                       )}
@@ -460,7 +460,7 @@ export const PracticeSection: React.FC<PracticeSectionProps> = ({
                         </div>
                       </div>
                       {activeQuestion.answerLatex && (
-                        <div className="px-3 py-1 rounded-xl bg-white border border-emerald-200 shrink-0 overflow-x-auto no-scrollbar">
+                        <div className="px-3 py-1 rounded-xl bg-white border border-emerald-200 shrink-0 max-w-full break-words">
                           <Katex latex={activeQuestion.answerLatex} displayMode={false} />
                         </div>
                       )}
@@ -487,7 +487,7 @@ export const PracticeSection: React.FC<PracticeSectionProps> = ({
                     e.stopPropagation();
                     goNext();
                   }}
-                  className="h-8 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-micro font-bold inline-flex items-center gap-1 cursor-pointer transition-colors shrink-0"
+                  className="min-h-[44px] sm:min-h-[36px] px-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-micro font-bold inline-flex items-center gap-1 cursor-pointer transition-colors shrink-0"
                 >
                   <span>Next →</span>
                 </button>

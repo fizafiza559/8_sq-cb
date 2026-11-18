@@ -66,7 +66,7 @@ export const FoundationDemoScene: React.FC<SceneComponentProps> = ({
   return (
     <svg
       viewBox={`0 0 ${viewWidth} ${viewHeight}`}
-      className="w-full h-auto max-h-[340px] rounded-2xl select-none"
+      className="w-full h-auto max-h-[220px] sm:max-h-[300px] rounded-2xl select-none"
       style={{ backgroundColor: COLORS.canvasBg }}
     >
       {/* Faint Grid Background */}

@@ -58,43 +58,43 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
         </div>
 
         {/* 3 Mode Selector Pills */}
-        <div className="flex flex-wrap items-center justify-center gap-1 bg-slate-100/90 p-1 rounded-xl">
+        <div className="flex flex-wrap items-center justify-center gap-1 bg-slate-100/90 p-1 rounded-xl w-full sm:w-auto">
           <button
             type="button"
             onClick={() => setMode('integer')}
-            className={`min-h-[38px] px-3 py-1.5 rounded-lg text-micro font-bold cursor-pointer transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
+            className={`min-h-[44px] sm:min-h-[38px] px-2.5 sm:px-3 py-1.5 rounded-lg text-micro font-bold cursor-pointer transition-all flex items-center gap-1.5 shrink-0 ${
               mode === 'integer'
                 ? 'bg-white text-slate-900 shadow-2xs'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            <Grid className="w-3.5 h-3.5" style={{ color: COLORS.area.solid }} />
-            <span>Whole Numbers (1–5)</span>
+            <Grid className="w-3.5 h-3.5 shrink-0" style={{ color: COLORS.area.solid }} />
+            <span>Whole (1–5)</span>
           </button>
 
           <button
             type="button"
             onClick={() => setMode('decimal')}
-            className={`min-h-[38px] px-3 py-1.5 rounded-lg text-micro font-bold cursor-pointer transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
+            className={`min-h-[44px] sm:min-h-[38px] px-2.5 sm:px-3 py-1.5 rounded-lg text-micro font-bold cursor-pointer transition-all flex items-center gap-1.5 shrink-0 ${
               mode === 'decimal'
                 ? 'bg-white text-slate-900 shadow-2xs'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            <Layers className="w-3.5 h-3.5" style={{ color: COLORS.number.solid }} />
+            <Layers className="w-3.5 h-3.5 shrink-0" style={{ color: COLORS.number.solid }} />
             <span>Decimal 2.5</span>
           </button>
 
           <button
             type="button"
             onClick={() => setMode('fraction')}
-            className={`min-h-[38px] px-3 py-1.5 rounded-lg text-micro font-bold cursor-pointer transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
+            className={`min-h-[44px] sm:min-h-[38px] px-2.5 sm:px-3 py-1.5 rounded-lg text-micro font-bold cursor-pointer transition-all flex items-center gap-1.5 shrink-0 ${
               mode === 'fraction'
                 ? 'bg-white text-slate-900 shadow-2xs'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            <Sparkles className="w-3.5 h-3.5" style={{ color: COLORS.volume.solid }} />
+            <Sparkles className="w-3.5 h-3.5 shrink-0" style={{ color: COLORS.volume.solid }} />
             <span>Fraction 3/5</span>
           </button>
         </div>
@@ -135,7 +135,7 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
                   key={val}
                   type="button"
                   onClick={() => setN(val)}
-                  className={`w-9 h-9 rounded-lg text-small font-bold tabular-nums cursor-pointer transition-colors ${
+                  className={`w-11 h-11 sm:w-9 sm:h-9 rounded-lg text-small font-bold tabular-nums cursor-pointer transition-colors ${
                     n === val
                       ? 'bg-[#16A34A] text-white shadow-2xs'
                       : 'bg-white text-slate-700 hover:bg-slate-200 border border-slate-200'
@@ -151,7 +151,7 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
           <div className="relative flex items-center justify-center p-2 bg-slate-50/50 rounded-2xl w-full overflow-hidden">
             <svg
               viewBox="0 0 360 240"
-              className="w-full max-w-[340px] h-auto max-h-[200px] sm:max-h-[240px] overflow-visible select-none"
+              className="w-full max-w-[340px] h-auto max-h-[165px] sm:max-h-[215px] overflow-visible select-none"
             >
               {(() => {
                 const tileSize = Math.min(38, 175 / Math.max(1, n));
@@ -300,7 +300,7 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
           <div className="relative flex items-center justify-center p-2 bg-slate-50/50 rounded-2xl w-full overflow-hidden">
             <svg
               viewBox="0 0 360 245"
-              className="w-full max-w-[340px] h-auto max-h-[210px] sm:max-h-[245px] overflow-visible select-none"
+              className="w-full max-w-[340px] h-auto max-h-[165px] sm:max-h-[215px] overflow-visible select-none"
             >
               {(() => {
                 const scale = 68;
@@ -495,7 +495,7 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
               <button
                 type="button"
                 onClick={() => setActivePiece(activePiece === 'main' ? null : 'main')}
-                className={`min-h-[36px] px-2.5 py-1 rounded-lg border cursor-pointer transition-all ${
+                className={`min-h-[44px] sm:min-h-[36px] px-3 sm:px-2.5 py-1 rounded-lg border cursor-pointer transition-all ${
                   activePiece === 'main'
                     ? 'bg-sky-200 border-sky-500 text-sky-950 scale-105'
                     : 'bg-sky-50 border-sky-200 text-sky-800 hover:bg-sky-100'
@@ -507,7 +507,7 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
               <button
                 type="button"
                 onClick={() => setActivePiece(activePiece === 'right' ? null : 'right')}
-                className={`min-h-[36px] px-2.5 py-1 rounded-lg border cursor-pointer transition-all ${
+                className={`min-h-[44px] sm:min-h-[36px] px-3 sm:px-2.5 py-1 rounded-lg border cursor-pointer transition-all ${
                   activePiece === 'right'
                     ? 'bg-emerald-200 border-emerald-500 text-emerald-950 scale-105'
                     : 'bg-emerald-50 border-emerald-200 text-emerald-800 hover:bg-emerald-100'
@@ -519,7 +519,7 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
               <button
                 type="button"
                 onClick={() => setActivePiece(activePiece === 'bottom' ? null : 'bottom')}
-                className={`min-h-[36px] px-2.5 py-1 rounded-lg border cursor-pointer transition-all ${
+                className={`min-h-[44px] sm:min-h-[36px] px-3 sm:px-2.5 py-1 rounded-lg border cursor-pointer transition-all ${
                   activePiece === 'bottom'
                     ? 'bg-emerald-200 border-emerald-500 text-emerald-950 scale-105'
                     : 'bg-emerald-50 border-emerald-200 text-emerald-800 hover:bg-emerald-100'
@@ -531,7 +531,7 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
               <button
                 type="button"
                 onClick={() => setActivePiece(activePiece === 'corner' ? null : 'corner')}
-                className={`min-h-[36px] px-2.5 py-1 rounded-lg border cursor-pointer transition-all ${
+                className={`min-h-[44px] sm:min-h-[36px] px-3 sm:px-2.5 py-1 rounded-lg border cursor-pointer transition-all ${
                   activePiece === 'corner'
                     ? 'bg-amber-200 border-amber-500 text-amber-950 scale-105'
                     : 'bg-amber-50 border-amber-200 text-amber-800 hover:bg-amber-100'
@@ -562,7 +562,7 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
           <div className="relative flex items-center justify-center p-2 bg-slate-50/50 rounded-2xl w-full overflow-hidden">
             <svg
               viewBox="0 0 360 245"
-              className="w-full max-w-[340px] h-auto max-h-[210px] sm:max-h-[245px] overflow-visible select-none"
+              className="w-full max-w-[340px] h-auto max-h-[165px] sm:max-h-[215px] overflow-visible select-none"
             >
               {(() => {
                 const subSize = 36;
@@ -681,7 +681,7 @@ export const SquareTileScene: React.FC<SquareTileSceneProps> = ({
           </div>
 
           {/* Fraction Breakdown Equation */}
-          <div className="w-full p-2.5 rounded-2xl bg-orange-50/60 flex items-center justify-center overflow-x-auto">
+          <div className="w-full p-2.5 rounded-2xl bg-orange-50/60 flex flex-wrap items-center justify-center text-center">
             <Katex
               latex={`\\text{Side} = \\frac{3}{5} \\implies \\text{Area} = \\frac{3}{5} \\times \\frac{3}{5} = \\frac{9}{25} = 0.36`}
               displayMode={false}
