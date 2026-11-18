@@ -13,6 +13,7 @@ import {
   CheckCircle2,
   AlertTriangle,
   Sparkles,
+  HelpCircle,
 } from 'lucide-react';
 import { useViewportTier } from '../hooks/useViewportTier';
 
@@ -37,6 +38,18 @@ const STEPS_25: SubStep[] = [
   { stepNum: 5, odd: 9, from: 9, result: 0 },
 ];
 
+const STEPS_81: SubStep[] = [
+  { stepNum: 1, odd: 1, from: 81, result: 80 },
+  { stepNum: 2, odd: 3, from: 80, result: 77 },
+  { stepNum: 3, odd: 5, from: 77, result: 72 },
+  { stepNum: 4, odd: 7, from: 72, result: 65 },
+  { stepNum: 5, odd: 9, from: 65, result: 56 },
+  { stepNum: 6, odd: 11, from: 56, result: 45 },
+  { stepNum: 7, odd: 13, from: 45, result: 32 },
+  { stepNum: 8, odd: 15, from: 32, result: 17 },
+  { stepNum: 9, odd: 17, from: 17, result: 0 },
+];
+
 const STEPS_38: SubStep[] = [
   { stepNum: 1, odd: 1, from: 38, result: 37 },
   { stepNum: 2, odd: 3, from: 37, result: 34 },
@@ -52,20 +65,30 @@ export const OddSubtractionScene: React.FC<OddSubtractionSceneProps> = ({
   initialStep = 0,
   beatIndex,
 }) => {
+  const [selectedNum, setSelectedNum] = useState<'25' | '81' | '38'>('25');
   const [currentStep, setCurrentStep] = useState<number>(initialStep);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [mobileFocus, setMobileFocus] = useState<'25' | '38'>('25');
+  const [show729Teaser, setShow729Teaser] = useState<boolean>(false);
   const timerRef = useRef<number | null>(null);
   const { tier, isNarrow } = useViewportTier();
   const isCompact = tier === 'compact';
-  const useSingleColumnToggle = isCompact || isNarrow;
 
-  const maxSteps = 7;
+  const stepsList = selectedNum === '25' ? STEPS_25 : selectedNum === '81' ? STEPS_81 : STEPS_38;
+  const maxSteps = stepsList.length;
 
   useEffect(() => {
     if (beatIndex === undefined) return;
     setIsPlaying(false);
-    setCurrentStep(beatIndex === 0 ? 5 : 7);
+    if (beatIndex === 0) {
+      setSelectedNum('25');
+      setCurrentStep(5);
+    } else if (beatIndex === 1) {
+      setSelectedNum('81');
+      setCurrentStep(9);
+    } else {
+      setSelectedNum('38');
+      setCurrentStep(7);
+    }
   }, [beatIndex]);
 
   useEffect(() => {
@@ -78,7 +101,7 @@ export const OddSubtractionScene: React.FC<OddSubtractionSceneProps> = ({
           }
           return prev + 1;
         });
-      }, 850);
+      }, 700);
     } else if (timerRef.current !== null) {
       clearInterval(timerRef.current);
       timerRef.current = null;
@@ -88,7 +111,7 @@ export const OddSubtractionScene: React.FC<OddSubtractionSceneProps> = ({
         clearInterval(timerRef.current);
       }
     };
-  }, [isPlaying]);
+  }, [isPlaying, maxSteps]);
 
   const handleStepNext = () => {
     setIsPlaying(false);
@@ -100,42 +123,44 @@ export const OddSubtractionScene: React.FC<OddSubtractionSceneProps> = ({
     setCurrentStep(0);
   };
 
-  const is25Finished = currentStep >= 5;
-  const is38Overshot = currentStep >= 6;
+  const isFinished = currentStep >= maxSteps;
+  const isSuccess = (selectedNum === '25' || selectedNum === '81') && isFinished;
+  const isFailure = selectedNum === '38' && isFinished;
 
   return (
     <div
       data-no-nav="true"
-      className={`w-full max-w-4xl h-full max-h-full min-h-0 overflow-hidden mx-auto flex flex-col justify-between ${
+      className={`w-full max-w-5xl h-full max-h-full min-h-0 overflow-hidden mx-auto flex flex-col justify-between ${
         isCompact ? 'gap-1.5 p-2' : 'gap-2 sm:gap-2.5 p-2.5 sm:p-4'
       } bg-white rounded-3xl border border-slate-200/80 shadow-xs ${className}`}
     >
       {/* Header & Controls */}
-      <div className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-100 pb-2 shrink-0">
+      <div className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1.5 border-b border-slate-100 pb-2 shrink-0">
         <div className="min-w-0">
           {!isCompact && (
             <span className="text-micro font-bold uppercase tracking-wider text-slate-500 hidden sm:block">
-              Repeated Odd Subtraction Test
+              NCERT Method 2 · Repeated Subtraction of Odds
             </span>
           )}
           <h3 className="text-small sm:text-statement font-extrabold text-slate-900 mt-0.5">
-            Subtract 1, 3, 5, 7, 9... (25 vs 38)
+            Subtract 1, 3, 5, 7, 9... Until You Reach 0!
           </h3>
         </div>
 
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 flex-wrap">
+        {/* Playback actions */}
+        <div className="flex items-center gap-1.5 shrink-0 flex-wrap">
           <button
             type="button"
             onClick={handleStepNext}
             disabled={currentStep >= maxSteps}
-            className={`${isCompact ? 'min-h-[38px] px-2.5' : 'min-h-[42px] sm:min-h-[38px] px-3'} py-1.5 rounded-xl text-micro sm:text-small font-bold flex items-center gap-1 transition-all cursor-pointer shrink-0 ${
+            className={`min-h-[32px] px-2.5 py-1 rounded-xl text-micro font-bold flex items-center gap-1 transition-all cursor-pointer shrink-0 ${
               currentStep >= maxSteps
                 ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
                 : 'bg-blue-600 hover:bg-blue-700 text-white shadow-2xs'
             }`}
           >
             <span>Step</span>
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="w-3.5 h-3.5" />
           </button>
 
           <button
@@ -144,7 +169,7 @@ export const OddSubtractionScene: React.FC<OddSubtractionSceneProps> = ({
               if (currentStep >= maxSteps) setCurrentStep(0);
               setIsPlaying((p) => !p);
             }}
-            className={`${isCompact ? 'min-h-[38px] px-2.5' : 'min-h-[42px] sm:min-h-[38px] px-3'} py-1.5 rounded-xl text-micro sm:text-small font-bold flex items-center gap-1.5 transition-all cursor-pointer shrink-0 ${
+            className={`min-h-[32px] px-2.5 py-1 rounded-xl text-micro font-bold flex items-center gap-1 transition-all cursor-pointer shrink-0 ${
               isPlaying
                 ? 'bg-amber-600 text-white'
                 : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-2xs'
@@ -157,7 +182,7 @@ export const OddSubtractionScene: React.FC<OddSubtractionSceneProps> = ({
           <button
             type="button"
             onClick={handleReset}
-            className={`${isCompact ? 'min-h-[38px] w-9' : 'min-h-[42px] sm:min-h-[38px] w-10'} rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-600 cursor-pointer flex items-center justify-center shrink-0`}
+            className="min-h-[32px] w-8 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-600 cursor-pointer flex items-center justify-center shrink-0"
             title="Reset"
           >
             <RotateCcw className="w-3.5 h-3.5" />
@@ -165,222 +190,190 @@ export const OddSubtractionScene: React.FC<OddSubtractionSceneProps> = ({
         </div>
       </div>
 
-      {/* Compact/Narrow Number Switcher */}
-      {useSingleColumnToggle && (
-        <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-100 shrink-0">
-          <button
-            type="button"
-            onClick={() => setMobileFocus('25')}
-            className={`flex-1 min-h-[36px] rounded-lg text-micro font-bold cursor-pointer ${
-              mobileFocus === '25' ? 'bg-white text-emerald-700 shadow-2xs' : 'text-slate-600'
-            }`}
-          >
-            Test 25 (Perfect Square)
-          </button>
-          <button
-            type="button"
-            onClick={() => setMobileFocus('38')}
-            className={`flex-1 min-h-[36px] rounded-lg text-micro font-bold cursor-pointer ${
-              mobileFocus === '38' ? 'bg-white text-amber-800 shadow-2xs' : 'text-slate-600'
-            }`}
-          >
-            Test 38 (Not a Square)
-          </button>
+      {/* Number Selectors Bar + 729 Inefficiency Challenge Button */}
+      <div className="flex flex-wrap items-center justify-between gap-1.5 p-1 rounded-2xl bg-slate-100/90 shrink-0">
+        <div className="flex items-center gap-1 flex-wrap">
+          <span className="text-micro font-bold text-slate-600 ml-1 mr-0.5">Test:</span>
+          {(['25', '81', '38'] as const).map((num) => (
+            <button
+              key={num}
+              type="button"
+              onClick={() => {
+                setSelectedNum(num);
+                setCurrentStep(0);
+                setIsPlaying(false);
+                setShow729Teaser(false);
+              }}
+              className={`min-h-[30px] px-2.5 py-0.5 rounded-lg text-micro font-bold cursor-pointer transition-all ${
+                selectedNum === num && !show729Teaser
+                  ? 'bg-white text-[#005583] shadow-2xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              {num === '25' ? '25 (5 steps)' : num === '81' ? '81 (9 steps)' : '38 (Fails)'}
+            </button>
+          ))}
         </div>
-      )}
 
-      {/* Side-by-Side Comparison Ladders */}
-      <div className={`grid ${useSingleColumnToggle ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'} gap-2.5 w-full flex-1 min-h-0 overflow-hidden`}>
-        {/* LEFT COLUMN: 25 (Perfect Square) */}
-        {(!useSingleColumnToggle || mobileFocus === '25') && (
-        <div
-          className={`p-2.5 sm:p-3 rounded-2xl border flex flex-col justify-between gap-1.5 transition-all min-h-0 ${
-            is25Finished
-              ? 'bg-emerald-50/75 border-emerald-300 ring-2 ring-emerald-400/20'
-              : 'bg-slate-50/70 border-slate-200'
+        <button
+          type="button"
+          onClick={() => setShow729Teaser((prev) => !prev)}
+          className={`min-h-[30px] px-2.5 py-0.5 rounded-lg text-micro font-bold cursor-pointer transition-all flex items-center gap-1 ${
+            show729Teaser
+              ? 'bg-[#F27A00] text-white shadow-2xs'
+              : 'bg-white text-orange-950 border border-orange-200 hover:bg-orange-50'
           }`}
         >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="w-8 h-8 rounded-xl bg-emerald-600 text-white font-mono font-bold text-small flex items-center justify-center">
-                25
-              </span>
-              <div>
-                <h4 className="text-small font-extrabold text-slate-900 leading-tight">
-                  Testing Number 25
-                </h4>
-                <span className="text-micro text-slate-500">Goal: Land on 0</span>
-              </div>
-            </div>
-
-            {is25Finished && (
-              <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-micro font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Perfect Square!</span>
-              </span>
-            )}
-          </div>
-
-          <div className="flex flex-col gap-1 min-h-0">
-            {currentStep === 0 ? (
-              <div className="my-auto text-center p-2 text-small text-slate-500">
-                Tap <strong>Step</strong> or <strong>Play</strong> to subtract 1, 3, 5, 7, 9...
-              </div>
-            ) : (
-              STEPS_25.slice(0, currentStep).map((st) => {
-                const isFinal = st.stepNum === 5;
-                return (
-                  <div
-                    key={st.stepNum}
-                    className={`px-2.5 py-1 rounded-xl border flex items-center justify-between text-micro sm:text-small transition-all animate-fade-rise ${
-                      isFinal
-                        ? 'bg-emerald-100 text-emerald-950 border-emerald-400 font-bold'
-                        : 'bg-white text-slate-800 border-slate-200'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="w-5 h-5 rounded-full bg-slate-100 font-mono text-micro font-bold text-slate-600 flex items-center justify-center">
-                        {st.stepNum}
-                      </span>
-                      <span className="font-mono">
-                        {st.from} − <strong className="text-purple-700">{st.odd}</strong> =
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono font-black text-small">{st.result}</span>
-                      {isFinal && (
-                        <span className="text-micro font-bold text-emerald-800 bg-white px-2 py-0.5 rounded-md border border-emerald-300">
-                          Hits 0!
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                );
-              })
-            )}
-          </div>
-
-          {is25Finished ? (
-            <div className="p-2 sm:p-2.5 rounded-xl bg-white border border-emerald-300 shadow-2xs flex flex-wrap items-center justify-between gap-1.5 animate-fade-rise shrink-0">
-              <div className="flex items-center gap-1.5 text-emerald-800 font-bold text-micro sm:text-small">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>Hits 0 in 5 steps!</span>
-              </div>
-              <div className="text-small text-slate-800 flex items-center gap-1">
-                <Katex latex={`\\sqrt{25} = 5`} displayMode={false} />
-              </div>
-            </div>
-          ) : (
-            <div className="text-micro text-slate-500 text-center shrink-0">
-              Leftover now:{' '}
-              <strong>{STEPS_25[Math.min(4, Math.max(0, currentStep - 1))]?.result ?? 25}</strong>
-            </div>
-          )}
-        </div>
-        )}
-
-        {/* RIGHT COLUMN: 38 (Not a Square) */}
-        {(!useSingleColumnToggle || mobileFocus === '38') && (
-        <div
-          className={`p-2.5 sm:p-3 rounded-2xl border flex flex-col justify-between gap-1.5 transition-all min-h-0 ${
-            is38Overshot
-              ? 'bg-amber-50/75 border-amber-300 ring-2 ring-amber-400/20'
-              : 'bg-slate-50/70 border-slate-200'
-          }`}
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="w-8 h-8 rounded-xl bg-amber-600 text-white font-mono font-bold text-small flex items-center justify-center">
-                38
-              </span>
-              <div>
-                <h4 className="text-small font-extrabold text-slate-900 leading-tight">
-                  Testing Number 38
-                </h4>
-                <span className="text-micro text-slate-500">Goal: Land on 0</span>
-              </div>
-            </div>
-
-            {is38Overshot && (
-              <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-micro font-bold bg-amber-100 text-amber-900 border border-amber-300">
-                <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
-                <span>Not a Square</span>
-              </span>
-            )}
-          </div>
-
-          <div className="flex flex-col gap-1 min-h-0">
-            {currentStep === 0 ? (
-              <div className="my-auto text-center p-2 text-small text-slate-500">
-                Watch subtracting 1, 3, 5, 7, 9, 11, 13 from 38!
-              </div>
-            ) : (
-              STEPS_38.slice(0, currentStep).map((st) => {
-                const isOvershoot = st.stepNum === 7;
-                return (
-                  <div
-                    key={st.stepNum}
-                    className={`px-2.5 py-0.5 sm:py-1 rounded-xl border flex items-center justify-between text-micro sm:text-small transition-all animate-fade-rise ${
-                      isOvershoot
-                        ? 'bg-rose-100 text-rose-950 border-rose-300 font-bold'
-                        : st.stepNum === 6
-                        ? 'bg-amber-100 text-amber-950 border-amber-300 font-bold'
-                        : 'bg-white text-slate-800 border-slate-200'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="w-5 h-5 rounded-full bg-slate-100 font-mono text-micro font-bold text-slate-600 flex items-center justify-center">
-                        {st.stepNum}
-                      </span>
-                      <span className="font-mono">
-                        {st.from} − <strong className="text-purple-700">{st.odd}</strong> =
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono font-black text-small">{st.result}</span>
-                      {st.stepNum === 6 && (
-                        <span className="text-micro font-bold text-amber-900 bg-white px-2 py-0.5 rounded-md border border-amber-300">
-                          Rem 2
-                        </span>
-                      )}
-                      {isOvershoot && (
-                        <span className="text-micro font-bold text-rose-700 bg-white px-2 py-0.5 rounded-md border border-rose-300">
-                          Overshot!
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                );
-              })
-            )}
-          </div>
-
-          {is38Overshot ? (
-            <div className="p-2 sm:p-2.5 rounded-xl bg-white border border-amber-300 shadow-2xs flex flex-col gap-0.5 animate-fade-rise shrink-0">
-              <div className="flex items-center gap-1.5 text-amber-800 font-bold text-micro sm:text-small">
-                <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
-                <span>Overshot 0! 38 is NOT a square (2 − 13 = −11).</span>
-              </div>
-            </div>
-          ) : (
-            <div className="text-micro text-slate-500 text-center shrink-0">
-              Leftover now:{' '}
-              <strong>{STEPS_38[Math.min(6, Math.max(0, currentStep - 1))]?.result ?? 38}</strong>
-            </div>
-          )}
-        </div>
-        )}
+          <HelpCircle className="w-3.5 h-3.5" />
+          <span>Why Not 729? (27 steps!)</span>
+        </button>
       </div>
 
-      {/* Summary Footer */}
-      {!isCompact && (
-        <div className="w-full p-2 sm:p-2.5 rounded-2xl bg-slate-50/80 flex items-center gap-2 shrink-0">
-          <Sparkles className="w-4 h-4 text-blue-600 shrink-0" />
-          <p className="text-micro sm:text-small font-medium text-slate-800 leading-snug">
-            If subtracting 1, 3, 5, 7... stops cleanly at <strong>0</strong>, the number is a square—and the step count is its <strong>square root</strong>!
+      {/* Main Content Area */}
+      {show729Teaser ? (
+        <div className="flex flex-col flex-1 min-h-0 justify-center items-center p-3 rounded-2xl bg-orange-50/70 border border-orange-200 text-center animate-fade-rise gap-2">
+          <div className="w-10 h-10 rounded-2xl bg-orange-500 text-white flex items-center justify-center font-mono font-black text-body shadow-2xs">
+            729
+          </div>
+          <h4 className="text-small sm:text-statement font-extrabold text-orange-950">
+            The 729 Subtraction Challenge
+          </h4>
+          <p className="text-micro sm:text-small text-slate-700 max-w-xl leading-relaxed">
+            Since <strong className="text-slate-900">27² = 729</strong>, repeated subtraction would take{' '}
+            <strong className="text-orange-900">27 full subtraction steps</strong>:
           </p>
+          <div className="font-mono text-micro sm:text-small font-bold text-orange-900 bg-white px-3 py-1.5 rounded-xl border border-orange-200">
+            729 − 1 = 728, 728 − 3 = 725, ... down to ... 53 − 53 = 0
+          </div>
+          <p className="text-micro sm:text-small font-bold text-slate-800 max-w-lg">
+            Subtracting 27 times by hand is slow and error-prone. That is why we need{' '}
+            <span className="text-[#005583] underline decoration-[#005583]">Prime Factorization</span> and{' '}
+            <span className="text-[#005583] underline decoration-[#005583]">Long Division</span>!
+          </p>
+          <button
+            type="button"
+            onClick={() => setShow729Teaser(false)}
+            className="min-h-[32px] px-3 py-1 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-micro font-bold cursor-pointer transition-colors"
+          >
+            Back to Active Test
+          </button>
+        </div>
+      ) : (
+        /* Steps Visualizer Container */
+        <div
+          className={`flex flex-col flex-1 min-h-0 justify-between p-2.5 sm:p-3 rounded-2xl border transition-all animate-fade-rise ${
+            isSuccess
+              ? 'bg-emerald-50/60 border-emerald-300 ring-2 ring-emerald-400/20'
+              : isFailure
+              ? 'bg-amber-50/60 border-amber-300 ring-2 ring-amber-400/20'
+              : 'bg-slate-50/60 border-slate-200'
+          }`}
+        >
+          {/* Card Top Banner */}
+          <div className="flex items-center justify-between pb-1.5 border-b border-slate-200/60 shrink-0">
+            <div className="flex items-center gap-2">
+              <span
+                className={`w-7 h-7 rounded-xl text-white font-mono font-bold text-micro sm:text-small flex items-center justify-center ${
+                  selectedNum === '38' ? 'bg-amber-600' : 'bg-emerald-600'
+                }`}
+              >
+                {selectedNum}
+              </span>
+              <span className="text-micro sm:text-small font-bold text-slate-900">
+                Testing {selectedNum} · Goal: Reach exactly 0
+              </span>
+            </div>
+
+            {isSuccess && (
+              <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-micro font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Hits 0 in {maxSteps} steps!</span>
+              </span>
+            )}
+            {isFailure && (
+              <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-micro font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
+                <span>Overshot 0! Not a square</span>
+              </span>
+            )}
+          </div>
+
+          {/* Subtraction Rows Grid (2 columns if 81, or single column) */}
+          <div className="flex-1 min-h-0 overflow-hidden flex flex-col justify-center">
+            {currentStep === 0 ? (
+              <div className="text-center p-3 text-micro sm:text-small text-slate-500">
+                Tap <strong>Step</strong> or <strong>Play</strong> to begin subtracting consecutive odd numbers!
+              </div>
+            ) : (
+              <div
+                className={`grid ${
+                  selectedNum === '81' ? 'grid-cols-1 sm:grid-cols-2 gap-1 sm:gap-1.5' : 'grid-cols-1 gap-1'
+                } content-center`}
+              >
+                {stepsList.slice(0, currentStep).map((st) => {
+                  const isHitZero = st.result === 0;
+                  const isNeg = st.result < 0;
+                  return (
+                    <div
+                      key={st.stepNum}
+                      className={`px-2 py-0.5 sm:py-1 rounded-xl border flex items-center justify-between text-micro font-mono transition-all animate-fade-rise ${
+                        isHitZero
+                          ? 'bg-emerald-100 text-emerald-950 border-emerald-400 font-bold'
+                          : isNeg
+                          ? 'bg-rose-100 text-rose-950 border-rose-300 font-bold'
+                          : 'bg-white text-slate-800 border-slate-200/80'
+                      }`}
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-4 h-4 rounded-full bg-slate-100 text-[10px] font-bold text-slate-600 flex items-center justify-center">
+                          {st.stepNum}
+                        </span>
+                        <span>
+                          {st.from} − <strong className="text-purple-700">{st.odd}</strong> =
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-black text-small tabular-nums">{st.result}</span>
+                        {isHitZero && (
+                          <span className="text-[10px] font-bold text-emerald-800 bg-white px-1.5 py-0.2 rounded border border-emerald-300">
+                            ZERO!
+                          </span>
+                        )}
+                        {isNeg && (
+                          <span className="text-[10px] font-bold text-rose-800 bg-white px-1.5 py-0.2 rounded border border-rose-300">
+                            &lt; 0
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Outcome Result Banner */}
+          <div className="p-1.5 sm:p-2 rounded-xl bg-white border border-slate-200 shrink-0 flex items-center justify-between gap-2">
+            <div className="text-micro sm:text-small font-bold text-slate-800">
+              {isSuccess ? (
+                <span className="text-emerald-800">
+                  Reached 0 in <strong>{maxSteps} steps</strong> → <Katex latex={`\\sqrt{${selectedNum}} = ${maxSteps}`} displayMode={false} />
+                </span>
+              ) : isFailure ? (
+                <span className="text-amber-800">
+                  Overshot from 2 to −11 (never landed on 0) → <strong>38 is NOT a square!</strong>
+                </span>
+              ) : (
+                <span className="text-slate-600">
+                  Current step: <strong>{currentStep} of {maxSteps}</strong>
+                </span>
+              )}
+            </div>
+
+            <span className="text-[11px] text-slate-500 font-medium hidden sm:inline">
+              Rule: Every square is the sum of consecutive odd numbers starting from 1.
+            </span>
+          </div>
         </div>
       )}
     </div>

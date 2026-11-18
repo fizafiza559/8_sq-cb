@@ -118,9 +118,9 @@ const TOPIC_META: Partial<Record<SubTabId, RichTopicMeta>> = {
     keywords: 'square root plus minus negative positive inverse side',
   },
   'finding-roots': {
-    title: 'Finding Roots: Repeated Subtraction & Prime Pairs',
-    badge: '25 vs 38',
-    keywords: 'repeated odd subtraction 25 38 prime factor pairs 324 156',
+    title: 'Methods for Finding Square Roots',
+    badge: '3 Techniques',
+    keywords: 'methods finding square roots sequential testing repeated odd subtraction 25 38 81 prime factor pairs 324 156',
   },
   'estimating-roots': {
     title: 'Estimating Roots: Interval Halving',

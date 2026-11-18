@@ -227,18 +227,18 @@ export const LastDigitPatternsScene: React.FC<LastDigitPatternsSceneProps> = ({
             })}
           </div>
 
-          {/* Quick Square Trap Checker (16, 36 vs 26, 47, 2078) */}
-          <div className={`${isCompact ? 'p-1.5 px-2.5' : 'p-2 sm:px-3.5'} rounded-2xl bg-slate-50/80 flex flex-col sm:flex-row items-center justify-between gap-1.5 shrink-0`}>
+          {/* Quick Square Trap Checker (16, 36 vs 26, 47, 327, 576, 2078) */}
+          <div className={`${isCompact ? 'p-1.5 px-2' : 'p-2 sm:px-3'} rounded-2xl bg-slate-50/90 border border-slate-200/60 flex flex-col sm:flex-row items-center justify-between gap-1.5 shrink-0`}>
             <div className="flex items-center justify-center sm:justify-start gap-1 flex-wrap">
-              <span className="text-micro font-bold text-slate-600 mr-1 hidden sm:inline">Test Trap:</span>
-              {[16, 26, 36, 47, 82, 2078].map((cand) => (
+              <span className="text-micro font-bold text-slate-700 mr-0.5">Test Candidate:</span>
+              {[16, 26, 36, 47, 327, 576, 2078].map((cand) => (
                 <button
                   key={cand}
                   type="button"
                   onClick={() => setCheckCandidate(cand)}
-                  className={`${isCompact ? 'min-h-[34px] px-2' : 'min-h-[38px] sm:min-h-[34px] px-2.5'} py-0.5 rounded-lg font-mono text-micro font-bold border cursor-pointer transition-colors tabular-nums ${
+                  className={`${isCompact ? 'min-h-[30px] px-1.5' : 'min-h-[34px] sm:min-h-[30px] px-2'} py-0.5 rounded-lg font-mono text-micro font-bold border cursor-pointer transition-colors tabular-nums ${
                     checkCandidate === cand
-                      ? 'bg-[#005583] text-white border-[#003F62]'
+                      ? 'bg-[#005583] text-white border-[#003F62] shadow-2xs'
                       : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
                   }`}
                 >
@@ -248,17 +248,25 @@ export const LastDigitPatternsScene: React.FC<LastDigitPatternsSceneProps> = ({
             </div>
 
             <div className="text-micro sm:text-small font-bold text-slate-800 text-center sm:text-right leading-tight">
-              {isSquare(checkCandidate) ? (
+              {checkCandidate === 327 ? (
+                <span className="text-rose-700">
+                  <strong>327</strong> ends in 7 → Squares <em>never</em> end in 2, 3, 7, 8 (Definitively Not a Square!)
+                </span>
+              ) : checkCandidate === 576 ? (
                 <span className="text-emerald-700">
-                  {checkCandidate} = {Math.round(Math.sqrt(checkCandidate))}² (Square!)
+                  <strong>576</strong> ends in 6 (satisfies condition) &amp; <strong>24² = 576</strong> (Square! But ending alone doesn't guarantee it)
+                </span>
+              ) : isSquare(checkCandidate) ? (
+                <span className="text-emerald-700">
+                  <strong>{checkCandidate}</strong> = {Math.round(Math.sqrt(checkCandidate))}² (Square!)
                 </span>
               ) : [2, 3, 7, 8].includes(checkCandidate % 10) ? (
                 <span className="text-rose-700">
-                  {checkCandidate} ends in {checkCandidate % 10} — never a square!
+                  <strong>{checkCandidate}</strong> ends in {checkCandidate % 10} → squares NEVER end in 2, 3, 7, or 8!
                 </span>
               ) : (
                 <span className="text-amber-800">
-                  {checkCandidate} ends in {checkCandidate % 10}, yet 25 &lt; {checkCandidate} &lt; 36 (Not square!)
+                  <strong>{checkCandidate}</strong> ends in {checkCandidate % 10} (valid ending), yet is NOT a square!
                 </span>
               )}
             </div>

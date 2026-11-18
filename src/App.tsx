@@ -24,6 +24,7 @@ import { SquareTileScene } from './scenes/SquareTileScene';
 import { LastDigitPatternsScene } from './scenes/LastDigitPatternsScene';
 import { OddSubtractionScene } from './scenes/OddSubtractionScene';
 import { TriangularSquareZipper } from './scenes/TriangularSquareZipper';
+import { RootsPlusMinusScene } from './scenes/RootsPlusMinusScene';
 import { SquareRootPrimeEstimateScene } from './scenes/SquareRootPrimeEstimateScene';
 import { CubePatternsScene } from './scenes/CubePatternsScene';
 import { CubeOddSumsAndTaxiScene } from './scenes/CubeOddSumsAndTaxiScene';
@@ -380,9 +381,9 @@ export default function App() {
       return <TriangularSquareZipper initialN={4} beatIndex={beatIdx} />;
     }
 
-    // 6. Roots and Plus-Minus (scene-6) -> SquareTileScene inverseMode
+    // 6. Roots and Plus-Minus (scene-6) -> RootsPlusMinusScene (49 cm² courtyard & ± integer roots)
     if (sId === 'scene-6' || subId === 'roots-plus-minus' || bId.startsWith('rm-')) {
-      return <SquareTileScene inverseMode={true} beatIndex={beatIdx} />;
+      return <RootsPlusMinusScene beatIndex={beatIdx} />;
     }
 
     // 7. Finding Roots (scene-7) -> OddSubtractionScene & SquareRootPrimeEstimateScene
@@ -390,7 +391,7 @@ export default function App() {
       if (bId === 'fr-2') {
         return <SquareRootPrimeEstimateScene initialTab="prime-pairs" beatIndex={0} />;
       }
-      return <OddSubtractionScene beatIndex={0} />;
+      return <OddSubtractionScene beatIndex={beatIdx} />;
     }
 
     // 8. Estimating Roots (scene-8) -> SquareRootPrimeEstimateScene (1936 interval)

@@ -72,7 +72,7 @@ export const CHAPTER_SECTIONS: SectionConfig[] = [
     storyHook: 'If a square courtyard covers 1936 tiles, how many paces does it take to walk along one wall? Track the root backwards.',
     subTabs: [
       { id: 'roots-plus-minus', label: 'Roots and Plus-Minus', sceneIndex: 6 },
-      { id: 'finding-roots', label: 'Finding Roots', sceneIndex: 7 },
+      { id: 'finding-roots', label: 'Methods for Finding Square Roots', sceneIndex: 7 },
       { id: 'estimating-roots', label: 'Estimating Roots', sceneIndex: 8 },
     ],
   },
