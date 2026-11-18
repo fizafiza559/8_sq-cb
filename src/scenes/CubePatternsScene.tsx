@@ -233,6 +233,12 @@ export const CubePatternsScene: React.FC<CubePatternsSceneProps> = ({
                 />
               </div>
             )}
+
+            {/* NCERT Question: Can a cube end in 00? */}
+            <div className="w-full p-2 rounded-xl bg-white border border-purple-200 text-center text-micro font-bold text-purple-950 mt-1">
+              ❓ <strong>Can a cube end with exactly two zeroes (00)?</strong><br />
+              <span className="text-purple-700">NO!</span> Because ending zeros triple when cubed (k → 3k), a cube can only end in <strong>3, 6, 9... zeros</strong>. Never exactly 2 zeros!
+            </div>
           </div>
         </div>
       )}

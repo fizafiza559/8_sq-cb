@@ -303,7 +303,7 @@ export const CubeOddSumsAndTaxiScene: React.FC<CubeOddSumsAndTaxiSceneProps> = (
           </div>
 
           {/* Highlighted Sum Equation Card */}
-          <div className={`${isCompact ? 'p-2' : 'p-2.5 sm:p-3.5'} rounded-2xl bg-purple-50/60 flex flex-col sm:flex-row items-center justify-between gap-2 shrink-0`}>
+          <div className={`${isCompact ? 'p-2' : 'p-2.5 sm:p-3'} rounded-2xl bg-purple-50/60 flex flex-col sm:flex-row items-center justify-between gap-2 shrink-0`}>
             <div className="flex flex-col gap-0.5 min-w-0">
               <span className="text-micro font-bold uppercase tracking-wider text-purple-800">
                 Highlighted Group for {activeGroup.n}³ ({activeGroup.n} odds)
@@ -316,6 +316,16 @@ export const CubeOddSumsAndTaxiScene: React.FC<CubeOddSumsAndTaxiSceneProps> = (
                 displayMode={false}
               />
             </div>
+          </div>
+
+          {/* NCERT 91..109 Teaser Banner */}
+          <div className="p-2 rounded-xl bg-amber-50 border border-amber-200/80 flex flex-col sm:flex-row items-center justify-between gap-1.5 text-center sm:text-left shrink-0">
+            <span className="text-micro text-amber-950 font-medium">
+              💡 <strong>NCERT Challenge:</strong> Sum of <code className="font-mono font-bold text-amber-900">91 + 93 + 95 + ... + 109</code> without calculating?
+            </span>
+            <span className="text-micro sm:text-small font-bold text-[#005583] bg-white px-2.5 py-0.5 rounded-lg border border-amber-200 shrink-0">
+              Count is 10 odds → <Katex latex="10^3 = 1000" displayMode={false} />!
+            </span>
           </div>
         </div>
       )}

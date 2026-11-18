@@ -478,6 +478,12 @@ export const HistoryVisualStory: React.FC<HistoryVisualStoryProps> = ({
                   displayMode={false}
                 />
               </div>
+
+              {!isCompact && (
+                <div className="p-2 rounded-xl bg-amber-50/70 border border-amber-200/60 text-[11px] text-amber-950 leading-snug">
+                  <strong>World History Journey:</strong> Brahmagupta (628 CE) called root <em>pada</em> (foot/basis). Later, <em>mūla</em> was translated into Arabic as <em>jidhr</em> and Latin as <em>radix</em> (the plant root), which gave birth to our symbol <strong className="font-mono text-xs">√</strong> (radical)!
+                </div>
+              )}
             </div>
           </div>
         </div>

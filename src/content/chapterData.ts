@@ -639,6 +639,24 @@ export const chapterData: Chapter = {
           latex: ['44^2 = 1936 \\implies \\sqrt{1936} = 44'],
           interactive: true,
         },
+        {
+          id: 'er-3',
+          headline: "Aribam & Bijou's Game: Estimate √250.",
+          focusWord: 'Estimate √250',
+          focusColor: 'pair',
+          narration: '15² = 225 and 16² = 256. Since 256 is much closer to 250, √250 is approximately 16!',
+          latex: ['15^2 = 225 < 250 < 256 = 16^2 \\implies \\sqrt{250} \\approx 16'],
+          interactive: true,
+        },
+        {
+          id: 'er-4',
+          headline: "Akhil's Handkerchief: 125 cm² Cloth.",
+          focusWord: 'Handkerchief',
+          focusColor: 'area',
+          narration: 'To cut a square handkerchief from 125 cm² cloth: 11² = 121 fits, but 12² = 144 overflows! Max side is 11 cm.',
+          latex: ['11^2 = 121 \\le 125 < 144 = 12^2 \\implies \\text{Max side} = 11\\text{ cm}'],
+          interactive: true,
+        },
       ],
       quickCheck: [
         {
