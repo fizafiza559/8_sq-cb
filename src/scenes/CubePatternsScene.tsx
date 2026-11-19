@@ -50,9 +50,8 @@ export const CubePatternsScene: React.FC<CubePatternsSceneProps> = ({
   return (
     <div
       data-no-nav="true"
-      className={`w-full max-w-4xl h-full max-h-full min-h-0 overflow-hidden mx-auto rounded-3xl border border-slate-200/80 bg-white ${
-        isCompact ? 'p-2 gap-1.5' : 'p-2.5 sm:p-4 gap-2 sm:gap-2.5'
-      } shadow-xs flex flex-col justify-between ${className}`}
+      className={`w-full max-w-4xl h-full max-h-full min-h-0 overflow-hidden mx-auto rounded-3xl border border-slate-200/80 bg-white ${isCompact ? 'p-2 gap-1.5' : 'p-2.5 sm:p-4 gap-2 sm:gap-2.5'
+        } shadow-xs flex flex-col justify-between ${className}`}
     >
       {/* Header & Tabs */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 border-b border-slate-100 pb-2 shrink-0">
@@ -73,11 +72,10 @@ export const CubePatternsScene: React.FC<CubePatternsSceneProps> = ({
           <button
             type="button"
             onClick={() => setActiveTab('digits')}
-            className={`${isCompact ? 'min-h-[38px]' : 'min-h-[42px] sm:min-h-[36px]'} px-3 py-1 rounded-lg text-micro font-bold flex items-center gap-1.5 transition-all cursor-pointer shrink-0 ${
-              activeTab === 'digits'
+            className={`${isCompact ? 'min-h-[38px]' : 'min-h-[42px] sm:min-h-[36px]'} px-3 py-1 rounded-lg text-micro font-bold flex items-center gap-1.5 transition-all cursor-pointer shrink-0 ${activeTab === 'digits'
                 ? 'bg-white text-purple-700 shadow-2xs'
                 : 'text-slate-600 hover:text-slate-900'
-            }`}
+              }`}
           >
             <Box className="w-3.5 h-3.5 shrink-0" />
             <span>Ending Digits (0–9)</span>
@@ -85,11 +83,10 @@ export const CubePatternsScene: React.FC<CubePatternsSceneProps> = ({
           <button
             type="button"
             onClick={() => setActiveTab('zeros')}
-            className={`${isCompact ? 'min-h-[38px]' : 'min-h-[42px] sm:min-h-[36px]'} px-3 py-1 rounded-lg text-micro font-bold flex items-center gap-1.5 transition-all cursor-pointer shrink-0 ${
-              activeTab === 'zeros'
+            className={`${isCompact ? 'min-h-[38px]' : 'min-h-[42px] sm:min-h-[36px]'} px-3 py-1 rounded-lg text-micro font-bold flex items-center gap-1.5 transition-all cursor-pointer shrink-0 ${activeTab === 'zeros'
                 ? 'bg-white text-purple-700 shadow-2xs'
                 : 'text-slate-600 hover:text-slate-900'
-            }`}
+              }`}
           >
             <Sparkles className="w-3.5 h-3.5 shrink-0" />
             <span>Trailing Zeros (×3)</span>
@@ -110,13 +107,12 @@ export const CubePatternsScene: React.FC<CubePatternsSceneProps> = ({
                   key={d}
                   type="button"
                   onClick={() => setSelectedDigit(d)}
-                  className={`${isCompact || isNarrow ? 'w-9 h-9 rounded-xl text-small' : 'w-10 h-10 sm:w-11 sm:h-11 rounded-2xl text-body'} font-mono font-black border-2 transition-all cursor-pointer tabular-nums mx-auto sm:mx-0 ${
-                    isSelected
+                  className={`${isCompact || isNarrow ? 'w-9 h-9 rounded-xl text-small' : 'w-10 h-10 sm:w-11 sm:h-11 rounded-2xl text-body'} font-mono font-black border-2 transition-all cursor-pointer tabular-nums mx-auto sm:mx-0 ${isSelected
                       ? 'bg-purple-700 text-white border-purple-900 shadow-sm scale-105'
                       : swaps
-                      ? 'bg-orange-50 text-orange-900 border-orange-200 hover:bg-orange-100'
-                      : 'bg-slate-50 text-slate-700 border-slate-200/80 hover:bg-slate-100'
-                  }`}
+                        ? 'bg-orange-50 text-orange-900 border-orange-200 hover:bg-orange-100'
+                        : 'bg-slate-50 text-slate-700 border-slate-200/80 hover:bg-slate-100'
+                    }`}
                 >
                   {d}
                 </button>
@@ -126,11 +122,10 @@ export const CubePatternsScene: React.FC<CubePatternsSceneProps> = ({
 
           {/* Swap / Same Highlight Card */}
           <div
-            className={`${isCompact ? 'p-2' : 'p-2.5 sm:p-3.5'} rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-2 shrink-0 ${
-              isSwapDigit
+            className={`${isCompact ? 'p-2' : 'p-2.5 sm:p-3.5'} rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-2 shrink-0 ${isSwapDigit
                 ? 'bg-orange-50/70'
                 : 'bg-purple-50/60'
-            }`}
+              }`}
           >
             <div className="flex flex-col gap-0.5 min-w-0">
               <div className="flex items-center gap-2 text-micro sm:text-small font-extrabold text-slate-900">
@@ -164,11 +159,10 @@ export const CubePatternsScene: React.FC<CubePatternsSceneProps> = ({
               return (
                 <div
                   key={n}
-                  className={`${isCompact || isNarrow ? 'p-1 rounded-lg' : 'p-1.5 rounded-xl'} border text-center transition-all tabular-nums flex flex-col justify-center ${
-                    matchesSelected
+                  className={`${isCompact || isNarrow ? 'p-1 rounded-lg' : 'p-1.5 rounded-xl'} border text-center transition-all tabular-nums flex flex-col justify-center ${matchesSelected
                       ? 'bg-purple-50 border-purple-400 shadow-2xs scale-[1.02]'
                       : 'bg-slate-50 border-slate-200'
-                  }`}
+                    }`}
                 >
                   <div className="text-[10px] font-semibold text-slate-500 leading-tight">{n}³</div>
                   <div className="font-mono text-[11px] sm:text-small font-extrabold text-slate-900 leading-tight">
@@ -193,13 +187,11 @@ export const CubePatternsScene: React.FC<CubePatternsSceneProps> = ({
                 key={val}
                 type="button"
                 onClick={() => setZeroBase(val)}
-                className={`${
-                  isCompact ? 'min-h-[32px] px-2.5 py-0.5 text-micro' : 'min-h-[40px] sm:min-h-[36px] px-3 sm:px-4 py-1 text-small'
-                } rounded-xl font-mono font-bold border transition-all cursor-pointer tabular-nums shrink-0 ${
-                  zeroBase === val
+                className={`${isCompact ? 'min-h-[32px] px-2.5 py-0.5 text-micro' : 'min-h-[40px] sm:min-h-[36px] px-3 sm:px-4 py-1 text-small'
+                  } rounded-xl font-mono font-bold border transition-all cursor-pointer tabular-nums shrink-0 ${zeroBase === val
                     ? 'bg-purple-700 text-white border-purple-900 shadow-2xs scale-[1.03]'
                     : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-purple-50'
-                }`}
+                  }`}
               >
                 {val}³
               </button>
