@@ -20,6 +20,9 @@ import { PRACTICE_QUESTIONS, PracticeQuestion } from '../content/practiceData';
 import { SubTabId } from '../content/sections';
 import { Katex } from '../components/Katex';
 import { playCorrectSound, playIncorrectSound } from '../utils/audio';
+import { NcertUnsolvedVisualizerStage } from '../components/practice/NcertUnsolvedVisualizerStage';
+import { PracticeSolvedVisualizerStage } from '../components/practice/PracticeSolvedVisualizers';
+import { PracticeConceptVisualizerStage } from '../components/practice/PracticeConceptVisualizers';
 
 interface PracticeSectionProps {
   activeSubTabId: SubTabId;
@@ -448,126 +451,44 @@ export const PracticeSection: React.FC<PracticeSectionProps> = ({
             )}
           </section>
 
-          {/* RIGHT COLUMN — STEP-BY-STEP ANSWER & HINTS (Now Revealed) */}
-          <section
-            aria-label="Step-by-step solution and hints"
-            role={!isAllRevealed ? 'button' : undefined}
-            tabIndex={!isAllRevealed ? 0 : undefined}
-            onClick={() => advanceRevealStep(activeQuestion)}
-            onKeyDown={(e) => {
-              if (!isAllRevealed && (e.key === 'Enter' || e.key === ' ')) {
-                e.preventDefault();
-                advanceRevealStep(activeQuestion);
-              }
-            }}
-            className={`w-full md:w-[58%] lg:w-[60%] flex-1 min-h-0 md:h-full bg-slate-50/80 border border-slate-200/80 rounded-3xl p-3.5 sm:p-4 flex flex-col justify-between gap-2.5 overflow-y-auto no-scrollbar transition-colors ${
-              isAllRevealed ? 'cursor-default' : 'cursor-pointer hover:border-[#005583]/40'
-            }`}
-          >
-            {/* Panel Header with Reset / Re-try Icon */}
-            <div className="flex items-center justify-between gap-2 pb-2 border-b border-slate-200/70 shrink-0">
-              <div className="flex items-center gap-2">
-                <span className="text-micro font-extrabold uppercase tracking-wider text-slate-500">
-                  Hints &amp; Solution Steps
-                </span>
-                <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200/80 text-micro font-bold text-[#005583] tabular-nums">
-                  {revealedStepIndex} / {totalSteps}
-                </span>
-              </div>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  resetQuestion(activeQuestion.id);
-                }}
-                aria-label="Re-try question"
-                title="Re-try question"
-                className="min-h-[38px] px-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 text-micro font-bold flex items-center gap-1.5 cursor-pointer transition-colors shrink-0 shadow-2xs"
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-                <span>Re-try</span>
-              </button>
-            </div>
-
-            {/* Revealed Steps List */}
-            <div className="flex-1 min-h-0 flex flex-col gap-2 overflow-y-auto no-scrollbar py-0.5">
-              {/* Key Rule / Clue */}
-              <div className="px-3.5 py-2 rounded-2xl bg-amber-50/90 border border-amber-200/80 flex items-start gap-2 animate-fade-rise">
-                <Lightbulb className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                <p className="text-micro sm:text-small text-amber-950 leading-snug">
-                  <strong className="font-bold">Key Rule: </strong>
-                  {activeQuestion.keyRule}
-                </p>
-              </div>
-
-              {/* Solution Steps Revealed One by One */}
-              {activeQuestion.steps.slice(0, revealedStepIndex).map((step, sIdx) => (
-                <div
-                  key={sIdx}
-                  className="bg-white px-3.5 py-2.5 rounded-2xl border border-slate-200/80 flex flex-col gap-1 animate-fade-rise shadow-2xs"
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="w-5 h-5 rounded-md bg-sky-100 text-[#005583] text-[11px] font-extrabold flex items-center justify-center shrink-0 tabular-nums">
-                      {sIdx + 1}
-                    </span>
-                    <h4 className="text-micro sm:text-small font-bold text-slate-900">
-                      {step.title}
-                    </h4>
-                  </div>
-                  {step.latex && (
-                    <div className="px-2.5 py-1 rounded-xl bg-sky-50/70 text-center max-w-full break-words">
-                      <Katex latex={step.latex} displayMode={false} />
-                    </div>
-                  )}
-                  <p className="text-micro sm:text-small text-slate-600 leading-snug">
-                    {step.explanation}
-                  </p>
-                </div>
-              ))}
-
-              {/* Final Answer Badge (on Final Step) */}
-              {isAllRevealed && (
-                <div className="px-3.5 py-2.5 rounded-2xl bg-emerald-50 border border-emerald-300 flex flex-col sm:flex-row sm:items-center justify-between gap-2 animate-fade-rise">
-                  <div>
-                    <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-800">
-                      Final Answer
-                    </span>
-                    <div className="text-small sm:text-body font-bold text-emerald-950 leading-snug">
-                      {activeQuestion.answer}
-                    </div>
-                  </div>
-                  {activeQuestion.answerLatex && (
-                    <div className="px-3 py-1 rounded-xl bg-white border border-emerald-200 shrink-0 max-w-full break-words">
-                      <Katex latex={activeQuestion.answerLatex} displayMode={false} />
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Bottom Tap Cue & Next Button */}
-            <div className="pt-2 border-t border-slate-200/70 flex items-center justify-between gap-2 shrink-0">
-              <span
-                className={`text-micro font-bold ${
-                  isAllRevealed ? 'text-emerald-700' : 'text-[#005583]'
-                }`}
-              >
-                {getFooterCueText()}
-              </span>
-              {isAllRevealed && safeIndex < filteredQuestions.length - 1 && (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    goNext();
-                  }}
-                  className="min-h-[38px] sm:min-h-[36px] px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-micro font-bold inline-flex items-center gap-1 cursor-pointer transition-colors shrink-0 shadow-2xs"
-                >
-                  <span>Next Question →</span>
-                </button>
-              )}
-            </div>
-          </section>
+          {/* RIGHT COLUMN — GENERATIVE STEP-BY-STEP VISUALIZER */}
+          {currentCategory === 'ncert-unsolved' ? (
+            <section
+              aria-label="Generative Step-by-Step Solution"
+              className="w-full md:w-[58%] lg:w-[60%] flex-1 min-h-0 md:h-full overflow-hidden"
+            >
+              <NcertUnsolvedVisualizerStage
+                question={activeQuestion}
+                onNextQuestion={goNext}
+                onResetQuestion={() => resetQuestion(activeQuestion.id)}
+                isLastQuestion={safeIndex === filteredQuestions.length - 1}
+              />
+            </section>
+          ) : currentCategory === 'solved-examples' ? (
+            <section
+              aria-label="Generative Solved Example Solution"
+              className="w-full md:w-[58%] lg:w-[60%] flex-1 min-h-0 md:h-full overflow-hidden"
+            >
+              <PracticeSolvedVisualizerStage
+                question={activeQuestion}
+                onNextQuestion={goNext}
+                onResetQuestion={() => resetQuestion(activeQuestion.id)}
+                isLastQuestion={safeIndex === filteredQuestions.length - 1}
+              />
+            </section>
+          ) : (
+            <section
+              aria-label="Generative Concept Clearing Solution"
+              className="w-full md:w-[58%] lg:w-[60%] flex-1 min-h-0 md:h-full overflow-hidden"
+            >
+              <PracticeConceptVisualizerStage
+                question={activeQuestion}
+                onNextQuestion={goNext}
+                onResetQuestion={() => resetQuestion(activeQuestion.id)}
+                isLastQuestion={safeIndex === filteredQuestions.length - 1}
+              />
+            </section>
+          )}
         </div>
       )}
     </div>

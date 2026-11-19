@@ -17,7 +17,6 @@ import {
   XCircle,
 } from 'lucide-react';
 import { Katex } from '../Katex';
-import { useViewportTier } from '../../hooks/useViewportTier';
 
 export interface QuickCheckVisualizerStageProps {
   onNext: () => void;
@@ -27,650 +26,526 @@ export interface QuickCheckVisualizerStageProps {
 }
 
 // -----------------------------------------------------------------------------
-// SCENE 0: THE LOCKER PUZZLE (scene-0-qc-1)
+// Helper: Step Scrubber
 // -----------------------------------------------------------------------------
-export const LockerGridSolutionVisualizer: React.FC<QuickCheckVisualizerStageProps> = ({
+const StepScrubber: React.FC<{
+  step: 1 | 2 | 3;
+  setStep: React.Dispatch<React.SetStateAction<1 | 2 | 3>>;
+}> = ({ step, setStep }) => {
+  const stepLabels = ['Step 1', 'Step 2', 'Step 3 (Answer)'];
+  return (
+    <div className="flex items-center gap-1.5 shrink-0 py-0.5">
+      {stepLabels.map((label, idx) => {
+        const stepNum = (idx + 1) as 1 | 2 | 3;
+        const isActive = step === stepNum;
+        const isPast = step > stepNum;
+        return (
+          <React.Fragment key={stepNum}>
+            <button
+              type="button"
+              onClick={() => isPast && setStep(stepNum)}
+              className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border transition-all ${
+                isActive
+                  ? 'bg-[#005583] text-white border-[#003F62] shadow-2xs'
+                  : isPast
+                  ? 'bg-white border-slate-200 text-[#005583] cursor-pointer hover:bg-slate-50'
+                  : 'bg-slate-100 border-slate-200 text-slate-400 cursor-default'
+              }`}
+            >
+              {label}
+            </button>
+            {idx < 2 && <span className="text-slate-300 text-[11px]">→</span>}
+          </React.Fragment>
+        );
+      })}
+    </div>
+  );
+};
+
+// -----------------------------------------------------------------------------
+// Helper: Card Shell Frame
+// -----------------------------------------------------------------------------
+interface VisualizerFrameProps {
+  title: string;
+  badge: string;
+  cue: React.ReactNode;
+  step: 1 | 2 | 3;
+  setStep: React.Dispatch<React.SetStateAction<1 | 2 | 3>>;
+  onNext: () => void;
+  onReset?: () => void;
+  isLastQuestion: boolean;
+  children: React.ReactNode;
+  footerNote?: string;
+}
+
+const VisualizerFrame: React.FC<VisualizerFrameProps> = ({
+  title,
+  badge,
+  cue,
+  step,
+  setStep,
   onNext,
   onReset,
-  isCorrect,
   isLastQuestion,
+  children,
+  footerNote,
 }) => {
-  const lockers = Array.from({ length: 16 }, (_, i) => i + 1);
-  const squares = [1, 4, 9, 16];
-  const [selectedLocker, setSelectedLocker] = useState<number>(16);
-  const [filterMode, setFilterMode] = useState<'all' | 'squares' | 'non-squares'>('all');
-
-  const getFactors = (n: number) => {
-    const res: number[] = [];
-    for (let i = 1; i <= n; i++) {
-      if (n % i === 0) res.push(i);
-    }
-    return res;
+  const advanceStep = () => {
+    if (step < 3) setStep((s) => (s + 1) as 1 | 2 | 3);
   };
 
-  const activeFactors = getFactors(selectedLocker);
-  const isSquareLocker = squares.includes(selectedLocker);
-
   return (
-    <div
-      aria-label="Locker Puzzle Interactive Grid"
-      className="w-full h-full min-h-0 bg-slate-50/80 border border-slate-200/80 rounded-3xl p-3 sm:p-3.5 flex flex-col justify-between gap-2 overflow-hidden shadow-2xs animate-fade-rise"
-    >
-      {/* 1. Header Bar */}
-      <div className="flex items-center justify-between gap-2 pb-1.5 border-b border-slate-200/70 shrink-0">
+    <div className="w-full h-full min-h-0 bg-slate-50/80 border border-slate-200/80 rounded-3xl p-3 sm:p-3.5 flex flex-col justify-between gap-1.5 overflow-hidden shadow-2xs animate-fade-rise">
+      {/* Header Bar */}
+      <div className="flex items-center justify-between gap-2 pb-1 border-b border-slate-200/70 shrink-0">
         <div className="flex items-center gap-2 flex-wrap">
-          <span
-            className={`text-micro font-extrabold uppercase tracking-wider ${
-              isCorrect ? 'text-emerald-700' : 'text-rose-700'
-            }`}
-          >
-            {isCorrect ? '✓ Right! Lockers Solution' : 'Review — The Locker Solution'}
+          <span className="text-micro font-extrabold uppercase tracking-wider text-[#005583]">
+            {title}
           </span>
-          <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200/80 text-micro font-bold text-[#005583] tabular-nums">
-            Lockers 1 to 16 Test
+          <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200/80 text-[11px] font-bold text-slate-700 tabular-nums">
+            {badge}
           </span>
         </div>
-
         {onReset && (
           <button
             type="button"
-            onClick={onReset}
-            className="min-h-[34px] px-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 text-micro font-bold flex items-center gap-1.5 cursor-pointer transition-colors shrink-0 shadow-2xs"
+            onClick={() => {
+              setStep(1);
+              onReset();
+            }}
+            className="min-h-[28px] px-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
           >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Re-try</span>
+            <RotateCcw className="w-3 h-3" />
+            <span>Reset</span>
           </button>
         )}
       </div>
 
-      {/* 2. Filter Controls */}
-      <div className="flex items-center justify-between gap-2 text-micro shrink-0 flex-wrap">
-        <span className="font-bold text-slate-600 flex items-center gap-1">
-          <Layers className="w-3.5 h-3.5 text-[#005583]" />
-          <span>Tap any locker to inspect its flips:</span>
-        </span>
-        <div className="flex items-center gap-1 bg-white p-0.5 rounded-xl border border-slate-200/80">
-          {(['all', 'squares', 'non-squares'] as const).map((mode) => (
-            <button
-              key={mode}
-              type="button"
-              onClick={() => setFilterMode(mode)}
-              className={`px-2 py-0.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer capitalize ${
-                filterMode === mode
-                  ? 'bg-[#005583] text-white shadow-2xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              {mode === 'all' ? 'All (16)' : mode === 'squares' ? 'Squares (Open)' : 'Non-Squares (Shut)'}
-            </button>
-          ))}
-        </div>
+      {/* Step Scrubber */}
+      <StepScrubber step={step} setStep={setStep} />
+
+      {/* Single Action Cue (≤ 12 words) */}
+      <div className="text-micro font-bold text-slate-700 shrink-0 min-h-[20px] flex items-center">
+        {cue}
       </div>
 
-      {/* 3. Lockers Grid */}
-      <div className="w-full flex-1 min-h-[110px] max-h-[175px] bg-white rounded-2xl border border-slate-200/80 p-2 flex items-center justify-center shadow-2xs overflow-hidden">
-        <div className="grid grid-cols-8 gap-1.5 w-full max-w-md mx-auto">
-          {lockers.map((num) => {
-            const isSq = squares.includes(num);
-            const isSelected = selectedLocker === num;
-            const isDimmed =
-              (filterMode === 'squares' && !isSq) || (filterMode === 'non-squares' && isSq);
+      {/* Central Tappable Canvas Area */}
+      <div
+        onClick={advanceStep}
+        title={step < 3 ? 'Tap anywhere to advance →' : undefined}
+        className="w-full flex-1 min-h-[110px] max-h-[175px] bg-white rounded-2xl border border-slate-200/80 p-2 flex flex-col items-center justify-center gap-2 shadow-2xs overflow-hidden cursor-pointer select-none transition-colors duration-200 hover:border-[#005583]/40"
+      >
+        {children}
+      </div>
 
+      {/* Footer Navigation */}
+      <div className="pt-1 border-t border-slate-200/70 flex items-center justify-between gap-2 shrink-0">
+        <span className="text-micro font-bold text-slate-600 truncate">
+          {footerNote || (step < 3 ? 'Tap canvas or click next step' : '✓ Solution verified!')}
+        </span>
+        {step < 3 ? (
+          <button
+            type="button"
+            onClick={advanceStep}
+            className="min-h-[32px] px-3.5 rounded-xl bg-[#005583] hover:bg-[#003F62] text-white text-micro font-bold inline-flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
+          >
+            <span>Step {step + 1}</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={onNext}
+            className="min-h-[32px] px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-micro font-bold inline-flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
+          >
+            <span>{!isLastQuestion ? 'Next Question' : 'See Results'}</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </button>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// -----------------------------------------------------------------------------
+// SCENE 0: The Locker Puzzle (Lockers 1–16)
+// -----------------------------------------------------------------------------
+export const LockerGridSolutionVisualizer: React.FC<QuickCheckVisualizerStageProps> = (props) => {
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const squares = [1, 4, 9, 16];
+
+  const cues: Record<1 | 2 | 3, React.ReactNode> = {
+    1: <span>Step 1: Every factor flips a locker open or closed!</span>,
+    2: <span>Step 2: Watch even factor counts close, odd factor counts stay open!</span>,
+    3: <span className="text-emerald-700">Step 3: Only perfect squares (1, 4, 9, 16) stay OPEN!</span>,
+  };
+
+  return (
+    <VisualizerFrame
+      title="The Locker Puzzle"
+      badge="Lockers 1 to 16"
+      cue={cues[step]}
+      step={step}
+      setStep={setStep}
+      onNext={props.onNext}
+      onReset={props.onReset}
+      isLastQuestion={props.isLastQuestion}
+    >
+      {step === 1 && (
+        <div className="flex flex-col items-center gap-2 animate-fade-rise">
+          <div className="flex items-center gap-2 font-mono text-micro font-bold text-slate-700">
+            <span>Example: Locker 12 has 6 factors:</span>
+            <span className="px-2 py-0.5 rounded bg-sky-100 text-[#005583]">
+              1, 2, 3, 4, 6, 12
+            </span>
+          </div>
+          <div className="flex items-center gap-1 text-[11px] font-mono text-slate-600">
+            <span>Open</span>
+            <span className="text-slate-400">→</span>
+            <span>Shut</span>
+            <span className="text-slate-400">→</span>
+            <span>Open</span>
+            <span className="text-slate-400">→</span>
+            <span>Shut</span>
+            <span className="text-slate-400">→</span>
+            <span>Open</span>
+            <span className="text-slate-400">→</span>
+            <span className="font-extrabold text-rose-600">SHUT (6 flips = closed!)</span>
+          </div>
+          <span className="text-micro text-slate-500 font-medium">
+            Even number of factors = ends up CLOSED.
+          </span>
+        </div>
+      )}
+
+      {step === 2 && (
+        <div className="grid grid-cols-8 sm:grid-cols-8 gap-1.5 w-full max-w-md animate-fade-rise">
+          {Array.from({ length: 16 }, (_, i) => i + 1).map((num) => {
+            const isSq = squares.includes(num);
             return (
-              <button
+              <div
                 key={num}
-                type="button"
-                onClick={() => setSelectedLocker(num)}
-                className={`flex flex-col items-center justify-center py-1 rounded-xl border text-[11px] font-extrabold cursor-pointer transition-all duration-200 ${
+                className={`p-1 rounded-lg text-center font-mono text-micro font-extrabold flex flex-col items-center justify-center transition-all ${
                   isSq
-                    ? 'bg-emerald-500 text-white border-emerald-600 shadow-xs ring-1 ring-emerald-300'
-                    : 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200'
-                } ${isSelected ? 'scale-110 ring-2 ring-sky-500 z-10' : ''} ${
-                  isDimmed ? 'opacity-25 grayscale' : 'opacity-100'
+                    ? 'bg-emerald-100 border-2 border-emerald-500 text-emerald-950 scale-105 shadow-xs'
+                    : 'bg-slate-100 border border-slate-200 text-slate-400 opacity-60'
                 }`}
               >
-                <div className="flex items-center gap-0.5">
-                  {isSq ? <Unlock className="w-2.5 h-2.5" /> : <Lock className="w-2.5 h-2.5" />}
-                  <span>{num}</span>
-                </div>
-                <span className="text-[8px] uppercase tracking-tighter">
-                  {isSq ? 'Open' : 'Shut'}
-                </span>
-              </button>
+                <span>{num}</span>
+                {isSq ? (
+                  <Unlock className="w-3 h-3 text-emerald-600 mt-0.5" />
+                ) : (
+                  <Lock className="w-2.5 h-2.5 text-slate-400 mt-0.5" />
+                )}
+              </div>
             );
           })}
         </div>
-      </div>
+      )}
 
-      {/* 4. Dynamic Factor Inspector Box */}
-      <div className="px-3 py-1.5 rounded-xl bg-sky-50 border border-sky-200 text-micro flex items-center justify-between gap-2 text-slate-800 shrink-0">
-        <div className="text-left">
-          <strong className="text-[#005583]">Locker #{selectedLocker}:</strong> Factors are [
-          {activeFactors.join(', ')}] ({activeFactors.length}{' '}
-          {activeFactors.length === 1 ? 'factor' : 'factors'} →{' '}
-          <strong className={isSquareLocker ? 'text-emerald-700' : 'text-slate-600'}>
-            {isSquareLocker ? 'Odd Count' : 'Even Count'}
-          </strong>
-          )
-        </div>
-        <span
-          className={`px-2 py-0.5 rounded-lg text-[10px] font-black uppercase shrink-0 ${
-            isSquareLocker
-              ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-              : 'bg-slate-200 text-slate-700'
-          }`}
-        >
-          {isSquareLocker ? 'Stays Open!' : 'Stays Closed'}
-        </span>
-      </div>
-
-      {/* 5. Dynamic Takeaway & Footer */}
-      <div className="pt-1.5 border-t border-slate-200/70 flex items-center justify-between gap-2 shrink-0">
-        <span className="text-micro font-bold text-emerald-700">
-          ✓ Factor pairs flip and cancel out — only squares have an unpaired factor!
-        </span>
-
-        <button
-          type="button"
-          onClick={onNext}
-          className="min-h-[36px] px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-micro font-bold inline-flex items-center gap-1 cursor-pointer transition-colors shrink-0 shadow-2xs"
-        >
-          <span>{!isLastQuestion ? 'Next Question' : 'See Results'}</span>
-          <ChevronRight className="w-3.5 h-3.5" />
-        </button>
-      </div>
-    </div>
-  );
-};
-
-// -----------------------------------------------------------------------------
-// SCENE 2: SQUARES AS AREAS (scene-2-qc-1)
-// -----------------------------------------------------------------------------
-export const SquareAreaGridVisualizer: React.FC<QuickCheckVisualizerStageProps> = ({
-  onNext,
-  onReset,
-  isCorrect,
-  isLastQuestion,
-}) => {
-  const [side, setSide] = useState<number>(8);
-  const area = side * side;
-
-  return (
-    <div
-      aria-label="Square Area Interactive Grid"
-      className="w-full h-full min-h-0 bg-slate-50/80 border border-slate-200/80 rounded-3xl p-3 sm:p-3.5 flex flex-col justify-between gap-2 overflow-hidden shadow-2xs animate-fade-rise"
-    >
-      {/* 1. Header Bar */}
-      <div className="flex items-center justify-between gap-2 pb-1.5 border-b border-slate-200/70 shrink-0">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span
-            className={`text-micro font-extrabold uppercase tracking-wider ${
-              isCorrect ? 'text-emerald-700' : 'text-rose-700'
-            }`}
-          >
-            {isCorrect ? '✓ Right! Geometric Area Solution' : 'Review — Squares as Area'}
-          </span>
-          <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200/80 text-micro font-bold text-[#005583] tabular-nums">
-            Side × Side = Area
-          </span>
-        </div>
-
-        {onReset && (
-          <button
-            type="button"
-            onClick={onReset}
-            className="min-h-[34px] px-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 text-micro font-bold flex items-center gap-1.5 cursor-pointer transition-colors shrink-0 shadow-2xs"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Re-try</span>
-          </button>
-        )}
-      </div>
-
-      {/* 2. Side Length Selector */}
-      <div className="flex items-center justify-between gap-2 text-micro shrink-0 flex-wrap">
-        <span className="font-bold text-slate-600 flex items-center gap-1">
-          <Grid className="w-3.5 h-3.5 text-[#005583]" />
-          <span>Adjust square side length:</span>
-        </span>
-        <div className="flex items-center gap-1 bg-white p-0.5 rounded-xl border border-slate-200/80">
-          {[4, 6, 8, 10].map((s) => (
-            <button
-              key={s}
-              type="button"
-              onClick={() => setSide(s)}
-              className={`px-2.5 py-0.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
-                side === s
-                  ? 'bg-emerald-600 text-white shadow-2xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              Side = {s}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* 3. Geometric Area Visual Grid */}
-      <div className="w-full flex-1 min-h-[110px] max-h-[175px] bg-white rounded-2xl border border-slate-200/80 p-2 flex items-center justify-center gap-4 shadow-2xs overflow-hidden">
-        <div
-          className="relative aspect-square h-full max-h-[140px] bg-emerald-50 border-2 border-emerald-600 rounded-xl flex items-center justify-center shadow-xs overflow-hidden transition-all duration-300"
-          style={{ width: `${Math.min(140, side * 14)}px` }}
-        >
-          <div
-            className="absolute inset-0 grid divide-x divide-y divide-emerald-200/90"
-            style={{
-              gridTemplateColumns: `repeat(${side}, minmax(0, 1fr))`,
-              gridTemplateRows: `repeat(${side}, minmax(0, 1fr))`,
-            }}
-          >
-            {Array.from({ length: area }).map((_, i) => (
-              <div key={i} className="hover:bg-emerald-300/60 transition-colors" />
+      {step === 3 && (
+        <div className="flex flex-col items-center gap-2 animate-fade-rise">
+          <div className="flex items-center gap-2 font-mono">
+            {squares.map((sq) => (
+              <div
+                key={sq}
+                className="px-3 py-1.5 rounded-xl bg-emerald-600 text-white font-black text-small flex items-center gap-1 shadow-xs"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                <span>#{sq}</span>
+              </div>
             ))}
           </div>
-
-          <div className="relative z-10 px-2 py-0.5 rounded-lg bg-white/95 border border-emerald-500 text-emerald-950 font-black text-micro sm:text-small shadow-xs">
-            Area = {area}
+          <div className="px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 font-bold text-micro text-center max-w-sm">
+            🎉 Only squares have an ODD number of factors because their square root pairs with itself!
           </div>
         </div>
-
-        <div className="text-left flex flex-col gap-1 text-micro font-bold text-slate-700">
-          <div className="text-[#005583]">Width = {side} units</div>
-          <div className="text-[#005583]">Height = {side} units</div>
-          <div className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-900 border border-emerald-200 font-mono text-micro font-black">
-            {side} × {side} = {side}² = {area} sq units
-          </div>
-        </div>
-      </div>
-
-      {/* 4. Dynamic Insight Box */}
-      <div className="px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 font-bold text-micro shrink-0 flex items-center gap-2">
-        <Sparkles className="w-4 h-4 text-emerald-600 shrink-0" />
-        <span>
-          For side 8: <strong>8 rows × 8 columns = 64 unit squares</strong>. Squaring a number geometrically calculates the area!
-        </span>
-      </div>
-
-      {/* 5. Footer */}
-      <div className="pt-1.5 border-t border-slate-200/70 flex items-center justify-between gap-2 shrink-0">
-        <span className="text-micro font-bold text-emerald-700">
-          ✓ Side 8 produces exactly 64 square units!
-        </span>
-
-        <button
-          type="button"
-          onClick={onNext}
-          className="min-h-[36px] px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-micro font-bold inline-flex items-center gap-1 cursor-pointer transition-colors shrink-0 shadow-2xs"
-        >
-          <span>{!isLastQuestion ? 'Next Question' : 'See Results'}</span>
-          <ChevronRight className="w-3.5 h-3.5" />
-        </button>
-      </div>
-    </div>
+      )}
+    </VisualizerFrame>
   );
 };
 
 // -----------------------------------------------------------------------------
-// SCENE 3: LAST DIGITS SCANNER (scene-3-qc-1)
+// SCENE 2: Square as Area (Side 8 → 64 sq units)
 // -----------------------------------------------------------------------------
-export const LastDigitScannerVisualizer: React.FC<QuickCheckVisualizerStageProps> = ({
-  onNext,
-  onReset,
-  isCorrect,
-  isLastQuestion,
-}) => {
-  const [testNumber, setTestNumber] = useState<number>(3287);
+export const SquareAreaGridVisualizer: React.FC<QuickCheckVisualizerStageProps> = (props) => {
+  const [step, setStep] = useState<1 | 2 | 3>(1);
 
-  const getEndingDigit = (n: number) => n % 10;
-  const ending = getEndingDigit(testNumber);
-  const allowed = [0, 1, 4, 5, 6, 9];
-  const forbidden = [2, 3, 7, 8];
-  const isAllowed = allowed.includes(ending);
+  const cues: Record<1 | 2 | 3, React.ReactNode> = {
+    1: <span>Step 1: A square of side 8 has 8 rows and 8 columns.</span>,
+    2: <span>Step 2: Sweep each row — 8 rows of 8 unit squares fill up!</span>,
+    3: <span className="text-emerald-700">Step 3: Total area = 8 × 8 = 8² = 64 square units!</span>,
+  };
 
   return (
-    <div
-      aria-label="Last Digits Scanner"
-      className="w-full h-full min-h-0 bg-slate-50/80 border border-slate-200/80 rounded-3xl p-3 sm:p-3.5 flex flex-col justify-between gap-2 overflow-hidden shadow-2xs animate-fade-rise"
+    <VisualizerFrame
+      title="Square as Area"
+      badge="Side 8 Grid"
+      cue={cues[step]}
+      step={step}
+      setStep={setStep}
+      onNext={props.onNext}
+      onReset={props.onReset}
+      isLastQuestion={props.isLastQuestion}
     >
-      {/* 1. Header Bar */}
-      <div className="flex items-center justify-between gap-2 pb-1.5 border-b border-slate-200/70 shrink-0">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span
-            className={`text-micro font-extrabold uppercase tracking-wider ${
-              isCorrect ? 'text-emerald-700' : 'text-rose-700'
-            }`}
-          >
-            {isCorrect ? '✓ Right! Last Digits Rule' : 'Review — Last Digits Pattern'}
-          </span>
-          <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200/80 text-micro font-bold text-[#005583] tabular-nums">
-            Units Digit Inspection
-          </span>
-        </div>
-
-        {onReset && (
-          <button
-            type="button"
-            onClick={onReset}
-            className="min-h-[34px] px-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 text-micro font-bold flex items-center gap-1.5 cursor-pointer transition-colors shrink-0 shadow-2xs"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Re-try</span>
-          </button>
-        )}
-      </div>
-
-      {/* 2. Candidate Selector */}
-      <div className="flex items-center justify-between gap-2 text-micro shrink-0 flex-wrap">
-        <span className="font-bold text-slate-600">Select test candidate:</span>
-        <div className="flex items-center gap-1 bg-white p-0.5 rounded-xl border border-slate-200/80">
-          {[3287, 576, 1089, 2032].map((num) => (
-            <button
-              key={num}
-              type="button"
-              onClick={() => setTestNumber(num)}
-              className={`px-2.5 py-0.5 rounded-lg text-[11px] font-mono font-bold transition-all cursor-pointer ${
-                testNumber === num
-                  ? 'bg-[#005583] text-white shadow-2xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              {num}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* 3. Scanner Stage */}
-      <div className="w-full flex-1 min-h-[110px] max-h-[175px] bg-white rounded-2xl border border-slate-200/80 p-2 flex flex-col items-center justify-center gap-2 shadow-2xs overflow-hidden">
-        {/* Big Digit Spotlight */}
-        <div className="flex items-center gap-2">
-          <span className="text-title font-mono font-black text-slate-800">
-            {Math.floor(testNumber / 10)}
-            <span
-              className={`px-1 rounded-lg border-2 ${
-                isAllowed
-                  ? 'text-emerald-700 bg-emerald-50 border-emerald-500'
-                  : 'text-rose-600 bg-rose-50 border-rose-500 underline decoration-wavy'
-              }`}
-            >
-              {ending}
+      {step === 1 && (
+        <div className="flex items-center gap-4 animate-fade-rise">
+          <div className="relative w-24 h-24 border-2 border-dashed border-[#005583] rounded-xl flex items-center justify-center bg-sky-50/50">
+            <span className="text-micro font-bold text-[#005583]">8 × 8 outline</span>
+            <span className="absolute -top-3 px-1.5 rounded bg-white border border-sky-300 text-[10px] font-bold text-[#005583]">
+              8 units
             </span>
-          </span>
-          <span
-            className={`px-2.5 py-0.5 rounded-full text-micro font-extrabold border ${
-              isAllowed
-                ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
-                : 'bg-rose-100 text-rose-800 border-rose-300'
-            }`}
-          >
-            {isAllowed ? `Ends in ${ending} (Possible Square)` : `Ends in ${ending} (Impossible!)`}
-          </span>
-        </div>
-
-        {/* Allowed vs Forbidden Shelves */}
-        <div className="grid grid-cols-2 gap-2 w-full max-w-sm text-micro text-left">
-          <div className="p-1.5 rounded-xl bg-emerald-50 border border-emerald-200">
-            <span className="font-extrabold text-emerald-800 flex items-center gap-1 text-[11px]">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" /> Allowed Ends:
+            <span className="absolute -left-3 rotate-[-90deg] px-1.5 rounded bg-white border border-sky-300 text-[10px] font-bold text-[#005583]">
+              8 units
             </span>
-            <div className="font-mono font-bold text-emerald-950 mt-0.5">0, 1, 4, 5, 6, 9</div>
           </div>
-
-          <div className="p-1.5 rounded-xl bg-rose-50 border border-rose-200">
-            <span className="font-extrabold text-rose-800 flex items-center gap-1 text-[11px]">
-              <XCircle className="w-3.5 h-3.5 text-rose-600 shrink-0" /> NEVER Ends In:
-            </span>
-            <div className="font-mono font-bold text-rose-950 mt-0.5">2, 3, 7, 8</div>
+          <div className="text-micro text-slate-600 font-medium max-w-[180px]">
+            Both side lengths are equal to 8. Tap to fill the grid!
           </div>
         </div>
-      </div>
+      )}
 
-      {/* 4. Dynamic Insight */}
-      <div className="px-3 py-1 rounded-xl bg-rose-50 border border-rose-200 text-rose-950 font-bold text-micro shrink-0">
-        3287 ends in <strong>7</strong>. Since no integer squared ends in 2, 3, 7, or 8, 3287 can NEVER be a square!
-      </div>
+      {step === 2 && (
+        <div className="flex flex-col items-center gap-1.5 animate-fade-rise">
+          <div className="grid grid-cols-8 gap-0.5 p-1 rounded-xl bg-slate-100 border border-slate-300">
+            {Array.from({ length: 64 }, (_, i) => (
+              <div
+                key={i}
+                className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-2xs bg-emerald-500 shadow-2xs"
+                style={{
+                  transition: 'opacity 300ms cubic-bezier(0.22, 1, 0.36, 1)',
+                  opacity: i < 64 ? 1 : 0,
+                }}
+              />
+            ))}
+          </div>
+          <span className="font-mono text-micro font-extrabold text-emerald-800">
+            Filled 64 unit squares
+          </span>
+        </div>
+      )}
 
-      {/* 5. Footer */}
-      <div className="pt-1.5 border-t border-slate-200/70 flex items-center justify-between gap-2 shrink-0">
-        <span className="text-micro font-bold text-emerald-700">
-          ✓ Correct! 3287 fails the last-digit test immediately.
-        </span>
-
-        <button
-          type="button"
-          onClick={onNext}
-          className="min-h-[36px] px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-micro font-bold inline-flex items-center gap-1 cursor-pointer transition-colors shrink-0 shadow-2xs"
-        >
-          <span>{!isLastQuestion ? 'Next Question' : 'See Results'}</span>
-          <ChevronRight className="w-3.5 h-3.5" />
-        </button>
-      </div>
-    </div>
+      {step === 3 && (
+        <div className="flex flex-col items-center gap-2 animate-fade-rise">
+          <div className="px-5 py-2 rounded-2xl bg-emerald-600 text-white font-mono font-black text-statement shadow-xs">
+            8 × 8 = 8² = 64
+          </div>
+          <div className="px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 font-bold text-micro text-center">
+            💡 Any square number IS a physical geometric area — that's why it's called "squaring"!
+          </div>
+        </div>
+      )}
+    </VisualizerFrame>
   );
 };
 
 // -----------------------------------------------------------------------------
-// SCENE 3: ZERO DOUBLING RULE (scene-3-qc-2)
+// SCENE 3 Q0: Last Digit Scanner (3287 ends in 7)
 // -----------------------------------------------------------------------------
-export const ZeroMultiplierVisualizer: React.FC<QuickCheckVisualizerStageProps> = ({
-  onNext,
-  onReset,
-  isCorrect,
-  isLastQuestion,
-}) => {
-  const [baseZeroCount, setBaseZeroCount] = useState<number>(2); // 300 has 2 zeros
-  const baseNumber = 3 * Math.pow(10, baseZeroCount);
-  const squaredNumber = baseNumber * baseNumber;
-  const squaredZeroCount = baseZeroCount * 2;
+export const LastDigitScannerVisualizer: React.FC<QuickCheckVisualizerStageProps> = (props) => {
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+
+  const cues: Record<1 | 2 | 3, React.ReactNode> = {
+    1: <span>Step 1: Look ONLY at the units (last) digit of 3287!</span>,
+    2: <span>Step 2: Check the sorting tray — is 7 allowed or forbidden?</span>,
+    3: <span className="text-rose-700">Step 3: 3287 ends in 7, so it CANNOT be a square!</span>,
+  };
 
   return (
-    <div
-      aria-label="Zero Doubling Rule Visualizer"
-      className="w-full h-full min-h-0 bg-slate-50/80 border border-slate-200/80 rounded-3xl p-3 sm:p-3.5 flex flex-col justify-between gap-2 overflow-hidden shadow-2xs animate-fade-rise"
+    <VisualizerFrame
+      title="Last Digit Scanner"
+      badge="Testing 3287"
+      cue={cues[step]}
+      step={step}
+      setStep={setStep}
+      onNext={props.onNext}
+      onReset={props.onReset}
+      isLastQuestion={props.isLastQuestion}
     >
-      {/* 1. Header Bar */}
-      <div className="flex items-center justify-between gap-2 pb-1.5 border-b border-slate-200/70 shrink-0">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span
-            className={`text-micro font-extrabold uppercase tracking-wider ${
-              isCorrect ? 'text-emerald-700' : 'text-rose-700'
-            }`}
-          >
-            {isCorrect ? '✓ Right! Trailing Zeros Rule' : 'Review — Trailing Zeros'}
-          </span>
-          <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200/80 text-micro font-bold text-[#005583] tabular-nums">
-            Zeros Double on Squaring
-          </span>
-        </div>
-
-        {onReset && (
-          <button
-            type="button"
-            onClick={onReset}
-            className="min-h-[34px] px-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 text-micro font-bold flex items-center gap-1.5 cursor-pointer transition-colors shrink-0 shadow-2xs"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Re-try</span>
-          </button>
-        )}
-      </div>
-
-      {/* 2. Base Zeros Selector */}
-      <div className="flex items-center justify-between gap-2 text-micro shrink-0 flex-wrap">
-        <span className="font-bold text-slate-600">Select base zeros:</span>
-        <div className="flex items-center gap-1 bg-white p-0.5 rounded-xl border border-slate-200/80">
-          {[1, 2, 3].map((z) => (
-            <button
-              key={z}
-              type="button"
-              onClick={() => setBaseZeroCount(z)}
-              className={`px-2.5 py-0.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
-                baseZeroCount === z
-                  ? 'bg-amber-500 text-white shadow-2xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              {3 * Math.pow(10, z)} ({z} {z === 1 ? 'zero' : 'zeros'})
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* 3. Animated Doubling Stage */}
-      <div className="w-full flex-1 min-h-[110px] max-h-[175px] bg-white rounded-2xl border border-slate-200/80 p-2 flex flex-col items-center justify-center gap-2.5 shadow-2xs overflow-hidden">
-        <div className="flex items-center justify-center gap-3 font-mono text-small sm:text-statement font-bold">
-          <div className="px-3 py-1.5 rounded-xl bg-slate-100 border border-slate-300 text-center">
-            3<span className="text-amber-600 font-black">{'0'.repeat(baseZeroCount)}</span>
-            <span className="text-[10px] text-slate-500 block font-sans font-bold">
-              {baseZeroCount} {baseZeroCount === 1 ? 'zero' : 'zeros'}
+      {step === 1 && (
+        <div className="flex flex-col items-center gap-2 animate-fade-rise font-mono">
+          <div className="text-display font-black text-slate-800 tracking-wider">
+            328
+            <span className="text-rose-600 bg-rose-100 px-2 py-0.5 rounded-xl border-2 border-rose-500 animate-pulse">
+              7
             </span>
           </div>
+          <span className="text-micro font-bold text-slate-500">
+            Spotlight is locked onto the last digit: 7
+          </span>
+        </div>
+      )}
 
-          <div className="flex flex-col items-center">
-            <span className="text-micro font-bold text-amber-600">Square (× 2)</span>
-            <ArrowRight className="w-5 h-5 text-amber-500" />
-          </div>
-
-          <div className="px-3 py-1.5 rounded-xl bg-amber-50 border border-amber-300 text-amber-950 text-center">
-            9<span className="text-amber-600 font-black underline">{'0'.repeat(squaredZeroCount)}</span>
-            <span className="text-[10px] text-amber-700 block font-sans font-bold">
-              {squaredZeroCount} zeros
+      {step === 2 && (
+        <div className="flex flex-col gap-2 w-full max-w-sm animate-fade-rise">
+          <div className="p-2 rounded-xl bg-rose-50 border-2 border-rose-400 flex items-center justify-between">
+            <span className="text-micro font-extrabold text-rose-900">
+              🚫 FORBIDDEN Trays: [2, 3, <strong className="underline text-rose-600">7</strong>, 8]
+            </span>
+            <span className="px-2 py-0.5 rounded bg-rose-200 text-rose-900 font-mono font-black text-micro animate-bounce">
+              Lands Here!
             </span>
           </div>
+          <div className="p-2 rounded-xl bg-slate-100 border border-slate-200 opacity-60 flex items-center justify-between text-micro text-slate-600">
+            <span>Allowed Trays: [0, 1, 4, 5, 6, 9]</span>
+            <span className="text-[10px]">Empty</span>
+          </div>
         </div>
+      )}
 
-        <div className="px-3 py-1 rounded-xl bg-sky-50 border border-sky-200 text-micro font-bold text-slate-800">
-          <Katex latex={`(3 \\times 10^${baseZeroCount})^2 = 9 \\times 10^{${baseZeroCount} \\times 2} = 9 \\times 10^${squaredZeroCount}`} />
+      {step === 3 && (
+        <div className="flex flex-col items-center gap-1.5 animate-fade-rise">
+          <div className="px-4 py-1.5 rounded-2xl bg-rose-600 text-white font-mono font-black text-statement shadow-xs">
+            IMPOSSIBLE ✗
+          </div>
+          <div className="px-3 py-1 rounded-xl bg-rose-50 border border-rose-300 text-rose-950 font-bold text-micro text-center">
+            No perfect square ever ends in 2, 3, 7, or 8. Since 3287 ends in 7, it fails instantly!
+          </div>
         </div>
-      </div>
-
-      {/* 4. Insight Box */}
-      <div className="px-3 py-1 rounded-xl bg-amber-50 border border-amber-200 text-amber-950 font-bold text-micro shrink-0">
-        300 ends in 2 zeros $\rightarrow$ on squaring, zeros double: $2 \times 2 = 4$ zeros ($90,000$).
-      </div>
-
-      {/* 5. Footer */}
-      <div className="pt-1.5 border-t border-slate-200/70 flex items-center justify-between gap-2 shrink-0">
-        <span className="text-micro font-bold text-emerald-700">
-          ✓ Trailing zeros always double on squaring!
-        </span>
-
-        <button
-          type="button"
-          onClick={onNext}
-          className="min-h-[36px] px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-micro font-bold inline-flex items-center gap-1 cursor-pointer transition-colors shrink-0 shadow-2xs"
-        >
-          <span>{!isLastQuestion ? 'Next Question' : 'See Results'}</span>
-          <ChevronRight className="w-3.5 h-3.5" />
-        </button>
-      </div>
-    </div>
+      )}
+    </VisualizerFrame>
   );
 };
 
 // -----------------------------------------------------------------------------
-// SCENE 3: PARITY OF SQUARES (scene-3-qc-3)
+// SCENE 3 Q1: Zero Multiplier (300² → 4 zeros)
 // -----------------------------------------------------------------------------
-export const ParityDotsVisualizer: React.FC<QuickCheckVisualizerStageProps> = ({
-  onNext,
-  onReset,
-  isCorrect,
-  isLastQuestion,
-}) => {
-  const [oddVal, setOddVal] = useState<number>(3); // 3, 5, 7
+export const ZeroMultiplierVisualizer: React.FC<QuickCheckVisualizerStageProps> = (props) => {
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+
+  const cues: Record<1 | 2 | 3, React.ReactNode> = {
+    1: <span>Step 1: Count the trailing zeros in 300 — it has 2 zeros.</span>,
+    2: <span>Step 2: Squaring doubles trailing zeros (2 zeros × 2 = 4 zeros)!</span>,
+    3: <span className="text-emerald-700">Step 3: 300² = 90,000 (exactly 4 zeros)!</span>,
+  };
 
   return (
-    <div
-      aria-label="Square Parity Visualizer"
-      className="w-full h-full min-h-0 bg-slate-50/80 border border-slate-200/80 rounded-3xl p-3 sm:p-3.5 flex flex-col justify-between gap-2 overflow-hidden shadow-2xs animate-fade-rise"
+    <VisualizerFrame
+      title="Zero Multiplier Rule"
+      badge="Squaring 300"
+      cue={cues[step]}
+      step={step}
+      setStep={setStep}
+      onNext={props.onNext}
+      onReset={props.onReset}
+      isLastQuestion={props.isLastQuestion}
     >
-      {/* 1. Header Bar */}
-      <div className="flex items-center justify-between gap-2 pb-1.5 border-b border-slate-200/70 shrink-0">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span
-            className={`text-micro font-extrabold uppercase tracking-wider ${
-              isCorrect ? 'text-emerald-700' : 'text-rose-700'
-            }`}
-          >
-            {isCorrect ? '✓ Right! Square Parity' : 'Review — Square Parity'}
-          </span>
-          <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200/80 text-micro font-bold text-[#005583] tabular-nums">
-            Odd × Odd = Always Odd
-          </span>
-        </div>
-
-        {onReset && (
-          <button
-            type="button"
-            onClick={onReset}
-            className="min-h-[34px] px-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 text-micro font-bold flex items-center gap-1.5 cursor-pointer transition-colors shrink-0 shadow-2xs"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Re-try</span>
-          </button>
-        )}
-      </div>
-
-      {/* 2. Odd Value Selector */}
-      <div className="flex items-center justify-between gap-2 text-micro shrink-0 flex-wrap">
-        <span className="font-bold text-slate-600">Select odd number:</span>
-        <div className="flex items-center gap-1 bg-white p-0.5 rounded-xl border border-slate-200/80">
-          {[3, 5, 7, 9].map((val) => (
-            <button
-              key={val}
-              type="button"
-              onClick={() => setOddVal(val)}
-              className={`px-2.5 py-0.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
-                oddVal === val
-                  ? 'bg-[#005583] text-white shadow-2xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              {val}² = {val * val}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* 3. Parity Visual Stage */}
-      <div className="w-full flex-1 min-h-[110px] max-h-[175px] bg-white rounded-2xl border border-slate-200/80 p-2 flex items-center justify-center gap-6 shadow-2xs overflow-hidden">
-        <div className="flex flex-col items-center gap-1">
-          <div className="px-3 py-1 rounded-xl bg-sky-50 border border-sky-300 text-sky-950 font-bold text-micro">
-            Odd = (2k + 1)
+      {step === 1 && (
+        <div className="flex flex-col items-center gap-2 animate-fade-rise font-mono">
+          <div className="text-display font-black text-slate-800">
+            3
+            <span className="text-amber-600 bg-amber-100 px-2 py-0.5 rounded-xl border border-amber-300">
+              00
+            </span>
           </div>
-          <span className="text-[11px] text-slate-500 font-medium">Pairs with 1 leftover dot</span>
-        </div>
-
-        <ArrowRight className="w-5 h-5 text-slate-400" />
-
-        <div className="flex flex-col items-center gap-1">
-          <div className="px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 font-bold text-micro">
-            (2k + 1)² = 4k² + 4k + 1
+          <div className="text-micro font-bold text-amber-700">
+            Base number has <strong>2 trailing zeros</strong>
           </div>
-          <span className="text-[11px] text-emerald-800 font-bold">Even part + 1 = ALWAYS ODD</span>
         </div>
-      </div>
+      )}
 
-      {/* 4. Insight Box */}
-      <div className="px-3 py-1 rounded-xl bg-sky-50 border border-sky-200 text-sky-950 font-bold text-micro shrink-0">
-        Any odd number squared leaves an unpaired remainder of 1. Odd × Odd is ALWAYS ODD!
-      </div>
+      {step === 2 && (
+        <div className="flex items-center gap-3 animate-fade-rise font-mono">
+          <div className="px-3 py-1.5 rounded-xl bg-amber-100 text-amber-950 font-bold text-small border border-amber-300">
+            2 zeros
+          </div>
+          <span className="text-statement font-black text-[#005583]">× 2</span>
+          <ArrowRight className="w-4 h-4 text-slate-400" />
+          <div className="px-3 py-1.5 rounded-xl bg-emerald-100 text-emerald-950 font-black text-small border border-emerald-400">
+            4 zeros
+          </div>
+        </div>
+      )}
 
-      {/* 5. Footer */}
-      <div className="pt-1.5 border-t border-slate-200/70 flex items-center justify-between gap-2 shrink-0">
-        <span className="text-micro font-bold text-emerald-700">
-          ✓ Square of an odd number is always odd!
-        </span>
+      {step === 3 && (
+        <div className="flex flex-col items-center gap-1.5 animate-fade-rise font-mono">
+          <div className="text-statement font-black text-slate-900">
+            300² = 9<span className="text-emerald-600 underline">0000</span>
+          </div>
+          <div className="px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 font-bold text-micro text-center">
+            Trailing zeros ALWAYS double when you square! 2 × 2 = 4 zeros.
+          </div>
+        </div>
+      )}
+    </VisualizerFrame>
+  );
+};
 
-        <button
-          type="button"
-          onClick={onNext}
-          className="min-h-[36px] px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-micro font-bold inline-flex items-center gap-1 cursor-pointer transition-colors shrink-0 shadow-2xs"
-        >
-          <span>{!isLastQuestion ? 'Next Question' : 'See Results'}</span>
-          <ChevronRight className="w-3.5 h-3.5" />
-        </button>
-      </div>
-    </div>
+// -----------------------------------------------------------------------------
+// SCENE 3 Q2: Parity Dots (Odd² is always odd)
+// -----------------------------------------------------------------------------
+export const ParityDotsVisualizer: React.FC<QuickCheckVisualizerStageProps> = (props) => {
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+
+  const cues: Record<1 | 2 | 3, React.ReactNode> = {
+    1: <span>Step 1: Any odd number (like 5) leaves 1 lonely unpaired dot.</span>,
+    2: <span>Step 2: Squaring odd × odd pairs everything except one corner!</span>,
+    3: <span className="text-emerald-700">Step 3: (Odd)² is ALWAYS odd. No exceptions!</span>,
+  };
+
+  return (
+    <VisualizerFrame
+      title="Parity Rule"
+      badge="Odd Numbers"
+      cue={cues[step]}
+      step={step}
+      setStep={setStep}
+      onNext={props.onNext}
+      onReset={props.onReset}
+      isLastQuestion={props.isLastQuestion}
+    >
+      {step === 1 && (
+        <div className="flex flex-col items-center gap-2 animate-fade-rise">
+          <div className="flex items-center gap-2">
+            <div className="flex gap-1 p-1.5 rounded-xl bg-sky-50 border border-sky-200">
+              <div className="w-3.5 h-3.5 rounded-full bg-[#005583]" />
+              <div className="w-3.5 h-3.5 rounded-full bg-[#005583]" />
+            </div>
+            <div className="flex gap-1 p-1.5 rounded-xl bg-sky-50 border border-sky-200">
+              <div className="w-3.5 h-3.5 rounded-full bg-[#005583]" />
+              <div className="w-3.5 h-3.5 rounded-full bg-[#005583]" />
+            </div>
+            <div className="p-1.5 rounded-xl bg-amber-100 border border-amber-400 animate-pulse">
+              <div className="w-3.5 h-3.5 rounded-full bg-amber-600" />
+            </div>
+          </div>
+          <span className="text-micro font-bold text-slate-600">
+            5 = 2 pairs + <strong className="text-amber-600">1 lonely dot</strong>
+          </span>
+        </div>
+      )}
+
+      {step === 2 && (
+        <div className="flex flex-col items-center gap-1.5 animate-fade-rise">
+          <div className="grid grid-cols-5 gap-1 p-1.5 rounded-xl bg-slate-50 border border-slate-200">
+            {Array.from({ length: 25 }, (_, idx) => {
+              const isCorner = idx === 24;
+              return (
+                <div
+                  key={idx}
+                  className={`w-3 h-3 rounded-full ${
+                    isCorner ? 'bg-amber-500 animate-pulse ring-2 ring-amber-300' : 'bg-[#005583]'
+                  }`}
+                />
+              );
+            })}
+          </div>
+          <span className="text-[11px] font-bold text-slate-700">
+            24 dots make 12 pairs + <strong className="text-amber-600">1 leftover dot!</strong>
+          </span>
+        </div>
+      )}
+
+      {step === 3 && (
+        <div className="flex flex-col items-center gap-1.5 animate-fade-rise font-mono">
+          <div className="px-4 py-1.5 rounded-2xl bg-emerald-600 text-white font-black text-small shadow-xs">
+            Odd × Odd = ALWAYS ODD
+          </div>
+          <div className="px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 font-bold text-micro text-center">
+            Even² is always Even (0, 4, 16, 36...). Odd² is always Odd (1, 9, 25, 49...).
+          </div>
+        </div>
+      )}
+    </VisualizerFrame>
   );
 };

@@ -6,715 +6,545 @@
 import React, { useState } from 'react';
 import {
   ArrowRight,
+  CheckCircle2,
   ChevronRight,
-  Layers,
   RotateCcw,
   Sparkles,
+  XCircle,
 } from 'lucide-react';
-import { Katex } from '../Katex';
 import { QuickCheckVisualizerStageProps } from './SquaresQuickCheckVisualizers';
 
 // -----------------------------------------------------------------------------
-// SCENE 4: L-SHAPED ODD GNOMONS (scene-4-qc-1)
+// Helper: Card Shell Frame
 // -----------------------------------------------------------------------------
-export const LShapedOddGnomonVisualizer: React.FC<QuickCheckVisualizerStageProps> = ({
+interface VisualizerFrameProps {
+  title: string;
+  badge: string;
+  cue: React.ReactNode;
+  step: 1 | 2 | 3;
+  setStep: React.Dispatch<React.SetStateAction<1 | 2 | 3>>;
+  onNext: () => void;
+  onReset?: () => void;
+  isLastQuestion: boolean;
+  children: React.ReactNode;
+  footerNote?: string;
+}
+
+const VisualizerFrame: React.FC<VisualizerFrameProps> = ({
+  title,
+  badge,
+  cue,
+  step,
+  setStep,
   onNext,
   onReset,
-  isCorrect,
   isLastQuestion,
+  children,
+  footerNote,
 }) => {
-  const [layersCount, setLayersCount] = useState<number>(8); // default: 8
-  const oddNumbers = [1, 3, 5, 7, 9, 11, 13, 15];
-  const layerColors = [
-    '#0284C7', // 1
-    '#0EA5E9', // 3
-    '#0D9488', // 5
-    '#10B981', // 7
-    '#84CC16', // 9
-    '#EAB308', // 11
-    '#F97316', // 13
-    '#EF4444', // 15
+  const advanceStep = () => {
+    if (step < 3) setStep((s) => (s + 1) as 1 | 2 | 3);
+  };
+
+  const stepLabels = ['Step 1', 'Step 2', 'Step 3 (Answer)'];
+
+  return (
+    <div className="w-full h-full min-h-0 bg-slate-50/80 border border-slate-200/80 rounded-3xl p-3 sm:p-3.5 flex flex-col justify-between gap-1.5 overflow-hidden shadow-2xs animate-fade-rise">
+      {/* Header Bar */}
+      <div className="flex items-center justify-between gap-2 pb-1 border-b border-slate-200/70 shrink-0">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-micro font-extrabold uppercase tracking-wider text-[#005583]">
+            {title}
+          </span>
+          <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200/80 text-[11px] font-bold text-slate-700 tabular-nums">
+            {badge}
+          </span>
+        </div>
+        {onReset && (
+          <button
+            type="button"
+            onClick={() => {
+              setStep(1);
+              onReset();
+            }}
+            className="min-h-[28px] px-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
+          >
+            <RotateCcw className="w-3 h-3" />
+            <span>Reset</span>
+          </button>
+        )}
+      </div>
+
+      {/* Step Scrubber */}
+      <div className="flex items-center gap-1.5 shrink-0 py-0.5">
+        {stepLabels.map((label, idx) => {
+          const stepNum = (idx + 1) as 1 | 2 | 3;
+          const isActive = step === stepNum;
+          const isPast = step > stepNum;
+          return (
+            <React.Fragment key={stepNum}>
+              <button
+                type="button"
+                onClick={() => isPast && setStep(stepNum)}
+                className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border transition-all ${
+                  isActive
+                    ? 'bg-[#005583] text-white border-[#003F62] shadow-2xs'
+                    : isPast
+                    ? 'bg-white border-slate-200 text-[#005583] cursor-pointer hover:bg-slate-50'
+                    : 'bg-slate-100 border-slate-200 text-slate-400 cursor-default'
+                }`}
+              >
+                {label}
+              </button>
+              {idx < 2 && <span className="text-slate-300 text-[11px]">→</span>}
+            </React.Fragment>
+          );
+        })}
+      </div>
+
+      {/* Single Action Cue */}
+      <div className="text-micro font-bold text-slate-700 shrink-0 min-h-[20px] flex items-center">
+        {cue}
+      </div>
+
+      {/* Central Canvas */}
+      <div
+        onClick={advanceStep}
+        title={step < 3 ? 'Tap anywhere to advance →' : undefined}
+        className="w-full flex-1 min-h-[110px] max-h-[175px] bg-white rounded-2xl border border-slate-200/80 p-2 flex flex-col items-center justify-center gap-2 shadow-2xs overflow-hidden cursor-pointer select-none transition-colors duration-200 hover:border-[#005583]/40"
+      >
+        {children}
+      </div>
+
+      {/* Footer Navigation */}
+      <div className="pt-1 border-t border-slate-200/70 flex items-center justify-between gap-2 shrink-0">
+        <span className="text-micro font-bold text-slate-600 truncate">
+          {footerNote || (step < 3 ? 'Tap canvas or click next step' : '✓ Solution verified!')}
+        </span>
+        {step < 3 ? (
+          <button
+            type="button"
+            onClick={advanceStep}
+            className="min-h-[32px] px-3.5 rounded-xl bg-[#005583] hover:bg-[#003F62] text-white text-micro font-bold inline-flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
+          >
+            <span>Step {step + 1}</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={onNext}
+            className="min-h-[32px] px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-micro font-bold inline-flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
+          >
+            <span>{!isLastQuestion ? 'Next Question' : 'See Results'}</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </button>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// -----------------------------------------------------------------------------
+// SCENE 4 Q0: L-Shaped Odd Gnomon Visualizer (Sum of first 8 odds = 8² = 64)
+// -----------------------------------------------------------------------------
+export const LShapedOddGnomonVisualizer: React.FC<QuickCheckVisualizerStageProps> = (props) => {
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+
+  const cues: Record<1 | 2 | 3, React.ReactNode> = {
+    1: <span>Step 1: Start with 1 dot. We add consecutive odd numbers as L-layers!</span>,
+    2: <span>Step 2: Each L-layer (+3, +5, +7, +9, +11, +13, +15) wraps into a square!</span>,
+    3: <span className="text-emerald-700">Step 3: Sum of 8 odds = 8² = 64!</span>,
+  };
+
+  const layers = [
+    { count: 1, color: 'bg-rose-500' },
+    { count: 3, color: 'bg-amber-500' },
+    { count: 5, color: 'bg-emerald-500' },
+    { count: 7, color: 'bg-sky-500' },
+    { count: 9, color: 'bg-indigo-500' },
+    { count: 11, color: 'bg-purple-500' },
+    { count: 13, color: 'bg-pink-500' },
+    { count: 15, color: 'bg-teal-500' },
   ];
 
-  const totalSum = layersCount * layersCount;
-
   return (
-    <div
-      aria-label="L-Shaped Odd Gnomon Visualizer"
-      className="w-full h-full min-h-0 bg-slate-50/80 border border-slate-200/80 rounded-3xl p-3 sm:p-3.5 flex flex-col justify-between gap-2 overflow-hidden shadow-2xs animate-fade-rise"
+    <VisualizerFrame
+      title="L-Shaped Gnomons"
+      badge="First 8 Odds"
+      cue={cues[step]}
+      step={step}
+      setStep={setStep}
+      onNext={props.onNext}
+      onReset={props.onReset}
+      isLastQuestion={props.isLastQuestion}
     >
-      {/* 1. Header Bar */}
-      <div className="flex items-center justify-between gap-2 pb-1.5 border-b border-slate-200/70 shrink-0">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span
-            className={`text-micro font-extrabold uppercase tracking-wider ${
-              isCorrect ? 'text-emerald-700' : 'text-rose-700'
-            }`}
-          >
-            {isCorrect ? '✓ Right! Odd Numbers Make Squares' : 'Review — Odd Numbers Sum'}
-          </span>
-          <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200/80 text-micro font-bold text-[#005583] tabular-nums">
-            L-Shaped Gnomons (n = {layersCount})
-          </span>
-        </div>
-
-        {onReset && (
-          <button
-            type="button"
-            onClick={onReset}
-            className="min-h-[34px] px-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 text-micro font-bold flex items-center gap-1.5 cursor-pointer transition-colors shrink-0 shadow-2xs"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Re-try</span>
-          </button>
-        )}
-      </div>
-
-      {/* 2. Controls */}
-      <div className="flex items-center justify-between gap-2 text-micro shrink-0 flex-wrap">
-        <span className="font-bold text-slate-600 flex items-center gap-1">
-          <Layers className="w-3.5 h-3.5 text-[#005583]" />
-          <span>Add consecutive odd layers:</span>
-        </span>
-        <div className="flex items-center gap-1 bg-white p-0.5 rounded-xl border border-slate-200/80">
-          {[1, 3, 5, 8].map((n) => (
-            <button
-              key={n}
-              type="button"
-              onClick={() => setLayersCount(n)}
-              className={`px-2.5 py-0.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
-                layersCount === n
-                  ? 'bg-[#005583] text-white shadow-2xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              {n} {n === 1 ? 'Odd' : 'Odds'} ({n}²)
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* 3. L-Shaped SVG Canvas */}
-      <div className="w-full flex-1 min-h-[110px] max-h-[175px] bg-white rounded-2xl border border-slate-200/80 p-2 flex items-center justify-center gap-5 shadow-2xs overflow-hidden">
-        <svg
-          viewBox="0 0 160 160"
-          className="h-full aspect-square max-h-[140px] select-none"
-        >
-          {Array.from({ length: layersCount }).map((_, lIdx) => {
-            const size = lIdx + 1;
-            const color = layerColors[lIdx % layerColors.length];
-            return (
-              <g key={lIdx}>
-                {/* Horizontal part of L */}
-                {Array.from({ length: size }).map((_, col) => (
-                  <rect
-                    key={`h-${col}`}
-                    x={col * 18 + 8}
-                    y={lIdx * 18 + 8}
-                    width={15}
-                    height={15}
-                    rx={3}
-                    fill={color}
-                    opacity={0.9}
-                  />
-                ))}
-                {/* Vertical part of L */}
-                {Array.from({ length: lIdx }).map((_, row) => (
-                  <rect
-                    key={`v-${row}`}
-                    x={lIdx * 18 + 8}
-                    y={row * 18 + 8}
-                    width={15}
-                    height={15}
-                    rx={3}
-                    fill={color}
-                    opacity={0.9}
-                  />
-                ))}
-              </g>
-            );
-          })}
-        </svg>
-
-        <div className="text-left flex flex-col gap-1 text-micro font-bold text-slate-700">
-          <div className="text-slate-500 font-sans">
-            Odds: {oddNumbers.slice(0, layersCount).join(' + ')}
+      {step === 1 && (
+        <div className="flex flex-col items-center gap-2 animate-fade-rise">
+          <div className="w-6 h-6 rounded-md bg-rose-500 flex items-center justify-center text-white font-mono font-bold text-micro shadow-xs">
+            1
           </div>
-          <div className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-900 border border-emerald-200 font-mono text-micro font-black">
-            Sum = {layersCount}² = {totalSum}
-          </div>
-        </div>
-      </div>
-
-      {/* 4. Insight */}
-      <div className="px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 font-bold text-micro shrink-0 flex items-center gap-2">
-        <Sparkles className="w-4 h-4 text-emerald-600 shrink-0" />
-        <span>
-          Sum of the first 8 odd numbers is always <strong>8² = 64</strong>!
-        </span>
-      </div>
-
-      {/* 5. Footer */}
-      <div className="pt-1.5 border-t border-slate-200/70 flex items-center justify-between gap-2 shrink-0">
-        <span className="text-micro font-bold text-emerald-700">
-          ✓ First 8 odd numbers sum to 64!
-        </span>
-
-        <button
-          type="button"
-          onClick={onNext}
-          className="min-h-[36px] px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-micro font-bold inline-flex items-center gap-1 cursor-pointer transition-colors shrink-0 shadow-2xs"
-        >
-          <span>{!isLastQuestion ? 'Next Question' : 'See Results'}</span>
-          <ChevronRight className="w-3.5 h-3.5" />
-        </button>
-      </div>
-    </div>
-  );
-};
-
-// -----------------------------------------------------------------------------
-// SCENE 4: 20TH ODD NUMBER (scene-4-qc-2)
-// -----------------------------------------------------------------------------
-export const OddSequenceFormulaVisualizer: React.FC<QuickCheckVisualizerStageProps> = ({
-  onNext,
-  onReset,
-  isCorrect,
-  isLastQuestion,
-}) => {
-  const [nVal, setNVal] = useState<number>(20);
-  const oddTerm = 2 * nVal - 1;
-
-  return (
-    <div
-      aria-label="Odd Sequence Formula Visualizer"
-      className="w-full h-full min-h-0 bg-slate-50/80 border border-slate-200/80 rounded-3xl p-3 sm:p-3.5 flex flex-col justify-between gap-2 overflow-hidden shadow-2xs animate-fade-rise"
-    >
-      {/* 1. Header Bar */}
-      <div className="flex items-center justify-between gap-2 pb-1.5 border-b border-slate-200/70 shrink-0">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span
-            className={`text-micro font-extrabold uppercase tracking-wider ${
-              isCorrect ? 'text-emerald-700' : 'text-rose-700'
-            }`}
-          >
-            {isCorrect ? '✓ Right! Nth Odd Number' : 'Review — Nth Odd Formula'}
-          </span>
-          <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200/80 text-micro font-bold text-[#005583] tabular-nums">
-            Formula: 2n - 1
+          <span className="text-micro font-bold text-slate-600">
+            Base: 1 = 1² (First odd number)
           </span>
         </div>
+      )}
 
-        {onReset && (
-          <button
-            type="button"
-            onClick={onReset}
-            className="min-h-[34px] px-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 text-micro font-bold flex items-center gap-1.5 cursor-pointer transition-colors shrink-0 shadow-2xs"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Re-try</span>
-          </button>
-        )}
-      </div>
-
-      {/* 2. Controls */}
-      <div className="flex items-center justify-between gap-2 text-micro shrink-0 flex-wrap">
-        <span className="font-bold text-slate-600">Select term position (n):</span>
-        <div className="flex items-center gap-1 bg-white p-0.5 rounded-xl border border-slate-200/80">
-          {[1, 5, 10, 20].map((n) => (
-            <button
-              key={n}
-              type="button"
-              onClick={() => setNVal(n)}
-              className={`px-2.5 py-0.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
-                nVal === n
-                  ? 'bg-[#005583] text-white shadow-2xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              n = {n}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* 3. Sequence Tape Stage */}
-      <div className="w-full flex-1 min-h-[110px] max-h-[175px] bg-white rounded-2xl border border-slate-200/80 p-2 flex flex-col items-center justify-center gap-3 shadow-2xs overflow-hidden">
-        <div className="flex items-center justify-center gap-3 font-mono text-small sm:text-statement font-bold">
-          <div className="px-3 py-1.5 rounded-xl bg-slate-100 border text-center">
-            2(n) = 2({nVal}) = {2 * nVal}
-            <span className="text-[10px] text-slate-500 block font-sans font-bold">Even Double</span>
-          </div>
-
-          <div className="text-[#005583] font-black text-title">- 1 =</div>
-
-          <div className="px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 text-center shadow-xs">
-            {oddTerm}
-            <span className="text-[10px] text-emerald-700 block font-sans font-bold">
-              {nVal}th Odd Number
-            </span>
-          </div>
-        </div>
-
-        <div className="px-3 py-1 rounded-xl bg-sky-50 border border-sky-200 text-micro font-bold text-slate-800">
-          <Katex latex={`\\text{Term } n = 2n - 1 \\xrightarrow{n=20} 2(20) - 1 = 40 - 1 = 39`} />
-        </div>
-      </div>
-
-      {/* 4. Insight */}
-      <div className="px-3 py-1 rounded-xl bg-sky-50 border border-sky-200 text-sky-950 font-bold text-micro shrink-0">
-        Every odd number is 1 less than its even pair ($2n$). The 20th odd number is <strong>39</strong>!
-      </div>
-
-      {/* 5. Footer */}
-      <div className="pt-1.5 border-t border-slate-200/70 flex items-center justify-between gap-2 shrink-0">
-        <span className="text-micro font-bold text-emerald-700">
-          ✓ The 20th odd number is 39!
-        </span>
-
-        <button
-          type="button"
-          onClick={onNext}
-          className="min-h-[36px] px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-micro font-bold inline-flex items-center gap-1 cursor-pointer transition-colors shrink-0 shadow-2xs"
-        >
-          <span>{!isLastQuestion ? 'Next Question' : 'See Results'}</span>
-          <ChevronRight className="w-3.5 h-3.5" />
-        </button>
-      </div>
-    </div>
-  );
-};
-
-// -----------------------------------------------------------------------------
-// SCENE 4: ODD SUBTRACTION ON 50 (scene-4-qc-3)
-// -----------------------------------------------------------------------------
-export const OddSubtractionLadderVisualizer: React.FC<QuickCheckVisualizerStageProps> = ({
-  onNext,
-  onReset,
-  isCorrect,
-  isLastQuestion,
-}) => {
-  const [testNum, setTestNum] = useState<number>(50); // 49 vs 50
-  const isSquareNum = testNum === 49;
-
-  return (
-    <div
-      aria-label="Odd Subtraction Ladder Visualizer"
-      className="w-full h-full min-h-0 bg-slate-50/80 border border-slate-200/80 rounded-3xl p-3 sm:p-3.5 flex flex-col justify-between gap-2 overflow-hidden shadow-2xs animate-fade-rise"
-    >
-      {/* 1. Header Bar */}
-      <div className="flex items-center justify-between gap-2 pb-1.5 border-b border-slate-200/70 shrink-0">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span
-            className={`text-micro font-extrabold uppercase tracking-wider ${
-              isCorrect ? 'text-emerald-700' : 'text-rose-700'
-            }`}
-          >
-            {isCorrect ? '✓ Right! Subtraction Test' : 'Review — Subtraction Test'}
-          </span>
-          <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200/80 text-micro font-bold text-[#005583] tabular-nums">
-            Repeated Odd Subtraction
-          </span>
-        </div>
-
-        {onReset && (
-          <button
-            type="button"
-            onClick={onReset}
-            className="min-h-[34px] px-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 text-micro font-bold flex items-center gap-1.5 cursor-pointer transition-colors shrink-0 shadow-2xs"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Re-try</span>
-          </button>
-        )}
-      </div>
-
-      {/* 2. Controls */}
-      <div className="flex items-center justify-between gap-2 text-micro shrink-0 flex-wrap">
-        <span className="font-bold text-slate-600">Compare test:</span>
-        <div className="flex items-center gap-1 bg-white p-0.5 rounded-xl border border-slate-200/80">
-          {[50, 49].map((n) => (
-            <button
-              key={n}
-              type="button"
-              onClick={() => setTestNum(n)}
-              className={`px-2.5 py-0.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
-                testNum === n
-                  ? n === 49
-                    ? 'bg-emerald-600 text-white shadow-2xs'
-                    : 'bg-rose-600 text-white shadow-2xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              Test {n} {n === 49 ? '(Square)' : '(Question 50)'}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* 3. Subtraction Ladder Stage */}
-      <div className="w-full flex-1 min-h-[110px] max-h-[175px] bg-white rounded-2xl border border-slate-200/80 p-2 flex flex-col items-center justify-center gap-2 shadow-2xs overflow-hidden">
-        {testNum === 50 ? (
-          <div className="flex flex-col items-center gap-1.5">
-            <div className="flex flex-wrap items-center justify-center gap-1 text-[11px] font-mono text-slate-800">
-              <span>50 - 1 = 49 →</span>
-              <span>46 →</span>
-              <span>41 →</span>
-              <span>34 →</span>
-              <span>25 →</span>
-              <span>14 →</span>
-              <span className="font-extrabold text-amber-700">14 - 13 = 1 →</span>
-              <span className="font-black text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-300">
-                1 - 15 = -14 (&lt; 0)
+      {step === 2 && (
+        <div className="flex flex-col items-center gap-1.5 animate-fade-rise">
+          <div className="flex flex-wrap items-center justify-center gap-1 max-w-xs font-mono text-[11px] font-bold">
+            {layers.map((l, i) => (
+              <span
+                key={i}
+                className={`px-2 py-0.5 rounded-lg text-white ${l.color} shadow-2xs`}
+              >
+                +{l.count}
               </span>
-            </div>
-            <span className="px-3 py-1 rounded-xl bg-rose-50 border border-rose-300 text-rose-800 text-micro font-bold">
-              Skipped 0 completely and turned negative! 50 is NOT a square.
-            </span>
+            ))}
           </div>
-        ) : (
-          <div className="flex flex-col items-center gap-1.5">
-            <div className="flex flex-wrap items-center justify-center gap-1 text-[11px] font-mono text-slate-800">
-              <span>49 - 1 = 48 →</span>
-              <span>45 →</span>
-              <span>40 →</span>
-              <span>33 →</span>
-              <span>24 →</span>
-              <span>13 →</span>
-              <span className="font-black text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-300">
-                13 - 13 = 0 (Hits 0 at Step 7!)
-              </span>
-            </div>
-            <span className="px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-800 text-micro font-bold">
-              Hit exactly 0 at Step 7 $\rightarrow$ √49 = 7!
-            </span>
+          <span className="text-micro font-bold text-slate-700">
+            8 odd layers: 1 + 3 + 5 + 7 + 9 + 11 + 13 + 15
+          </span>
+        </div>
+      )}
+
+      {step === 3 && (
+        <div className="flex flex-col items-center gap-2 animate-fade-rise">
+          <div className="px-5 py-2 rounded-2xl bg-emerald-600 text-white font-mono font-black text-statement shadow-xs">
+            Sum of 8 odds = 8² = 64
           </div>
-        )}
-      </div>
-
-      {/* 4. Insight */}
-      <div className="px-3 py-1 rounded-xl bg-rose-50 border border-rose-200 text-rose-950 font-bold text-micro shrink-0">
-        Because 50 misses 0 and skips directly to negative 14, the subtraction test proves 50 is NOT a square!
-      </div>
-
-      {/* 5. Footer */}
-      <div className="pt-1.5 border-t border-slate-200/70 flex items-center justify-between gap-2 shrink-0">
-        <span className="text-micro font-bold text-emerald-700">
-          ✓ Correct! 50 misses 0 and turns negative.
-        </span>
-
-        <button
-          type="button"
-          onClick={onNext}
-          className="min-h-[36px] px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-micro font-bold inline-flex items-center gap-1 cursor-pointer transition-colors shrink-0 shadow-2xs"
-        >
-          <span>{!isLastQuestion ? 'Next Question' : 'See Results'}</span>
-          <ChevronRight className="w-3.5 h-3.5" />
-        </button>
-      </div>
-    </div>
+          <div className="px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 font-bold text-micro text-center">
+            The sum of the first n odd natural numbers is ALWAYS n²!
+          </div>
+        </div>
+      )}
+    </VisualizerFrame>
   );
 };
 
 // -----------------------------------------------------------------------------
-// SCENE 5: NUMBERS BETWEEN 20² AND 21² (scene-5-qc-1)
+// SCENE 4 Q1: Nth Odd Formula (2n − 1)
 // -----------------------------------------------------------------------------
-export const BetweenSquaresIntervalVisualizer: React.FC<QuickCheckVisualizerStageProps> = ({
-  onNext,
-  onReset,
-  isCorrect,
-  isLastQuestion,
-}) => {
-  const [baseN, setBaseN] = useState<number>(20);
-  const sq1 = baseN * baseN;
-  const sq2 = (baseN + 1) * (baseN + 1);
-  const countBetween = 2 * baseN;
+export const OddSequenceFormulaVisualizer: React.FC<QuickCheckVisualizerStageProps> = (props) => {
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+
+  const cues: Record<1 | 2 | 3, React.ReactNode> = {
+    1: <span>Step 1: Look at the positions: 1st=1, 2nd=3, 3rd=5, 4th=7.</span>,
+    2: <span>Step 2: Discover the rule: Nth term = 2 × (position) − 1!</span>,
+    3: <span className="text-emerald-700">Step 3: 20th odd number = 2(20) − 1 = 39!</span>,
+  };
 
   return (
-    <div
-      aria-label="Between Squares Interval Visualizer"
-      className="w-full h-full min-h-0 bg-slate-50/80 border border-slate-200/80 rounded-3xl p-3 sm:p-3.5 flex flex-col justify-between gap-2 overflow-hidden shadow-2xs animate-fade-rise"
+    <VisualizerFrame
+      title="Nth Odd Formula"
+      badge="Position 20"
+      cue={cues[step]}
+      step={step}
+      setStep={setStep}
+      onNext={props.onNext}
+      onReset={props.onReset}
+      isLastQuestion={props.isLastQuestion}
     >
-      {/* 1. Header Bar */}
-      <div className="flex items-center justify-between gap-2 pb-1.5 border-b border-slate-200/70 shrink-0">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span
-            className={`text-micro font-extrabold uppercase tracking-wider ${
-              isCorrect ? 'text-emerald-700' : 'text-rose-700'
-            }`}
-          >
-            {isCorrect ? '✓ Right! Numbers Between Squares' : 'Review — Non-Squares Between'}
-          </span>
-          <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200/80 text-micro font-bold text-[#005583] tabular-nums">
-            Rule: 2n
-          </span>
-        </div>
-
-        {onReset && (
-          <button
-            type="button"
-            onClick={onReset}
-            className="min-h-[34px] px-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 text-micro font-bold flex items-center gap-1.5 cursor-pointer transition-colors shrink-0 shadow-2xs"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Re-try</span>
-          </button>
-        )}
-      </div>
-
-      {/* 2. Controls */}
-      <div className="flex items-center justify-between gap-2 text-micro shrink-0 flex-wrap">
-        <span className="font-bold text-slate-600">Select base n:</span>
-        <div className="flex items-center gap-1 bg-white p-0.5 rounded-xl border border-slate-200/80">
-          {[3, 10, 20].map((n) => (
-            <button
-              key={n}
-              type="button"
-              onClick={() => setBaseN(n)}
-              className={`px-2.5 py-0.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
-                baseN === n
-                  ? 'bg-[#005583] text-white shadow-2xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              n = {n} ({n}² to {n + 1}²)
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* 3. Interval Stage */}
-      <div className="w-full flex-1 min-h-[110px] max-h-[175px] bg-white rounded-2xl border border-slate-200/80 p-2 flex flex-col items-center justify-center gap-3 shadow-2xs overflow-hidden">
-        <div className="flex items-center justify-center gap-2 font-mono text-small sm:text-statement font-bold w-full max-w-sm">
-          <div className="px-2.5 py-1 rounded-xl bg-slate-100 border text-center">
-            {baseN}² = {sq1}
+      {step === 1 && (
+        <div className="flex items-center gap-2 font-mono text-micro font-bold animate-fade-rise">
+          <div className="p-1.5 rounded-lg bg-slate-100 border text-center">
+            <div className="text-[10px] text-slate-500">n=1</div>
+            <div className="text-slate-900 font-extrabold text-small">1</div>
           </div>
-
-          <div className="flex-1 flex flex-col items-center">
-            <span className="px-3 py-1 rounded-xl bg-emerald-500 text-white font-black text-micro sm:text-small shadow-xs">
-              {countBetween} Non-Squares
-            </span>
-            <span className="text-[10px] text-emerald-800 font-bold mt-0.5">2 × {baseN}</span>
+          <div className="p-1.5 rounded-lg bg-slate-100 border text-center">
+            <div className="text-[10px] text-slate-500">n=2</div>
+            <div className="text-slate-900 font-extrabold text-small">3</div>
           </div>
+          <div className="p-1.5 rounded-lg bg-slate-100 border text-center">
+            <div className="text-[10px] text-slate-500">n=3</div>
+            <div className="text-slate-900 font-extrabold text-small">5</div>
+          </div>
+          <div className="p-1.5 rounded-lg bg-slate-100 border text-center">
+            <div className="text-[10px] text-slate-500">n=4</div>
+            <div className="text-slate-900 font-extrabold text-small">7</div>
+          </div>
+          <span className="text-slate-400">...</span>
+        </div>
+      )}
 
-          <div className="px-2.5 py-1 rounded-xl bg-slate-100 border text-center">
-            {baseN + 1}² = {sq2}
+      {step === 2 && (
+        <div className="flex flex-col items-center gap-1.5 animate-fade-rise font-mono">
+          <div className="px-3 py-1.5 rounded-xl bg-sky-100 text-[#005583] font-black text-small border border-sky-300">
+            Rule: 2n − 1
+          </div>
+          <div className="text-micro text-slate-600">
+            For n=1: 2(1)−1 = 1 | For n=2: 2(2)−1 = 3 | For n=3: 2(3)−1 = 5
           </div>
         </div>
+      )}
 
-        <div className="px-3 py-1 rounded-xl bg-sky-50 border border-sky-200 text-micro font-bold text-slate-800">
-          <Katex latex={`(n+1)^2 - n^2 - 1 = (2n + 1) - 1 = 2n = 2(20) = 40`} />
+      {step === 3 && (
+        <div className="flex flex-col items-center gap-2 animate-fade-rise font-mono">
+          <div className="px-4 py-2 rounded-2xl bg-emerald-600 text-white font-black text-statement shadow-xs">
+            2(20) − 1 = 40 − 1 = 39
+          </div>
+          <div className="px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 font-bold text-micro text-center">
+            The 20th odd natural number is <strong>39</strong>!
+          </div>
         </div>
-      </div>
-
-      {/* 4. Insight */}
-      <div className="px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 font-bold text-micro shrink-0">
-        Between 20² (400) and 21² (441), there are exactly <strong>2 × 20 = 40</strong> non-square numbers!
-      </div>
-
-      {/* 5. Footer */}
-      <div className="pt-1.5 border-t border-slate-200/70 flex items-center justify-between gap-2 shrink-0">
-        <span className="text-micro font-bold text-emerald-700">
-          ✓ Exactly 40 non-square numbers!
-        </span>
-
-        <button
-          type="button"
-          onClick={onNext}
-          className="min-h-[36px] px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-micro font-bold inline-flex items-center gap-1 cursor-pointer transition-colors shrink-0 shadow-2xs"
-        >
-          <span>{!isLastQuestion ? 'Next Question' : 'See Results'}</span>
-          <ChevronRight className="w-3.5 h-3.5" />
-        </button>
-      </div>
-    </div>
+      )}
+    </VisualizerFrame>
   );
 };
 
 // -----------------------------------------------------------------------------
-// SCENE 5: TRIANGULAR ZIPPER (scene-5-qc-2)
+// SCENE 4 Q2: Odd Subtraction Ladder (50 not a square)
 // -----------------------------------------------------------------------------
-export const TriangularZipperVisualizer: React.FC<QuickCheckVisualizerStageProps> = ({
-  onNext,
-  onReset,
-  isCorrect,
-  isLastQuestion,
-}) => {
-  const [isZipped, setIsZipped] = useState<boolean>(true);
+export const OddSubtractionLadderVisualizer: React.FC<QuickCheckVisualizerStageProps> = (props) => {
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+
+  const cues: Record<1 | 2 | 3, React.ReactNode> = {
+    1: <span>Step 1: Subtract consecutive odds: 1, 3, 5, 7, 9, 11, 13...</span>,
+    2: <span>Step 2: Watch 50 hit 1, then skip past 0 into negative (-14)!</span>,
+    3: <span className="text-rose-700">Step 3: Never hits 0 $\rightarrow$ 50 is NOT a square!</span>,
+  };
 
   return (
-    <div
-      aria-label="Triangular Zipper Visualizer"
-      className="w-full h-full min-h-0 bg-slate-50/80 border border-slate-200/80 rounded-3xl p-3 sm:p-3.5 flex flex-col justify-between gap-2 overflow-hidden shadow-2xs animate-fade-rise"
+    <VisualizerFrame
+      title="Repeated Subtraction"
+      badge="Testing 50"
+      cue={cues[step]}
+      step={step}
+      setStep={setStep}
+      onNext={props.onNext}
+      onReset={props.onReset}
+      isLastQuestion={props.isLastQuestion}
     >
-      {/* 1. Header Bar */}
-      <div className="flex items-center justify-between gap-2 pb-1.5 border-b border-slate-200/70 shrink-0">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span
-            className={`text-micro font-extrabold uppercase tracking-wider ${
-              isCorrect ? 'text-emerald-700' : 'text-rose-700'
-            }`}
-          >
-            {isCorrect ? '✓ Right! Triangular Numbers Sum' : 'Review — Triangular Zipper'}
-          </span>
-          <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200/80 text-micro font-bold text-[#005583] tabular-nums">
-            T₆ + T₇ = 7²
-          </span>
-        </div>
-
-        {onReset && (
-          <button
-            type="button"
-            onClick={onReset}
-            className="min-h-[34px] px-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 text-micro font-bold flex items-center gap-1.5 cursor-pointer transition-colors shrink-0 shadow-2xs"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Re-try</span>
-          </button>
-        )}
-      </div>
-
-      {/* 2. Controls */}
-      <div className="flex items-center justify-between gap-2 text-micro shrink-0 flex-wrap">
-        <span className="font-bold text-slate-600">Animation state:</span>
-        <button
-          type="button"
-          onClick={() => setIsZipped(!isZipped)}
-          className={`px-3 py-1 rounded-xl text-[11px] font-bold border transition-all cursor-pointer ${
-            isZipped
-              ? 'bg-emerald-600 text-white border-emerald-700 shadow-2xs'
-              : 'bg-amber-500 text-white border-amber-600 shadow-2xs'
-          }`}
-        >
-          {isZipped ? '✓ Zipped into 7² Square' : 'Split into Two Triangles'}
-        </button>
-      </div>
-
-      {/* 3. Zipper Canvas Stage */}
-      <div className="w-full flex-1 min-h-[110px] max-h-[175px] bg-white rounded-2xl border border-slate-200/80 p-2 flex items-center justify-center gap-4 shadow-2xs overflow-hidden">
-        <div className="flex items-center gap-2 font-mono text-small sm:text-statement font-extrabold">
-          <div className="px-3 py-1.5 rounded-xl bg-amber-50 text-amber-900 border border-amber-300 text-center">
-            T₆ = 21
-            <span className="text-[10px] text-amber-700 block font-sans font-bold">6th Triangle</span>
-          </div>
-
-          <span className="text-slate-400 font-bold">+</span>
-
-          <div className="px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-900 border border-emerald-300 text-center">
-            T₇ = 28
-            <span className="text-[10px] text-emerald-700 block font-sans font-bold">7th Triangle</span>
-          </div>
-
-          <span className="text-slate-400 font-bold">=</span>
-
-          <div className="px-3 py-1.5 rounded-xl bg-sky-500 text-white text-center shadow-xs">
-            49 = 7²
-            <span className="text-[10px] text-sky-100 block font-sans font-bold">Square</span>
+      {step === 1 && (
+        <div className="flex flex-col items-center gap-1.5 animate-fade-rise font-mono text-micro font-bold">
+          <div className="text-slate-800 text-small font-black">Starting: 50</div>
+          <div className="text-slate-500">
+            Rule: Perfect squares hit EXACTLY 0. Let's subtract odds!
           </div>
         </div>
-      </div>
+      )}
 
-      {/* 4. Insight */}
-      <div className="px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 font-bold text-micro shrink-0">
-        Any two consecutive triangular numbers zip together into a perfect square! Here, <strong>21 and 28</strong> sum to 49 (7²).
-      </div>
+      {step === 2 && (
+        <div className="flex flex-wrap items-center justify-center gap-1.5 max-w-sm font-mono text-[11px] font-bold animate-fade-rise">
+          <span className="px-2 py-0.5 rounded bg-slate-100">50 - 1 = 49</span>
+          <span className="px-2 py-0.5 rounded bg-slate-100">49 - 3 = 46</span>
+          <span className="px-2 py-0.5 rounded bg-slate-100">46 - 5 = 41</span>
+          <span className="px-2 py-0.5 rounded bg-slate-100">41 - 7 = 34</span>
+          <span className="px-2 py-0.5 rounded bg-slate-100">34 - 9 = 25</span>
+          <span className="px-2 py-0.5 rounded bg-slate-100">25 - 11 = 14</span>
+          <span className="px-2 py-0.5 rounded bg-amber-100 text-amber-950 border border-amber-300">
+            14 - 13 = 1
+          </span>
+          <span className="px-2 py-0.5 rounded bg-rose-200 text-rose-950 font-black border border-rose-400">
+            1 - 15 = -14 ✗
+          </span>
+        </div>
+      )}
 
-      {/* 5. Footer */}
-      <div className="pt-1.5 border-t border-slate-200/70 flex items-center justify-between gap-2 shrink-0">
-        <span className="text-micro font-bold text-emerald-700">
-          ✓ 21 and 28 add up to 49!
-        </span>
-
-        <button
-          type="button"
-          onClick={onNext}
-          className="min-h-[36px] px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-micro font-bold inline-flex items-center gap-1 cursor-pointer transition-colors shrink-0 shadow-2xs"
-        >
-          <span>{!isLastQuestion ? 'Next Question' : 'See Results'}</span>
-          <ChevronRight className="w-3.5 h-3.5" />
-        </button>
-      </div>
-    </div>
+      {step === 3 && (
+        <div className="flex flex-col items-center gap-1.5 animate-fade-rise">
+          <div className="px-4 py-1.5 rounded-2xl bg-rose-600 text-white font-mono font-black text-statement shadow-xs">
+            50 is NOT a Perfect Square
+          </div>
+          <div className="px-3 py-1 rounded-xl bg-rose-50 border border-rose-300 text-rose-950 font-bold text-micro text-center">
+            49 hits 0 after 7 steps (7² = 49). 50 skips right over 0 to -14!
+          </div>
+        </div>
+      )}
+    </VisualizerFrame>
   );
 };
 
 // -----------------------------------------------------------------------------
-// SCENE 5: HUNDRED BLOCK FINDER (scene-5-qc-3)
+// SCENE 5 Q0: Between Squares Interval (20² and 21²)
 // -----------------------------------------------------------------------------
-export const HundredBlockFinderVisualizer: React.FC<QuickCheckVisualizerStageProps> = ({
-  onNext,
-  onReset,
-  isCorrect,
-  isLastQuestion,
-}) => {
+export const BetweenSquaresIntervalVisualizer: React.FC<QuickCheckVisualizerStageProps> = (props) => {
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+
+  const cues: Record<1 | 2 | 3, React.ReactNode> = {
+    1: <span>Step 1: Check the boundary squares: 20² = 400 and 21² = 441.</span>,
+    2: <span>Step 2: Gap formula: (n+1)² − n² − 1 = 2n numbers!</span>,
+    3: <span className="text-emerald-700">Step 3: 2 × 20 = exactly 40 non-square numbers!</span>,
+  };
+
   return (
-    <div
-      aria-label="Hundred Block Finder Visualizer"
-      className="w-full h-full min-h-0 bg-slate-50/80 border border-slate-200/80 rounded-3xl p-3 sm:p-3.5 flex flex-col justify-between gap-2 overflow-hidden shadow-2xs animate-fade-rise"
+    <VisualizerFrame
+      title="Between Squares"
+      badge="20² to 21²"
+      cue={cues[step]}
+      step={step}
+      setStep={setStep}
+      onNext={props.onNext}
+      onReset={props.onReset}
+      isLastQuestion={props.isLastQuestion}
     >
-      {/* 1. Header Bar */}
-      <div className="flex items-center justify-between gap-2 pb-1.5 border-b border-slate-200/70 shrink-0">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span
-            className={`text-micro font-extrabold uppercase tracking-wider ${
-              isCorrect ? 'text-emerald-700' : 'text-rose-700'
-            }`}
-          >
-            {isCorrect ? '✓ Right! Block of 100' : 'Review — Block of 100'}
-          </span>
-          <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200/80 text-micro font-bold text-[#005583] tabular-nums">
-            Locating 729 (27²)
+      {step === 1 && (
+        <div className="flex items-center gap-4 font-mono font-bold animate-fade-rise">
+          <div className="p-2 rounded-xl bg-slate-100 border text-center">
+            <span className="text-[10px] text-slate-500 block">Start</span>
+            <span className="text-small text-slate-800">20² = 400</span>
+          </div>
+          <span className="text-slate-400">... gap ...</span>
+          <div className="p-2 rounded-xl bg-slate-100 border text-center">
+            <span className="text-[10px] text-slate-500 block">End</span>
+            <span className="text-small text-slate-800">21² = 441</span>
+          </div>
+        </div>
+      )}
+
+      {step === 2 && (
+        <div className="flex flex-col items-center gap-2 animate-fade-rise font-mono">
+          <div className="px-3.5 py-1.5 rounded-xl bg-sky-100 text-[#005583] font-black text-small border border-sky-300">
+            Between n² and (n+1)² there are 2n numbers
+          </div>
+          <div className="text-micro text-slate-600">
+            441 − 400 − 1 = 40 numbers (401 through 440)
+          </div>
+        </div>
+      )}
+
+      {step === 3 && (
+        <div className="flex flex-col items-center gap-2 animate-fade-rise font-mono">
+          <div className="px-5 py-2 rounded-2xl bg-emerald-600 text-white font-black text-statement shadow-xs">
+            2 × 20 = 40 Non-Squares
+          </div>
+          <div className="px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 font-bold text-micro text-center">
+            Between any consecutive squares n² and (n+1)², there are always <strong>2n</strong> non-squares!
+          </div>
+        </div>
+      )}
+    </VisualizerFrame>
+  );
+};
+
+// -----------------------------------------------------------------------------
+// SCENE 5 Q1: Triangular Zipper Visualizer (T(n-1) + T(n) = n²)
+// -----------------------------------------------------------------------------
+export const TriangularZipperVisualizer: React.FC<QuickCheckVisualizerStageProps> = (props) => {
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+
+  const cues: Record<1 | 2 | 3, React.ReactNode> = {
+    1: <span>Step 1: Look at two consecutive triangular numbers, say T₃=6 and T₄=10.</span>,
+    2: <span>Step 2: Flip the smaller triangle and snap it into the larger one!</span>,
+    3: <span className="text-emerald-700">Step 3: 6 + 10 = 16 = 4²! Always forms a square!</span>,
+  };
+
+  return (
+    <VisualizerFrame
+      title="Triangular Zipper"
+      badge="T₃ + T₄ = 4²"
+      cue={cues[step]}
+      step={step}
+      setStep={setStep}
+      onNext={props.onNext}
+      onReset={props.onReset}
+      isLastQuestion={props.isLastQuestion}
+    >
+      {step === 1 && (
+        <div className="flex items-center gap-4 font-mono font-bold animate-fade-rise">
+          <div className="p-2 rounded-xl bg-sky-50 border border-sky-300 text-center">
+            <span className="text-[10px] text-sky-700 block">T₃</span>
+            <span className="text-small text-sky-950 font-black">6 dots</span>
+          </div>
+          <span className="text-statement text-slate-400">+</span>
+          <div className="p-2 rounded-xl bg-amber-50 border border-amber-300 text-center">
+            <span className="text-[10px] text-amber-700 block">T₄</span>
+            <span className="text-small text-amber-950 font-black">10 dots</span>
+          </div>
+        </div>
+      )}
+
+      {step === 2 && (
+        <div className="flex flex-col items-center gap-1.5 animate-fade-rise">
+          <div className="grid grid-cols-4 gap-1 p-2 rounded-xl bg-slate-50 border border-slate-300">
+            {Array.from({ length: 16 }, (_, idx) => {
+              const r = Math.floor(idx / 4);
+              const c = idx % 4;
+              const isT3 = r < c;
+              return (
+                <div
+                  key={idx}
+                  className={`w-3.5 h-3.5 rounded-full ${
+                    isT3 ? 'bg-sky-500' : 'bg-amber-500'
+                  }`}
+                />
+              );
+            })}
+          </div>
+          <span className="text-[11px] font-bold text-slate-700">
+            6 blue dots (T₃) + 10 amber dots (T₄) fit seamlessly!
           </span>
         </div>
+      )}
 
-        {onReset && (
-          <button
-            type="button"
-            onClick={onReset}
-            className="min-h-[34px] px-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 text-micro font-bold flex items-center gap-1.5 cursor-pointer transition-colors shrink-0 shadow-2xs"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Re-try</span>
-          </button>
-        )}
-      </div>
+      {step === 3 && (
+        <div className="flex flex-col items-center gap-2 animate-fade-rise font-mono">
+          <div className="px-5 py-2 rounded-2xl bg-emerald-600 text-white font-black text-statement shadow-xs">
+            T(n-1) + T(n) = n²
+          </div>
+          <div className="px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 font-bold text-micro text-center">
+            Any two consecutive triangular numbers zip together to form a square number!
+          </div>
+        </div>
+      )}
+    </VisualizerFrame>
+  );
+};
 
-      {/* 2. 100-Blocks Stage */}
-      <div className="w-full flex-1 min-h-[110px] max-h-[175px] bg-white rounded-2xl border border-slate-200/80 p-2 flex flex-col items-center justify-center gap-2 shadow-2xs overflow-hidden">
-        <div className="flex items-center gap-1.5 text-micro font-bold flex-wrap justify-center">
-          <span className="px-2 py-0.5 rounded bg-slate-100 border text-slate-500">501–600</span>
-          <span className="px-2 py-0.5 rounded bg-slate-100 border text-slate-500">601–700</span>
-          <span className="px-3 py-1.5 rounded-xl bg-emerald-600 text-white font-extrabold shadow-xs ring-2 ring-emerald-300 text-small">
-            701 – 800 (Holds 729 = 27²)
+// -----------------------------------------------------------------------------
+// SCENE 5 Q2: Hundred Block Finder
+// -----------------------------------------------------------------------------
+export const HundredBlockFinderVisualizer: React.FC<QuickCheckVisualizerStageProps> = (props) => {
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+
+  const cues: Record<1 | 2 | 3, React.ReactNode> = {
+    1: <span>Step 1: Check candidate square numbers around 100.</span>,
+    2: <span>Step 2: 9² = 81, 10² = 100, 11² = 121.</span>,
+    3: <span className="text-emerald-700">Step 3: 100 = 10²! 100 is itself a perfect square!</span>,
+  };
+
+  return (
+    <VisualizerFrame
+      title="Square Numbers Check"
+      badge="Number 100"
+      cue={cues[step]}
+      step={step}
+      setStep={setStep}
+      onNext={props.onNext}
+      onReset={props.onReset}
+      isLastQuestion={props.isLastQuestion}
+    >
+      {step === 1 && (
+        <div className="flex items-center gap-3 font-mono font-bold animate-fade-rise">
+          <div className="p-2 rounded-xl bg-slate-100 border text-center">
+            <span className="text-small text-slate-700">Target: 100</span>
+          </div>
+          <span className="text-micro text-slate-500">Is 100 a perfect square?</span>
+        </div>
+      )}
+
+      {step === 2 && (
+        <div className="flex items-center gap-2 font-mono text-micro font-bold animate-fade-rise">
+          <span className="px-2.5 py-1 rounded-xl bg-slate-100 border">9² = 81</span>
+          <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
+          <span className="px-3 py-1.5 rounded-xl bg-emerald-100 text-emerald-950 border-2 border-emerald-500 font-black">
+            10² = 100
           </span>
-          <span className="px-2 py-0.5 rounded bg-slate-100 border text-slate-500">801–900</span>
+          <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
+          <span className="px-2.5 py-1 rounded-xl bg-slate-100 border">11² = 121</span>
         </div>
+      )}
 
-        <div className="px-3 py-1 rounded-xl bg-sky-50 border border-sky-200 text-micro font-bold text-slate-800">
-          700 &lt; <strong>729</strong> ≤ 800 $\implies$ Belongs to block 701 to 800
+      {step === 3 && (
+        <div className="flex flex-col items-center gap-2 animate-fade-rise font-mono">
+          <div className="px-5 py-2 rounded-2xl bg-emerald-600 text-white font-black text-statement shadow-xs">
+            100 = 10² ✓
+          </div>
+          <div className="px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 font-bold text-micro text-center">
+            100 is an exact perfect square — 10 rows of 10!
+          </div>
         </div>
-      </div>
-
-      {/* 3. Insight */}
-      <div className="px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 font-bold text-micro shrink-0">
-        27² = 729. Since 729 lies strictly between 700 and 800, it sits squarely in the <strong>701 to 800</strong> block!
-      </div>
-
-      {/* 4. Footer */}
-      <div className="pt-1.5 border-t border-slate-200/70 flex items-center justify-between gap-2 shrink-0">
-        <span className="text-micro font-bold text-emerald-700">
-          ✓ 729 is in the 701 to 800 block!
-        </span>
-
-        <button
-          type="button"
-          onClick={onNext}
-          className="min-h-[36px] px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-micro font-bold inline-flex items-center gap-1 cursor-pointer transition-colors shrink-0 shadow-2xs"
-        >
-          <span>{!isLastQuestion ? 'Next Question' : 'See Results'}</span>
-          <ChevronRight className="w-3.5 h-3.5" />
-        </button>
-      </div>
-    </div>
+      )}
+    </VisualizerFrame>
   );
 };

@@ -8,542 +8,531 @@ import {
   ArrowRight,
   CheckCircle2,
   ChevronRight,
+  Cpu,
   RotateCcw,
   Sparkles,
+  Zap,
 } from 'lucide-react';
-import { Katex } from '../Katex';
 import { QuickCheckVisualizerStageProps } from './SquaresQuickCheckVisualizers';
 
 // -----------------------------------------------------------------------------
-// SCENE 15: BABYLONIAN CLAY TABLET (scene-15-qc-1)
+// Helper: Card Shell Frame
 // -----------------------------------------------------------------------------
-export const BabylonianTabletVisualizer: React.FC<QuickCheckVisualizerStageProps> = ({
+interface VisualizerFrameProps {
+  title: string;
+  badge: string;
+  cue: React.ReactNode;
+  step: 1 | 2 | 3;
+  setStep: React.Dispatch<React.SetStateAction<1 | 2 | 3>>;
+  onNext: () => void;
+  onReset?: () => void;
+  isLastQuestion: boolean;
+  children: React.ReactNode;
+  footerNote?: string;
+}
+
+const VisualizerFrame: React.FC<VisualizerFrameProps> = ({
+  title,
+  badge,
+  cue,
+  step,
+  setStep,
   onNext,
   onReset,
-  isCorrect,
   isLastQuestion,
+  children,
+  footerNote,
 }) => {
+  const advanceStep = () => {
+    if (step < 3) setStep((s) => (s + 1) as 1 | 2 | 3);
+  };
+
+  const stepLabels = ['Step 1', 'Step 2', 'Step 3 (Answer)'];
+
   return (
-    <div
-      aria-label="Babylonian Tablet Visualizer"
-      className="w-full h-full min-h-0 bg-slate-50/80 border border-slate-200/80 rounded-3xl p-3 sm:p-3.5 flex flex-col justify-between gap-2 overflow-hidden shadow-2xs animate-fade-rise"
-    >
-      {/* 1. Header Bar */}
-      <div className="flex items-center justify-between gap-2 pb-1.5 border-b border-slate-200/70 shrink-0">
+    <div className="w-full h-full min-h-0 bg-slate-50/80 border border-slate-200/80 rounded-3xl p-3 sm:p-3.5 flex flex-col justify-between gap-1.5 overflow-hidden shadow-2xs animate-fade-rise">
+      {/* Header Bar */}
+      <div className="flex items-center justify-between gap-2 pb-1 border-b border-slate-200/70 shrink-0">
         <div className="flex items-center gap-2 flex-wrap">
-          <span
-            className={`text-micro font-extrabold uppercase tracking-wider ${
-              isCorrect ? 'text-emerald-700' : 'text-rose-700'
-            }`}
-          >
-            {isCorrect ? '✓ Right! History of Roots' : 'Review — Ancient History'}
+          <span className="text-micro font-extrabold uppercase tracking-wider text-[#005583]">
+            {title}
           </span>
-          <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200/80 text-micro font-bold text-[#005583] tabular-nums">
-            Tablet YBC 7289 (Babylonians)
+          <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200/80 text-[11px] font-bold text-slate-700 tabular-nums">
+            {badge}
           </span>
         </div>
-
         {onReset && (
           <button
             type="button"
-            onClick={onReset}
-            className="min-h-[34px] px-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 text-micro font-bold flex items-center gap-1.5 cursor-pointer transition-colors shrink-0 shadow-2xs"
+            onClick={() => {
+              setStep(1);
+              onReset();
+            }}
+            className="min-h-[28px] px-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
           >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Re-try</span>
+            <RotateCcw className="w-3 h-3" />
+            <span>Reset</span>
           </button>
         )}
       </div>
 
-      {/* 2. Tablet Stage */}
-      <div className="w-full flex-1 min-h-[110px] max-h-[175px] bg-white rounded-2xl border border-slate-200/80 p-2 flex items-center justify-center gap-5 shadow-2xs overflow-hidden">
-        <div className="w-24 h-24 rounded-2xl bg-amber-100 border-2 border-amber-400 flex flex-col items-center justify-center p-2 text-center shadow-xs">
-          <span className="text-[10px] uppercase font-black text-amber-900 tracking-wider">
-            YBC 7289
-          </span>
-          <span className="font-mono text-micro font-bold text-amber-950 mt-1">
-            √2 ≈ 1; 24, 51, 10
-          </span>
-        </div>
-
-        <div className="text-left flex flex-col gap-1 text-micro text-slate-700">
-          <div className="font-bold text-[#005583]">Babylonian Clay Tablet (c. 1800 BCE)</div>
-          <div>Calculated the diagonal of a square in sexagesimal (base-60):</div>
-          <div className="font-mono font-bold text-slate-900">
-            1 + 24/60 + 51/3600 + 10/216000 ≈ 1.41421296
-          </div>
-        </div>
+      {/* Step Scrubber */}
+      <div className="flex items-center gap-1.5 shrink-0 py-0.5">
+        {stepLabels.map((label, idx) => {
+          const stepNum = (idx + 1) as 1 | 2 | 3;
+          const isActive = step === stepNum;
+          const isPast = step > stepNum;
+          return (
+            <React.Fragment key={stepNum}>
+              <button
+                type="button"
+                onClick={() => isPast && setStep(stepNum)}
+                className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border transition-all ${
+                  isActive
+                    ? 'bg-[#005583] text-white border-[#003F62] shadow-2xs'
+                    : isPast
+                    ? 'bg-white border-slate-200 text-[#005583] cursor-pointer hover:bg-slate-50'
+                    : 'bg-slate-100 border-slate-200 text-slate-400 cursor-default'
+                }`}
+              >
+                {label}
+              </button>
+              {idx < 2 && <span className="text-slate-300 text-[11px]">→</span>}
+            </React.Fragment>
+          );
+        })}
       </div>
 
-      {/* 3. Insight */}
-      <div className="px-3 py-1 rounded-xl bg-amber-50 border border-amber-300 text-amber-950 font-bold text-micro shrink-0">
-        The <strong>Babylonians</strong> recorded remarkably accurate square root calculations on clay tablets nearly 4,000 years ago!
+      {/* Single Action Cue */}
+      <div className="text-micro font-bold text-slate-700 shrink-0 min-h-[20px] flex items-center">
+        {cue}
       </div>
 
-      {/* 4. Footer */}
-      <div className="pt-1.5 border-t border-slate-200/70 flex items-center justify-between gap-2 shrink-0">
-        <span className="text-micro font-bold text-emerald-700">
-          ✓ Correct: The Babylonians!
+      {/* Central Canvas */}
+      <div
+        onClick={advanceStep}
+        title={step < 3 ? 'Tap anywhere to advance →' : undefined}
+        className="w-full flex-1 min-h-[110px] max-h-[175px] bg-white rounded-2xl border border-slate-200/80 p-2 flex flex-col items-center justify-center gap-2 shadow-2xs overflow-hidden cursor-pointer select-none transition-colors duration-200 hover:border-[#005583]/40"
+      >
+        {children}
+      </div>
+
+      {/* Footer Navigation */}
+      <div className="pt-1 border-t border-slate-200/70 flex items-center justify-between gap-2 shrink-0">
+        <span className="text-micro font-bold text-slate-600 truncate">
+          {footerNote || (step < 3 ? 'Tap canvas or click next step' : '✓ Solution verified!')}
         </span>
-
-        <button
-          type="button"
-          onClick={onNext}
-          className="min-h-[36px] px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-micro font-bold inline-flex items-center gap-1 cursor-pointer transition-colors shrink-0 shadow-2xs"
-        >
-          <span>{!isLastQuestion ? 'Next Question' : 'See Results'}</span>
-          <ChevronRight className="w-3.5 h-3.5" />
-        </button>
+        {step < 3 ? (
+          <button
+            type="button"
+            onClick={advanceStep}
+            className="min-h-[32px] px-3.5 rounded-xl bg-[#005583] hover:bg-[#003F62] text-white text-micro font-bold inline-flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
+          >
+            <span>Step {step + 1}</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={onNext}
+            className="min-h-[32px] px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-micro font-bold inline-flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
+          >
+            <span>{!isLastQuestion ? 'Next Question' : 'See Results'}</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </button>
+        )}
       </div>
     </div>
   );
 };
 
 // -----------------------------------------------------------------------------
-// SCENE 16: INVERSE OPERATION TO CUBING (scene-16-qc-1)
+// SCENE 15: Babylonian Tablet Visualizer (YBC 7289 √2)
 // -----------------------------------------------------------------------------
-export const InverseMachineCycleVisualizer: React.FC<QuickCheckVisualizerStageProps> = ({
-  onNext,
-  onReset,
-  isCorrect,
-  isLastQuestion,
-}) => {
+export const BabylonianTabletVisualizer: React.FC<QuickCheckVisualizerStageProps> = (props) => {
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+
+  const cues: Record<1 | 2 | 3, React.ReactNode> = {
+    1: <span>Step 1: 4,000 years ago, Babylonians inscribed √2 on clay tablet YBC 7289.</span>,
+    2: <span>Step 2: Base-60 fractions: 1 + 24/60 + 51/3600 + 10/216000!</span>,
+    3: <span className="text-emerald-700">Step 3: Equal to 1.41421296 — accurate to 6 decimal places!</span>,
+  };
+
   return (
-    <div
-      aria-label="Inverse Machine Visualizer"
-      className="w-full h-full min-h-0 bg-slate-50/80 border border-slate-200/80 rounded-3xl p-3 sm:p-3.5 flex flex-col justify-between gap-2 overflow-hidden shadow-2xs animate-fade-rise"
+    <VisualizerFrame
+      title="Babylonian Tablet"
+      badge="YBC 7289"
+      cue={cues[step]}
+      step={step}
+      setStep={setStep}
+      onNext={props.onNext}
+      onReset={props.onReset}
+      isLastQuestion={props.isLastQuestion}
     >
-      {/* 1. Header Bar */}
-      <div className="flex items-center justify-between gap-2 pb-1.5 border-b border-slate-200/70 shrink-0">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span
-            className={`text-micro font-extrabold uppercase tracking-wider ${
-              isCorrect ? 'text-emerald-700' : 'text-rose-700'
-            }`}
-          >
-            {isCorrect ? '✓ Right! Inverse Operations' : 'Review — Inverse of Cubing'}
+      {step === 1 && (
+        <div className="flex items-center gap-3 animate-fade-rise">
+          <div className="w-16 h-16 rounded-2xl bg-amber-100 border-2 border-amber-400 flex flex-col items-center justify-center font-serif text-amber-900 font-bold shadow-xs">
+            <span className="text-small">𒎙</span>
+            <span className="text-[10px]">YBC 7289</span>
+          </div>
+          <div className="text-micro text-slate-600 font-medium max-w-[200px]">
+            Inscribed with sexagesimal marks: <strong>1; 24, 51, 10</strong>.
+          </div>
+        </div>
+      )}
+
+      {step === 2 && (
+        <div className="flex flex-wrap items-center justify-center gap-1.5 font-mono text-micro font-bold animate-fade-rise">
+          <span className="px-2 py-1 rounded-lg bg-slate-100 border">1</span>
+          <span>+</span>
+          <span className="px-2 py-1 rounded-lg bg-sky-100 text-[#005583] border border-sky-300">
+            24/60
           </span>
-          <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200/80 text-micro font-bold text-[#005583] tabular-nums">
-            Inverse = Cube Root
+          <span>+</span>
+          <span className="px-2 py-1 rounded-lg bg-sky-100 text-[#005583] border border-sky-300">
+            51/3600
+          </span>
+          <span>+</span>
+          <span className="px-2 py-1 rounded-lg bg-sky-100 text-[#005583] border border-sky-300">
+            10/216000
           </span>
         </div>
+      )}
 
-        {onReset && (
-          <button
-            type="button"
-            onClick={onReset}
-            className="min-h-[34px] px-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 text-micro font-bold flex items-center gap-1.5 cursor-pointer transition-colors shrink-0 shadow-2xs"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Re-try</span>
-          </button>
-        )}
-      </div>
-
-      {/* 2. Machine Cycle Stage */}
-      <div className="w-full flex-1 min-h-[110px] max-h-[175px] bg-white rounded-2xl border border-slate-200/80 p-2 flex flex-col items-center justify-center gap-3 shadow-2xs overflow-hidden">
-        <div className="flex items-center justify-center gap-3 font-mono text-small sm:text-statement font-bold">
-          <div className="px-3 py-1.5 rounded-xl bg-slate-100 border text-center">
-            4
-            <span className="text-[10px] text-slate-500 block font-sans font-bold">Number</span>
+      {step === 3 && (
+        <div className="flex flex-col items-center gap-2 animate-fade-rise font-mono">
+          <div className="px-4 py-1.5 rounded-2xl bg-emerald-600 text-white font-black text-small shadow-xs">
+            1.41421296 ≈ √2 (1.41421356)
           </div>
-
-          <div className="flex flex-col items-center">
-            <span className="text-[10px] font-bold text-[#005583]">Cube ()³</span>
-            <ArrowRight className="w-4 h-4 text-[#005583]" />
-          </div>
-
-          <div className="px-3 py-1.5 rounded-xl bg-sky-50 border border-sky-300 text-[#005583] text-center">
-            64
-            <span className="text-[10px] text-sky-700 block font-sans font-bold">Cube Result</span>
-          </div>
-
-          <div className="flex flex-col items-center">
-            <span className="text-[10px] font-bold text-emerald-700">Cube Root ∛</span>
-            <ArrowRight className="w-4 h-4 text-emerald-600" />
-          </div>
-
-          <div className="px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 text-center">
-            4
-            <span className="text-[10px] text-emerald-700 block font-sans font-bold">Back to Original</span>
+          <div className="px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 font-bold text-micro text-center">
+            Remarkable precision! Off by less than 1 millionth 4,000 years ago!
           </div>
         </div>
-
-        <div className="px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-300 text-micro font-bold text-emerald-950">
-          <Katex latex={`\\sqrt[3]{x^3} = x \\quad \\text{and} \\quad (\\sqrt[3]{x})^3 = x`} />
-        </div>
-      </div>
-
-      {/* 3. Insight */}
-      <div className="px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 font-bold text-micro shrink-0">
-        Cubing and taking the cube root undo each other completely — they are exact <strong>inverse operations</strong>!
-      </div>
-
-      {/* 4. Footer */}
-      <div className="pt-1.5 border-t border-slate-200/70 flex items-center justify-between gap-2 shrink-0">
-        <span className="text-micro font-bold text-emerald-700">
-          ✓ Inverse of cubing is the cube root!
-        </span>
-
-        <button
-          type="button"
-          onClick={onNext}
-          className="min-h-[36px] px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-micro font-bold inline-flex items-center gap-1 cursor-pointer transition-colors shrink-0 shadow-2xs"
-        >
-          <span>{!isLastQuestion ? 'Next Question' : 'See Results'}</span>
-          <ChevronRight className="w-3.5 h-3.5" />
-        </button>
-      </div>
-    </div>
+      )}
+    </VisualizerFrame>
   );
 };
 
 // -----------------------------------------------------------------------------
-// SCENE 17: SQUARE PAIRS (8 NEXT TO 1) (scene-17-qc-1)
+// SCENE 16: Inverse Machine Cycle Visualizer
 // -----------------------------------------------------------------------------
-export const SquarePairsDominoVisualizer: React.FC<QuickCheckVisualizerStageProps> = ({
-  onNext,
-  onReset,
-  isCorrect,
-  isLastQuestion,
-}) => {
+export const InverseMachineCycleVisualizer: React.FC<QuickCheckVisualizerStageProps> = (props) => {
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+
+  const cues: Record<1 | 2 | 3, React.ReactNode> = {
+    1: <span>Step 1: Two machines: Cuber (x³) and Cube Rooter (∛x).</span>,
+    2: <span>Step 2: Feed in 4 $\rightarrow$ Cube Machine gives 64 $\rightarrow$ Root Machine returns 4!</span>,
+    3: <span className="text-emerald-700">Step 3: ∛(n³) = n and (∛n)³ = n. They are exact inverses!</span>,
+  };
+
   return (
-    <div
-      aria-label="Square Pairs Domino Visualizer"
-      className="w-full h-full min-h-0 bg-slate-50/80 border border-slate-200/80 rounded-3xl p-3 sm:p-3.5 flex flex-col justify-between gap-2 overflow-hidden shadow-2xs animate-fade-rise"
+    <VisualizerFrame
+      title="Inverse Operations"
+      badge="Cube & Cube Root"
+      cue={cues[step]}
+      step={step}
+      setStep={setStep}
+      onNext={props.onNext}
+      onReset={props.onReset}
+      isLastQuestion={props.isLastQuestion}
     >
-      {/* 1. Header Bar */}
-      <div className="flex items-center justify-between gap-2 pb-1.5 border-b border-slate-200/70 shrink-0">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span
-            className={`text-micro font-extrabold uppercase tracking-wider ${
-              isCorrect ? 'text-emerald-700' : 'text-rose-700'
-            }`}
-          >
-            {isCorrect ? '✓ Right! Square Pairs Rule' : 'Review — Square Pairs'}
-          </span>
-          <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200/80 text-micro font-bold text-[#005583] tabular-nums">
-            8 + 1 = 9 = 3²
-          </span>
-        </div>
-
-        {onReset && (
-          <button
-            type="button"
-            onClick={onReset}
-            className="min-h-[34px] px-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 text-micro font-bold flex items-center gap-1.5 cursor-pointer transition-colors shrink-0 shadow-2xs"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Re-try</span>
-          </button>
-        )}
-      </div>
-
-      {/* 2. Domino Stage */}
-      <div className="w-full flex-1 min-h-[110px] max-h-[175px] bg-white rounded-2xl border border-slate-200/80 p-2 flex items-center justify-center gap-4 shadow-2xs overflow-hidden">
-        <div className="flex items-center gap-3 font-mono text-statement font-black">
-          <div className="w-14 h-14 rounded-2xl bg-amber-500 text-white flex flex-col items-center justify-center shadow-xs">
-            <span>8</span>
-            <span className="text-[9px] uppercase tracking-tighter font-sans font-bold">Tile</span>
-          </div>
-
-          <span className="text-slate-400 font-bold">+</span>
-
-          <div className="w-14 h-14 rounded-2xl bg-sky-500 text-white flex flex-col items-center justify-center shadow-xs">
-            <span>1</span>
-            <span className="text-[9px] uppercase tracking-tighter font-sans font-bold">Tile</span>
-          </div>
-
-          <span className="text-slate-400 font-bold">=</span>
-
-          <div className="px-4 py-2 rounded-2xl bg-emerald-600 text-white flex flex-col items-center justify-center shadow-xs">
-            <span>9</span>
-            <span className="text-[9px] uppercase tracking-tighter font-sans font-bold">3² (Square!)</span>
-          </div>
-        </div>
-      </div>
-
-      {/* 3. Insight */}
-      <div className="px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 font-bold text-micro shrink-0">
-        8 + 1 = 9 is a perfect square ($3^2$), making 8 and 1 valid adjacent partners in the Square Pairs puzzle!
-      </div>
-
-      {/* 4. Footer */}
-      <div className="pt-1.5 border-t border-slate-200/70 flex items-center justify-between gap-2 shrink-0">
-        <span className="text-micro font-bold text-emerald-700">
-          ✓ Sum is 9, which is 3²!
-        </span>
-
-        <button
-          type="button"
-          onClick={onNext}
-          className="min-h-[36px] px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-micro font-bold inline-flex items-center gap-1 cursor-pointer transition-colors shrink-0 shadow-2xs"
-        >
-          <span>{!isLastQuestion ? 'Next Question' : 'See Results'}</span>
-          <ChevronRight className="w-3.5 h-3.5" />
-        </button>
-      </div>
-    </div>
-  );
-};
-
-// -----------------------------------------------------------------------------
-// SCENE 18: SQUARE ROOT OF 1764 (scene-18-qc-1)
-// -----------------------------------------------------------------------------
-export const SquareRoot1764TreeVisualizer: React.FC<QuickCheckVisualizerStageProps> = ({
-  onNext,
-  onReset,
-  isCorrect,
-  isLastQuestion,
-}) => {
-  return (
-    <div
-      aria-label="Square Root 1764 Visualizer"
-      className="w-full h-full min-h-0 bg-slate-50/80 border border-slate-200/80 rounded-3xl p-3 sm:p-3.5 flex flex-col justify-between gap-2 overflow-hidden shadow-2xs animate-fade-rise"
-    >
-      {/* 1. Header Bar */}
-      <div className="flex items-center justify-between gap-2 pb-1.5 border-b border-slate-200/70 shrink-0">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span
-            className={`text-micro font-extrabold uppercase tracking-wider ${
-              isCorrect ? 'text-emerald-700' : 'text-rose-700'
-            }`}
-          >
-            {isCorrect ? '✓ Right! Solved Example' : 'Review — Square Root of 1764'}
-          </span>
-          <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200/80 text-micro font-bold text-[#005583] tabular-nums">
-            √1764 = 42
-          </span>
-        </div>
-
-        {onReset && (
-          <button
-            type="button"
-            onClick={onReset}
-            className="min-h-[34px] px-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 text-micro font-bold flex items-center gap-1.5 cursor-pointer transition-colors shrink-0 shadow-2xs"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Re-try</span>
-          </button>
-        )}
-      </div>
-
-      {/* 2. Factor Pairs Stage */}
-      <div className="w-full flex-1 min-h-[110px] max-h-[175px] bg-white rounded-2xl border border-slate-200/80 p-2 flex flex-col items-center justify-center gap-2.5 shadow-2xs overflow-hidden">
-        <div className="flex items-center gap-2 font-mono text-small font-bold">
-          <div className="px-2.5 py-1 rounded-xl bg-sky-100 text-sky-900 border border-sky-300 text-center">
-            (2 × 2)
-            <span className="text-[10px] block font-sans font-bold">Pair 2</span>
-          </div>
-          <span>×</span>
-          <div className="px-2.5 py-1 rounded-xl bg-sky-100 text-sky-900 border border-sky-300 text-center">
-            (3 × 3)
-            <span className="text-[10px] block font-sans font-bold">Pair 3</span>
-          </div>
-          <span>×</span>
-          <div className="px-2.5 py-1 rounded-xl bg-amber-100 text-amber-900 border border-amber-300 text-center">
-            (7 × 7)
-            <span className="text-[10px] block font-sans font-bold">Pair 7</span>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 font-mono text-small font-extrabold text-emerald-950 bg-emerald-50 px-3 py-1 rounded-xl border border-emerald-300">
-          <Katex latex={`\\sqrt{1764} = 2 \\times 3 \\times 7 = 42`} />
-        </div>
-      </div>
-
-      {/* 3. Insight */}
-      <div className="px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 font-bold text-micro shrink-0">
-        $1764 = (2 \times 2) \times (3 \times 3) \times (7 \times 7)$. Taking one factor from each pair yields $2 \times 3 \times 7 =$ <strong>42</strong>!
-      </div>
-
-      {/* 4. Footer */}
-      <div className="pt-1.5 border-t border-slate-200/70 flex items-center justify-between gap-2 shrink-0">
-        <span className="text-micro font-bold text-emerald-700">
-          ✓ √1764 = 42!
-        </span>
-
-        <button
-          type="button"
-          onClick={onNext}
-          className="min-h-[36px] px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-micro font-bold inline-flex items-center gap-1 cursor-pointer transition-colors shrink-0 shadow-2xs"
-        >
-          <span>{!isLastQuestion ? 'Next Question' : 'See Results'}</span>
-          <ChevronRight className="w-3.5 h-3.5" />
-        </button>
-      </div>
-    </div>
-  );
-};
-
-// -----------------------------------------------------------------------------
-// SCENE 19: MAKING 1323 A CUBE (scene-19-qc-1)
-// -----------------------------------------------------------------------------
-export const TripletCompletionVisualizer: React.FC<QuickCheckVisualizerStageProps> = ({
-  onNext,
-  onReset,
-  isCorrect,
-  isLastQuestion,
-}) => {
-  return (
-    <div
-      aria-label="Triplet Completion Visualizer"
-      className="w-full h-full min-h-0 bg-slate-50/80 border border-slate-200/80 rounded-3xl p-3 sm:p-3.5 flex flex-col justify-between gap-2 overflow-hidden shadow-2xs animate-fade-rise"
-    >
-      {/* 1. Header Bar */}
-      <div className="flex items-center justify-between gap-2 pb-1.5 border-b border-slate-200/70 shrink-0">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span
-            className={`text-micro font-extrabold uppercase tracking-wider ${
-              isCorrect ? 'text-emerald-700' : 'text-rose-700'
-            }`}
-          >
-            {isCorrect ? '✓ Right! Making a Cube' : 'Review — Making 1323 a Cube'}
-          </span>
-          <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200/80 text-micro font-bold text-[#005583] tabular-nums">
-            Multiply by 7
-          </span>
-        </div>
-
-        {onReset && (
-          <button
-            type="button"
-            onClick={onReset}
-            className="min-h-[34px] px-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 text-micro font-bold flex items-center gap-1.5 cursor-pointer transition-colors shrink-0 shadow-2xs"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Re-try</span>
-          </button>
-        )}
-      </div>
-
-      {/* 2. Triplet Completion Stage */}
-      <div className="w-full flex-1 min-h-[110px] max-h-[175px] bg-white rounded-2xl border border-slate-200/80 p-2 flex flex-col items-center justify-center gap-2.5 shadow-2xs overflow-hidden">
-        <div className="flex items-center gap-3 font-mono text-small font-bold">
-          <div className="px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-900 border border-emerald-300 text-center">
-            (3 × 3 × 3)
-            <span className="text-[10px] text-emerald-700 block font-sans font-bold">✓ Complete Triplet</span>
-          </div>
-
-          <span>×</span>
-
-          <div className="px-3 py-1.5 rounded-xl bg-rose-50 text-rose-900 border border-rose-300 text-center">
-            (7 × 7 × <span className="underline font-black text-rose-700">7?</span>)
-            <span className="text-[10px] text-rose-700 block font-sans font-bold">Needs One 7!</span>
-          </div>
-        </div>
-
-        <div className="px-3 py-1 rounded-xl bg-sky-50 border border-sky-200 text-micro font-bold text-[#005583]">
-          1323 × 7 = 9261 = (3 × 7)³ = 21³
-        </div>
-      </div>
-
-      {/* 3. Insight */}
-      <div className="px-3 py-1 rounded-xl bg-sky-50 border border-sky-200 text-sky-950 font-bold text-micro shrink-0">
-        In $1323 = 3^3 \times 7^2$, the factor 7 is missing one partner to form a triplet. Multiplying by <strong>7</strong> completes the cube!
-      </div>
-
-      {/* 4. Footer */}
-      <div className="pt-1.5 border-t border-slate-200/70 flex items-center justify-between gap-2 shrink-0">
-        <span className="text-micro font-bold text-emerald-700">
-          ✓ Smallest multiplier is 7!
-        </span>
-
-        <button
-          type="button"
-          onClick={onNext}
-          className="min-h-[36px] px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-micro font-bold inline-flex items-center gap-1 cursor-pointer transition-colors shrink-0 shadow-2xs"
-        >
-          <span>{!isLastQuestion ? 'Next Question' : 'See Results'}</span>
-          <ChevronRight className="w-3.5 h-3.5" />
-        </button>
-      </div>
-    </div>
-  );
-};
-
-// -----------------------------------------------------------------------------
-// SCENE 20: CUBE ROOT OF 13824 (scene-20-qc-1)
-// -----------------------------------------------------------------------------
-export const CubeRootEstimationVisualizer: React.FC<QuickCheckVisualizerStageProps> = ({
-  onNext,
-  onReset,
-  isCorrect,
-  isLastQuestion,
-}) => {
-  return (
-    <div
-      aria-label="Cube Root Estimation Visualizer"
-      className="w-full h-full min-h-0 bg-slate-50/80 border border-slate-200/80 rounded-3xl p-3 sm:p-3.5 flex flex-col justify-between gap-2 overflow-hidden shadow-2xs animate-fade-rise"
-    >
-      {/* 1. Header Bar */}
-      <div className="flex items-center justify-between gap-2 pb-1.5 border-b border-slate-200/70 shrink-0">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span
-            className={`text-micro font-extrabold uppercase tracking-wider ${
-              isCorrect ? 'text-emerald-700' : 'text-rose-700'
-            }`}
-          >
-            {isCorrect ? '✓ Right! Cube Root Estimation' : 'Review — Estimating ∛13824'}
-          </span>
-          <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200/80 text-micro font-bold text-[#005583] tabular-nums">
-            ∛13824 = 24
-          </span>
-        </div>
-
-        {onReset && (
-          <button
-            type="button"
-            onClick={onReset}
-            className="min-h-[34px] px-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 text-micro font-bold flex items-center gap-1.5 cursor-pointer transition-colors shrink-0 shadow-2xs"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Re-try</span>
-          </button>
-        )}
-      </div>
-
-      {/* 2. Digit Splitting Stage */}
-      <div className="w-full flex-1 min-h-[110px] max-h-[175px] bg-white rounded-2xl border border-slate-200/80 p-2 flex flex-col items-center justify-center gap-2.5 shadow-2xs overflow-hidden">
-        <div className="grid grid-cols-2 gap-3 w-full max-w-sm">
-          <div className="p-2 rounded-xl bg-amber-50 border border-amber-300 text-center">
-            <span className="font-bold text-amber-900 block text-micro">Tens Digit from [13]:</span>
-            <span className="font-mono font-bold text-amber-950 mt-0.5 block">2³ = 8 ≤ 13 &lt; 27</span>
-            <span className="text-[10px] text-amber-700 font-extrabold">Tens = 2</span>
-          </div>
-
+      {step === 1 && (
+        <div className="flex items-center gap-4 font-mono font-bold animate-fade-rise">
           <div className="p-2 rounded-xl bg-sky-50 border border-sky-300 text-center">
-            <span className="font-bold text-sky-900 block text-micro">Units Digit from [824]:</span>
-            <span className="font-mono font-bold text-sky-950 mt-0.5 block">Ends in 4 → 4³ = 64</span>
-            <span className="text-[10px] text-sky-700 font-extrabold">Units = 4</span>
+            <span className="text-[10px] text-sky-700 block">Machine A</span>
+            <span className="text-small text-sky-950">Cube (x³)</span>
+          </div>
+          <span className="text-slate-400">⟷</span>
+          <div className="p-2 rounded-xl bg-amber-50 border border-amber-300 text-center">
+            <span className="text-[10px] text-amber-700 block">Machine B</span>
+            <span className="text-small text-amber-950">Cube Root (∛x)</span>
           </div>
         </div>
+      )}
 
-        <div className="flex items-center gap-2 font-mono text-small font-extrabold text-emerald-950 bg-emerald-50 px-3.5 py-1 rounded-xl border border-emerald-300">
-          <Katex latex={`\\sqrt[3]{13824} = 24 \\quad (24^3 = 13824)`} />
+      {step === 2 && (
+        <div className="flex items-center gap-2 font-mono text-micro font-bold animate-fade-rise">
+          <span className="px-2.5 py-1 rounded-xl bg-slate-100 border text-slate-800">Input: 4</span>
+          <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
+          <span className="px-2.5 py-1 rounded-xl bg-sky-100 text-[#005583] border border-sky-300">
+            4³ = 64
+          </span>
+          <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
+          <span className="px-2.5 py-1 rounded-xl bg-emerald-100 text-emerald-950 border border-emerald-400">
+            ∛64 = 4
+          </span>
         </div>
-      </div>
+      )}
 
-      {/* 3. Insight */}
-      <div className="px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 font-bold text-micro shrink-0">
-        By separating 13824 into 13 and 824, we immediately deduce the tens digit (2) and units digit (4) $\rightarrow$ <strong>24</strong>!
-      </div>
+      {step === 3 && (
+        <div className="flex flex-col items-center gap-1.5 animate-fade-rise font-mono">
+          <div className="px-4 py-1.5 rounded-2xl bg-emerald-600 text-white font-black text-small shadow-xs">
+            ∛(n³) = (∛n)³ = n
+          </div>
+          <div className="px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 font-bold text-micro text-center">
+            Cube and cube root undo each other completely — just like squaring and square root!
+          </div>
+        </div>
+      )}
+    </VisualizerFrame>
+  );
+};
 
-      {/* 4. Footer */}
-      <div className="pt-1.5 border-t border-slate-200/70 flex items-center justify-between gap-2 shrink-0">
-        <span className="text-micro font-bold text-emerald-700">
-          ✓ ∛13824 = 24!
-        </span>
+// -----------------------------------------------------------------------------
+// SCENE 17: Square Pairs Domino Visualizer (8 + 1 = 9 = 3²)
+// -----------------------------------------------------------------------------
+export const SquarePairsDominoVisualizer: React.FC<QuickCheckVisualizerStageProps> = (props) => {
+  const [step, setStep] = useState<1 | 2 | 3>(1);
 
-        <button
-          type="button"
-          onClick={onNext}
-          className="min-h-[36px] px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-micro font-bold inline-flex items-center gap-1 cursor-pointer transition-colors shrink-0 shadow-2xs"
-        >
-          <span>{!isLastQuestion ? 'Next Question' : 'See Results'}</span>
-          <ChevronRight className="w-3.5 h-3.5" />
-        </button>
-      </div>
-    </div>
+  const cues: Record<1 | 2 | 3, React.ReactNode> = {
+    1: <span>Step 1: We need adjacent numbers whose sum equals a square number!</span>,
+    2: <span>Step 2: Test pairs: 1+2=3 (no), 2+3=5 (no)... 8+1=9 (9 = 3²)!</span>,
+    3: <span className="text-emerald-700">Step 3: 8 + 1 = 9 = 3²! Tiles 8 and 1 pair up!</span>,
+  };
+
+  return (
+    <VisualizerFrame
+      title="Square Pairs Domino"
+      badge="Sum to Square"
+      cue={cues[step]}
+      step={step}
+      setStep={setStep}
+      onNext={props.onNext}
+      onReset={props.onReset}
+      isLastQuestion={props.isLastQuestion}
+    >
+      {step === 1 && (
+        <div className="flex flex-wrap items-center justify-center gap-1 font-mono text-micro font-bold animate-fade-rise">
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => (
+            <span
+              key={n}
+              className="w-7 h-7 rounded-lg bg-slate-100 border border-slate-300 flex items-center justify-center text-slate-700"
+            >
+              {n}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {step === 2 && (
+        <div className="flex items-center gap-2 font-mono text-small font-bold animate-fade-rise">
+          <span className="w-9 h-9 rounded-xl bg-sky-100 text-[#005583] border border-sky-300 flex items-center justify-center font-black">
+            8
+          </span>
+          <span className="text-slate-400">+</span>
+          <span className="w-9 h-9 rounded-xl bg-sky-100 text-[#005583] border border-sky-300 flex items-center justify-center font-black">
+            1
+          </span>
+          <span className="text-slate-400">=</span>
+          <span className="px-3 py-1.5 rounded-xl bg-emerald-100 text-emerald-950 border border-emerald-400 font-black">
+            9 = 3² ✓
+          </span>
+        </div>
+      )}
+
+      {step === 3 && (
+        <div className="flex flex-col items-center gap-2 animate-fade-rise font-mono">
+          <div className="px-5 py-2 rounded-2xl bg-emerald-600 text-white font-black text-statement shadow-xs">
+            8 + 1 = 9 = 3²
+          </div>
+          <div className="px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 font-bold text-micro text-center">
+            The pair 8 and 1 adds to 9, which is the perfect square 3²!
+          </div>
+        </div>
+      )}
+    </VisualizerFrame>
+  );
+};
+
+// -----------------------------------------------------------------------------
+// SCENE 18: Square Root 1764 Tree Visualizer (√1764 = 42)
+// -----------------------------------------------------------------------------
+export const SquareRoot1764TreeVisualizer: React.FC<QuickCheckVisualizerStageProps> = (props) => {
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+
+  const cues: Record<1 | 2 | 3, React.ReactNode> = {
+    1: <span>Step 1: Prime factorise 1764: 2 × 2 × 3 × 3 × 7 × 7.</span>,
+    2: <span>Step 2: Group identical pairs: (2²), (3²), (7²).</span>,
+    3: <span className="text-emerald-700">Step 3: √1764 = 2 × 3 × 7 = 42!</span>,
+  };
+
+  return (
+    <VisualizerFrame
+      title="Prime Pair Tree"
+      badge="√1764"
+      cue={cues[step]}
+      step={step}
+      setStep={setStep}
+      onNext={props.onNext}
+      onReset={props.onReset}
+      isLastQuestion={props.isLastQuestion}
+    >
+      {step === 1 && (
+        <div className="flex flex-col items-center gap-1.5 animate-fade-rise font-mono text-micro font-bold">
+          <div className="text-small text-slate-800 font-black">
+            1764 = 2 × 2 × 3 × 3 × 7 × 7
+          </div>
+          <span className="text-slate-500">Every prime factor appears twice!</span>
+        </div>
+      )}
+
+      {step === 2 && (
+        <div className="flex items-center gap-2 font-mono text-micro font-bold animate-fade-rise">
+          <span className="px-3 py-1.5 rounded-xl bg-sky-100 text-[#005583] border border-sky-300">
+            (2 × 2)
+          </span>
+          <span>×</span>
+          <span className="px-3 py-1.5 rounded-xl bg-amber-100 text-amber-950 border border-amber-300">
+            (3 × 3)
+          </span>
+          <span>×</span>
+          <span className="px-3 py-1.5 rounded-xl bg-purple-100 text-purple-950 border border-purple-300">
+            (7 × 7)
+          </span>
+        </div>
+      )}
+
+      {step === 3 && (
+        <div className="flex flex-col items-center gap-2 animate-fade-rise font-mono">
+          <div className="flex items-center gap-2 text-statement font-black text-emerald-900">
+            <span>√1764 = 2 × 3 × 7 =</span>
+            <span className="px-3.5 py-1.5 rounded-2xl bg-emerald-600 text-white shadow-xs">
+              42
+            </span>
+          </div>
+          <div className="px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 font-bold text-micro text-center">
+            Take one prime from each pair: 2 × 3 × 7 = <strong>42</strong>!
+          </div>
+        </div>
+      )}
+    </VisualizerFrame>
+  );
+};
+
+// -----------------------------------------------------------------------------
+// SCENE 19: Triplet Completion Visualizer (1323 × 7 = 9261)
+// -----------------------------------------------------------------------------
+export const TripletCompletionVisualizer: React.FC<QuickCheckVisualizerStageProps> = (props) => {
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+
+  const cues: Record<1 | 2 | 3, React.ReactNode> = {
+    1: <span>Step 1: Prime factorise 1323: 3 × 3 × 3 × 7 × 7.</span>,
+    2: <span>Step 2: Factor 3 has a triplet (3³), but 7 only has a pair (7²)!</span>,
+    3: <span className="text-emerald-700">Step 3: Multiply by 7 $\rightarrow$ 1323 × 7 = 9261 = 21³!</span>,
+  };
+
+  return (
+    <VisualizerFrame
+      title="Triplet Completion"
+      badge="Multiply 1323"
+      cue={cues[step]}
+      step={step}
+      setStep={setStep}
+      onNext={props.onNext}
+      onReset={props.onReset}
+      isLastQuestion={props.isLastQuestion}
+    >
+      {step === 1 && (
+        <div className="flex flex-col items-center gap-1.5 animate-fade-rise font-mono text-micro font-bold">
+          <div className="text-small text-slate-800 font-black">
+            1323 = 3 × 3 × 3 × 7 × 7
+          </div>
+          <span className="text-slate-500">Need triplets of 3 identical factors for a cube!</span>
+        </div>
+      )}
+
+      {step === 2 && (
+        <div className="flex items-center gap-2 font-mono text-micro font-bold animate-fade-rise">
+          <span className="px-3 py-1.5 rounded-xl bg-emerald-100 text-emerald-950 border border-emerald-400">
+            (3 × 3 × 3) ✓ Complete
+          </span>
+          <span>×</span>
+          <span className="px-3 py-1.5 rounded-xl bg-amber-100 text-amber-950 border-2 border-dashed border-amber-500 animate-pulse">
+            (7 × 7 × <strong className="underline text-amber-700">_?</strong>)
+          </span>
+        </div>
+      )}
+
+      {step === 3 && (
+        <div className="flex flex-col items-center gap-2 animate-fade-rise font-mono">
+          <div className="flex items-center gap-2 text-statement font-black text-emerald-900">
+            <span>1323 × 7 =</span>
+            <span className="px-3.5 py-1.5 rounded-2xl bg-emerald-600 text-white shadow-xs">
+              9261 = 21³
+            </span>
+          </div>
+          <div className="px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 font-bold text-micro text-center">
+            Multiply by <strong>7</strong> so the factor 7 completes its triplet!
+          </div>
+        </div>
+      )}
+    </VisualizerFrame>
+  );
+};
+
+// -----------------------------------------------------------------------------
+// SCENE 20: Cube Root Estimation Visualizer (∛13824 = 24)
+// -----------------------------------------------------------------------------
+export const CubeRootEstimationVisualizer: React.FC<QuickCheckVisualizerStageProps> = (props) => {
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+
+  const cues: Record<1 | 2 | 3, React.ReactNode> = {
+    1: <span>Step 1: Split 13,824 into groups of 3: left [13] | right [824].</span>,
+    2: <span>Step 2: 2³ ≤ 13 &lt; 3³ $\rightarrow$ Tens digit is 2. 824 ends in 4 $\rightarrow$ Units digit is 4.</span>,
+    3: <span className="text-emerald-700">Step 3: Combine digits: ∛13824 = 24!</span>,
+  };
+
+  return (
+    <VisualizerFrame
+      title="Cube Root Estimation"
+      badge="∛13824"
+      cue={cues[step]}
+      step={step}
+      setStep={setStep}
+      onNext={props.onNext}
+      onReset={props.onReset}
+      isLastQuestion={props.isLastQuestion}
+    >
+      {step === 1 && (
+        <div className="flex items-center gap-2 font-mono font-bold animate-fade-rise">
+          <div className="p-2 rounded-xl bg-sky-100 text-[#005583] border border-sky-300 text-center">
+            <span className="text-[10px] block text-sky-700">Group 2 (Tens)</span>
+            <span className="text-statement font-black">13</span>
+          </div>
+          <span className="text-statement text-slate-400">|</span>
+          <div className="p-2 rounded-xl bg-amber-100 text-amber-950 border border-amber-300 text-center">
+            <span className="text-[10px] block text-amber-700">Group 1 (Units)</span>
+            <span className="text-statement font-black">824</span>
+          </div>
+        </div>
+      )}
+
+      {step === 2 && (
+        <div className="flex flex-col gap-1.5 w-full max-w-sm font-mono text-micro font-bold animate-fade-rise">
+          <div className="p-1.5 rounded-lg bg-sky-50 border border-sky-200 flex items-center justify-between">
+            <span>2³ = 8 ≤ 13 &lt; 27 = 3³</span>
+            <span className="text-[#005583]">Tens digit = 2</span>
+          </div>
+          <div className="p-1.5 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-between">
+            <span>824 ends in 4 (4³ = 64)</span>
+            <span className="text-amber-800">Units digit = 4</span>
+          </div>
+        </div>
+      )}
+
+      {step === 3 && (
+        <div className="flex flex-col items-center gap-2 animate-fade-rise font-mono">
+          <div className="flex items-center gap-2 text-statement font-black text-emerald-900">
+            <span>∛13824 =</span>
+            <span className="px-4 py-2 rounded-2xl bg-emerald-600 text-white shadow-xs">
+              24
+            </span>
+          </div>
+          <div className="px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 font-bold text-micro text-center">
+            24³ = 24 × 24 × 24 = 13,824! Digit-grouping method gives exact root!
+          </div>
+        </div>
+      )}
+    </VisualizerFrame>
   );
 };
