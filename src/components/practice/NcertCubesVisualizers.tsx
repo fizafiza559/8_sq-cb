@@ -64,8 +64,8 @@ export const Fio10CubeRootsVisualizer: React.FC<PracticeVisualizerProps> = ({
       </div>
 
       {/* 2. Step Title */}
-      <div className="text-micro font-bold text-slate-700 shrink-0">
-        {step === 1 && <span>Step 1: Part 1 — Split 27,000 into 27 × 1,000 $\rightarrow$ 3 × 10 = 30!</span>}
+      <div className="px-3 py-2 min-h-[48px] rounded-xl bg-white/95 border border-slate-200/80 text-base sm:text-body font-medium leading-snug text-slate-800 flex items-center shrink-0 shadow-2xs">
+        {step === 1 && <span>Step 1: Part 1 — Split 27,000 into 27 × 1,000 → 3 × 10 = 30!</span>}
         {step === 2 && <span>Step 2: Part 2 — Prime factorise 10,648 into triplets: 2³ × 11³</span>}
         {step === 3 && <span>Step 3: Extract root of 10,648: 2 × 11 = 22!</span>}
       </div>
@@ -73,7 +73,7 @@ export const Fio10CubeRootsVisualizer: React.FC<PracticeVisualizerProps> = ({
       {/* 3. Generative Stage */}
       <div
         onClick={() => step < 3 && setStep(step + 1)}
-        className="w-full flex-1 min-h-[120px] max-h-[185px] bg-white rounded-2xl border border-slate-200/80 p-2 flex flex-col items-center justify-center gap-2 shadow-2xs overflow-hidden cursor-pointer"
+        className="w-full flex-1 min-h-[100px] max-h-[185px] bg-white rounded-2xl border border-slate-200/80 p-2 flex flex-col items-center justify-center gap-2 shadow-2xs overflow-hidden cursor-pointer"
       >
         {step === 1 && (
           <div className="flex flex-col items-center gap-2 animate-fade-rise">
@@ -199,16 +199,16 @@ export const Fio11Multiply1323Visualizer: React.FC<PracticeVisualizerProps> = ({
       </div>
 
       {/* 2. Step Title */}
-      <div className="text-micro font-bold text-slate-700 shrink-0">
+      <div className="px-3 py-2 min-h-[48px] rounded-xl bg-white/95 border border-slate-200/80 text-base sm:text-body font-medium leading-snug text-slate-800 flex items-center shrink-0 shadow-2xs">
         {step === 1 && <span>Step 1: Prime factors: 1323 = 3³ × 7²</span>}
         {step === 2 && <span>Step 2: Triplet test: 3 has 3 factors (✓), but 7 only has 2 factors!</span>}
-        {step === 3 && <span>Step 3: Multiply by 7 $\rightarrow$ 1323 × 7 = 9261 = 21³!</span>}
+        {step === 3 && <span>Step 3: Multiply by 7 → 1323 × 7 = 9261 = 21³!</span>}
       </div>
 
       {/* 3. Generative Stage */}
       <div
         onClick={() => step < 3 && setStep(step + 1)}
-        className="w-full flex-1 min-h-[120px] max-h-[185px] bg-white rounded-2xl border border-slate-200/80 p-2 flex flex-col items-center justify-center gap-2 shadow-2xs overflow-hidden cursor-pointer"
+        className="w-full flex-1 min-h-[100px] max-h-[185px] bg-white rounded-2xl border border-slate-200/80 p-2 flex flex-col items-center justify-center gap-2 shadow-2xs overflow-hidden cursor-pointer"
       >
         {step === 1 && (
           <div className="font-mono text-small font-bold text-slate-800 animate-fade-rise">
@@ -330,14 +330,14 @@ export const Fio12TrueFalseVisualizer: React.FC<PracticeVisualizerProps> = ({
       </div>
 
       {/* 2. Step Title */}
-      <div className="text-micro font-bold text-slate-700 shrink-0">
-        Testing Statement {subIdx + 1} of 5 with a direct counterexample:
+      <div className="px-3 py-2 min-h-[48px] rounded-xl bg-white/95 border border-slate-200/80 text-base sm:text-body font-medium leading-snug text-slate-800 flex items-center shrink-0 shadow-2xs">
+        <span>Testing Statement {subIdx + 1} of 5 with a direct counterexample:</span>
       </div>
 
       {/* 3. Generative Stage */}
       <div
         onClick={() => setSubIdx((subIdx + 1) % statements.length)}
-        className="w-full flex-1 min-h-[120px] max-h-[185px] bg-white rounded-2xl border border-slate-200/80 p-2.5 flex flex-col items-center justify-center gap-2.5 shadow-2xs overflow-hidden cursor-pointer"
+        className="w-full flex-1 min-h-[100px] max-h-[185px] bg-white rounded-2xl border border-slate-200/80 p-2.5 flex flex-col items-center justify-center gap-2.5 shadow-2xs overflow-hidden cursor-pointer"
       >
         <div className="text-small font-extrabold text-slate-900 text-center leading-snug">
           "{current.text}"
@@ -432,16 +432,16 @@ export const Fio13GuessCubeRootsVisualizer: React.FC<PracticeVisualizerProps> = 
       </div>
 
       {/* 2. Step Title */}
-      <div className="text-micro font-bold text-slate-700 shrink-0">
+      <div className="px-3 py-2 min-h-[48px] rounded-xl bg-white/95 border border-slate-200/80 text-base sm:text-body font-medium leading-snug text-slate-800 flex items-center shrink-0 shadow-2xs">
         {step === 1 && <span>Step 1: The unique last-digit map: 1→1, 2↔8, 3↔7, 4→4, 5→5, 6→6, 9→9</span>}
-        {step === 2 && <span>Step 2: Teens range (10–20): 1331 ends in 1 $\rightarrow$ 11; 4913 ends in 3 $\rightarrow$ 17</span>}
-        {step === 3 && <span>Step 3: Twenties & Thirties: 12167 ends in 7 $\rightarrow$ 23; 32768 ends in 8 $\rightarrow$ 32!</span>}
+        {step === 2 && <span>Step 2: Teens range (10–20): 1331 ends in 1 → 11; 4913 ends in 3 → 17</span>}
+        {step === 3 && <span>Step 3: Twenties & Thirties: 12167 ends in 7 → 23; 32768 ends in 8 → 32!</span>}
       </div>
 
       {/* 3. Generative Stage */}
       <div
         onClick={() => step < 3 && setStep(step + 1)}
-        className="w-full flex-1 min-h-[120px] max-h-[185px] bg-white rounded-2xl border border-slate-200/80 p-2 flex flex-col items-center justify-center gap-2 shadow-2xs overflow-hidden cursor-pointer"
+        className="w-full flex-1 min-h-[100px] max-h-[185px] bg-white rounded-2xl border border-slate-200/80 p-2 flex flex-col items-center justify-center gap-2 shadow-2xs overflow-hidden cursor-pointer"
       >
         {step === 1 && (
           <div className="flex flex-wrap items-center justify-center gap-1.5 font-mono text-micro font-bold text-slate-800 animate-fade-rise">
@@ -564,7 +564,7 @@ export const Fio14GreatestDifferenceVisualizer: React.FC<PracticeVisualizerProps
       </div>
 
       {/* 2. Step Title */}
-      <div className="text-micro font-bold text-slate-700 shrink-0">
+      <div className="px-3 py-2 min-h-[48px] rounded-xl bg-white/95 border border-slate-200/80 text-base sm:text-body font-medium leading-snug text-slate-800 flex items-center shrink-0 shadow-2xs">
         {step === 1 && <span>Step 1: Square differences are small: 67² - 66² = 133, 43² - 42² = 85</span>}
         {step === 2 && <span>Step 2: Cube difference (ii): 43³ - 42³ = 5419</span>}
         {step === 3 && <span>Step 3: Cube difference (i): 67³ - 66³ = 13,267 (The Towering Winner)!</span>}
@@ -573,7 +573,7 @@ export const Fio14GreatestDifferenceVisualizer: React.FC<PracticeVisualizerProps
       {/* 3. Generative Stage */}
       <div
         onClick={() => step < 3 && setStep(step + 1)}
-        className="w-full flex-1 min-h-[120px] max-h-[185px] bg-white rounded-2xl border border-slate-200/80 p-2 flex flex-col items-center justify-center gap-2 shadow-2xs overflow-hidden cursor-pointer"
+        className="w-full flex-1 min-h-[100px] max-h-[185px] bg-white rounded-2xl border border-slate-200/80 p-2 flex flex-col items-center justify-center gap-2 shadow-2xs overflow-hidden cursor-pointer"
       >
         <div className="flex items-end justify-center gap-4 h-28 w-full max-w-sm px-2 animate-fade-rise">
           {/* Bar 1: 43² - 42² */}

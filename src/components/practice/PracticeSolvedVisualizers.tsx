@@ -49,6 +49,7 @@ export const Ex1FractionDecimalSquareVisualizer: React.FC<PracticeVisualizerProp
     <QuickCheckStepShell
       ariaLabel="Worked Example 1 Fraction and Decimal Square Areas"
       isCorrect={true}
+      prominentCue={true}
       headerTitle="Worked Example 1"
       headerBadge={step < 3 ? 'Sides 3/5 & 2.5' : '9/25 & 6.25'}
       steps={steps}
@@ -101,6 +102,7 @@ export const Ex2NextSquareVisualizer: React.FC<PracticeVisualizerProps> = ({
     <QuickCheckStepShell
       ariaLabel="Worked Example 2 Find 36 squared from 35 squared"
       isCorrect={true}
+      prominentCue={true}
       headerTitle="Worked Example 2"
       headerBadge={step < 3 ? '35² = 1225 → 36²' : '36² = 1296'}
       steps={steps}
@@ -178,6 +180,7 @@ export const Ex3RepeatedSubtractionVisualizer: React.FC<PracticeVisualizerProps>
     <QuickCheckStepShell
       ariaLabel="Worked Example 3 Repeated Subtraction 25 vs 38"
       isCorrect={true}
+      prominentCue={true}
       headerTitle="Worked Example 3"
       headerBadge={step === 1 ? 'Testing 25' : step === 2 ? 'Testing 38' : '25 = 5² | 38 ✗'}
       steps={steps}
@@ -251,6 +254,7 @@ export const Ex4SquareRootsPlusMinusVisualizer: React.FC<PracticeVisualizerProps
     <QuickCheckStepShell
       ariaLabel="Worked Example 4 Plus-Minus Square Roots"
       isCorrect={true}
+      prominentCue={true}
       headerTitle="Worked Example 4"
       headerBadge={step < 3 ? 'Two Roots (±)' : '±8 and ±10'}
       steps={steps}
@@ -316,6 +320,7 @@ export const Ex5TestingSquarenessVisualizer: React.FC<PracticeVisualizerProps> =
     <QuickCheckStepShell
       ariaLabel="Worked Example 5 Testing 576 vs 327"
       isCorrect={true}
+      prominentCue={true}
       headerTitle="Worked Example 5"
       headerBadge={step < 3 ? '327 vs 576' : '576 = 24² ✓'}
       steps={steps}
@@ -387,6 +392,7 @@ export const Ex6PrimeFactorisationVisualizer: React.FC<PracticeVisualizerProps> 
     <QuickCheckStepShell
       ariaLabel="Worked Example 6 Prime Factorisation 324 vs 156"
       isCorrect={true}
+      prominentCue={true}
       headerTitle="Worked Example 6"
       headerBadge={step < 3 ? '324 vs 156' : '√324 = 18'}
       steps={steps}
@@ -462,6 +468,7 @@ export const Ex7Checking1156And2800Visualizer: React.FC<PracticeVisualizerProps>
     <QuickCheckStepShell
       ariaLabel="Worked Example 7 Checking 1156 and 2800"
       isCorrect={true}
+      prominentCue={true}
       headerTitle="Worked Example 7"
       headerBadge={step < 3 ? '1156 vs 2800' : '1156 = 34² ✓'}
       steps={steps}
@@ -536,6 +543,7 @@ export const Ex8EstimatingRoot1936Visualizer: React.FC<PracticeVisualizerProps> 
     <QuickCheckStepShell
       ariaLabel="Worked Example 8 Estimating Square Root of 1936"
       isCorrect={true}
+      prominentCue={true}
       headerTitle="Worked Example 8"
       headerBadge={step < 3 ? '40 < √1936 < 50' : '√1936 = 44'}
       steps={steps}
@@ -614,6 +622,7 @@ export const Ex9AribamBijouRoot250Visualizer: React.FC<PracticeVisualizerProps> 
     <QuickCheckStepShell
       ariaLabel="Worked Example 9 Estimating Root 250"
       isCorrect={true}
+      prominentCue={true}
       headerTitle="Worked Example 9"
       headerBadge={step < 3 ? '15² < 250 < 16²' : '√250 ≈ 15.8'}
       steps={steps}
@@ -684,6 +693,7 @@ export const Ex10AkhilClothVisualizer: React.FC<PracticeVisualizerProps> = ({
     <QuickCheckStepShell
       ariaLabel="Worked Example 10 Akhil Square Cloth 125 cm squared"
       isCorrect={true}
+      prominentCue={true}
       headerTitle="Worked Example 10"
       headerBadge={step === 1 ? 'Cloth = 125 cm²' : 'Max Side = 11 cm'}
       steps={steps}
@@ -768,6 +778,7 @@ export const Ex11UnitCubesEdge4Visualizer: React.FC<PracticeVisualizerProps> = (
     <QuickCheckStepShell
       ariaLabel="Worked Example 11 Unit Cubes in Edge 4 Cube"
       isCorrect={true}
+      prominentCue={true}
       headerTitle="Worked Example 11"
       headerBadge={step < 3 ? `Layers: ${visibleLayers} / 4` : '4³ = 64 Cubes'}
       steps={steps}
@@ -843,6 +854,7 @@ export const Ex12TestingCubesVisualizer: React.FC<PracticeVisualizerProps> = ({
     <QuickCheckStepShell
       ariaLabel="Worked Example 12 Testing Cubes 3375 vs 500"
       isCorrect={true}
+      prominentCue={true}
       headerTitle="Worked Example 12"
       headerBadge={step < 3 ? '3375 vs 500' : '∛3375 = 15'}
       steps={steps}
@@ -917,6 +929,7 @@ export const Ex13PrimeFactorCubesVisualizer: React.FC<PracticeVisualizerProps> =
     <QuickCheckStepShell
       ariaLabel="Worked Example 13 Prime Factorisation of Cubes"
       isCorrect={true}
+      prominentCue={true}
       headerTitle="Worked Example 13"
       headerBadge={step < 3 ? '4, 6, 12, 15' : 'Exponents × 3'}
       steps={steps}
@@ -1004,6 +1017,7 @@ export const Ex14CubeRoots64512729Visualizer: React.FC<PracticeVisualizerProps> 
     <QuickCheckStepShell
       ariaLabel="Worked Example 14 Cube Roots of 64, 512, and 729"
       isCorrect={true}
+      prominentCue={true}
       headerTitle="Worked Example 14"
       headerBadge={step < 3 ? '∛64, ∛512, ∛729' : '4, 8, and 9'}
       steps={steps}
@@ -1068,6 +1082,7 @@ export const Ex15TriangularNumbersSquareVisualizer: React.FC<PracticeVisualizerP
     <QuickCheckStepShell
       ariaLabel="Worked Example 15 Triangular Numbers Sum to Squares"
       isCorrect={true}
+      prominentCue={true}
       headerTitle="Worked Example 15"
       headerBadge={step < 3 ? '1, 3, 6, 10, 15' : 'T(n−1) + T(n) = n²'}
       steps={steps}
@@ -1128,6 +1143,7 @@ export const Ex16SuccessiveDiffsCubesVisualizer: React.FC<PracticeVisualizerProp
     <QuickCheckStepShell
       ariaLabel="Worked Example 16 Successive Differences of Cubes"
       isCorrect={true}
+      prominentCue={true}
       headerTitle="Worked Example 16"
       headerBadge={step < 3 ? 'Cube Pyramid' : 'Level 3 = 6!'}
       steps={steps}

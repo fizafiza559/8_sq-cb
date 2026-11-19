@@ -100,7 +100,7 @@ const ConceptFrame: React.FC<ConceptFrameProps> = ({
       </div>
 
       {/* Single Action Cue */}
-      <div className="text-micro font-bold text-slate-700 shrink-0 min-h-[20px] flex items-center">
+      <div className="px-3 py-2 min-h-[48px] rounded-xl bg-white/95 border border-slate-200/80 text-base sm:text-body font-medium leading-snug text-slate-800 shrink-0 flex items-center shadow-2xs">
         {cue}
       </div>
 
@@ -108,7 +108,7 @@ const ConceptFrame: React.FC<ConceptFrameProps> = ({
       <div
         onClick={advance}
         title={step < 3 ? 'Tap anywhere to advance →' : undefined}
-        className="w-full flex-1 min-h-[110px] max-h-[175px] bg-white rounded-2xl border border-slate-200/80 p-2 flex flex-col items-center justify-center gap-2 shadow-2xs overflow-hidden cursor-pointer select-none transition-colors duration-200 hover:border-[#005583]/40"
+        className="w-full flex-1 min-h-[100px] max-h-[175px] bg-white rounded-2xl border border-slate-200/80 p-2 flex flex-col items-center justify-center gap-2 shadow-2xs overflow-hidden cursor-pointer select-none transition-colors duration-200 hover:border-[#005583]/40"
       >
         {children}
       </div>

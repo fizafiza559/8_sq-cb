@@ -79,22 +79,22 @@ export const Fio1NotSquaresVisualizer: React.FC<PracticeVisualizerProps> = ({
       </div>
 
       {/* 2. Step Title & Single Action Cue */}
-      <div className="text-micro font-bold text-slate-700 shrink-0">
+      <div className="px-3 py-2 min-h-[48px] rounded-xl bg-white/95 border border-slate-200/80 text-base sm:text-body font-medium leading-snug text-slate-800 flex items-center shrink-0 shadow-2xs">
         {step === 1 && (
-          <span className="text-[#005583] flex items-center gap-1">
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+          <span className="text-[#005583] flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-amber-500 shrink-0" />
             <span>Step 1: Look ONLY at the units (last) digit of each number</span>
           </span>
         )}
         {step === 2 && (
-          <span className="text-rose-700 flex items-center gap-1">
-            <XCircle className="w-3.5 h-3.5 text-rose-600" />
+          <span className="text-rose-700 flex items-center gap-2">
+            <XCircle className="w-5 h-5 text-rose-600 shrink-0" />
             <span>Step 2: Filter by the Rule — No square can ever end in 2, 3, 7, or 8!</span>
           </span>
         )}
         {step === 3 && (
-          <span className="text-emerald-700 flex items-center gap-1">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+          <span className="text-emerald-700 flex items-center gap-2">
+            <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
             <span>Step 3: Verification — 1089 ends in 9 and equals 33²!</span>
           </span>
         )}
@@ -103,7 +103,7 @@ export const Fio1NotSquaresVisualizer: React.FC<PracticeVisualizerProps> = ({
       {/* 3. Generative Visual Stage */}
       <div
         onClick={() => step < 3 && setStep(step + 1)}
-        className="w-full flex-1 min-h-[120px] max-h-[185px] bg-white rounded-2xl border border-slate-200/80 p-2 flex flex-col items-center justify-center gap-2 shadow-2xs overflow-hidden cursor-pointer"
+        className="w-full flex-1 min-h-[100px] max-h-[185px] bg-white rounded-2xl border border-slate-200/80 p-2 flex flex-col items-center justify-center gap-2 shadow-2xs overflow-hidden cursor-pointer"
       >
         {/* STEP 1: Spotlight on Units Digits */}
         {step === 1 && (
@@ -251,7 +251,7 @@ export const Fio2EndsInFourVisualizer: React.FC<PracticeVisualizerProps> = ({
       </div>
 
       {/* 2. Step Title */}
-      <div className="text-micro font-bold text-slate-700 shrink-0">
+      <div className="px-3 py-2 min-h-[48px] rounded-xl bg-white/95 border border-slate-200/80 text-base sm:text-body font-medium leading-snug text-slate-800 flex items-center shrink-0 shadow-2xs">
         {step === 1 && <span>Step 1: Focus only on the units digit of each base</span>}
         {step === 2 && <span>Step 2: Square each units digit to find the ending</span>}
         {step === 3 && <span>Step 3: Verification — 108² and 292² both end in 4!</span>}
@@ -260,7 +260,7 @@ export const Fio2EndsInFourVisualizer: React.FC<PracticeVisualizerProps> = ({
       {/* 3. Generative Stage */}
       <div
         onClick={() => step < 3 && setStep(step + 1)}
-        className="w-full flex-1 min-h-[120px] max-h-[185px] bg-white rounded-2xl border border-slate-200/80 p-2 flex flex-col items-center justify-center gap-2 shadow-2xs overflow-hidden cursor-pointer"
+        className="w-full flex-1 min-h-[100px] max-h-[185px] bg-white rounded-2xl border border-slate-200/80 p-2 flex flex-col items-center justify-center gap-2 shadow-2xs overflow-hidden cursor-pointer"
       >
         {step === 1 && (
           <div className="grid grid-cols-4 gap-2 w-full max-w-sm animate-fade-rise">
@@ -408,7 +408,7 @@ export const Fio3NextSquareVisualizer: React.FC<PracticeVisualizerProps> = ({
       </div>
 
       {/* 2. Step Title */}
-      <div className="text-micro font-bold text-slate-700 shrink-0">
+      <div className="px-3 py-2 min-h-[48px] rounded-xl bg-white/95 border border-slate-200/80 text-base sm:text-body font-medium leading-snug text-slate-800 flex items-center shrink-0 shadow-2xs">
         {step === 1 && <span>Step 1: Start with known base square: 125² = 15,625</span>}
         {step === 2 && <span>Step 2: Add next odd number: 2n + 1 = 2(125) + 1 = 251</span>}
         {step === 3 && <span>Step 3: Sum total: 15,625 + 251 = 15,876!</span>}
@@ -417,7 +417,7 @@ export const Fio3NextSquareVisualizer: React.FC<PracticeVisualizerProps> = ({
       {/* 3. Generative Stage */}
       <div
         onClick={() => step < 3 && setStep(step + 1)}
-        className="w-full flex-1 min-h-[120px] max-h-[185px] bg-white rounded-2xl border border-slate-200/80 p-2 flex flex-col items-center justify-center gap-2 shadow-2xs overflow-hidden cursor-pointer"
+        className="w-full flex-1 min-h-[100px] max-h-[185px] bg-white rounded-2xl border border-slate-200/80 p-2 flex flex-col items-center justify-center gap-2 shadow-2xs overflow-hidden cursor-pointer"
       >
         {step === 1 && (
           <div className="flex items-center gap-3 animate-fade-rise">
@@ -541,7 +541,7 @@ export const Fio4Area441Visualizer: React.FC<PracticeVisualizerProps> = ({
       </div>
 
       {/* 2. Step Title */}
-      <div className="text-micro font-bold text-slate-700 shrink-0">
+      <div className="px-3 py-2 min-h-[48px] rounded-xl bg-white/95 border border-slate-200/80 text-base sm:text-body font-medium leading-snug text-slate-800 flex items-center shrink-0 shadow-2xs">
         {step === 1 && <span>Step 1: Set up formula: Side s = √(Area) = √441</span>}
         {step === 2 && <span>Step 2: Prime factorise 441: (3 × 7) × (3 × 7) = 21 × 21</span>}
         {step === 3 && <span>Step 3: Side length = 21 metres!</span>}
@@ -550,7 +550,7 @@ export const Fio4Area441Visualizer: React.FC<PracticeVisualizerProps> = ({
       {/* 3. Generative Stage */}
       <div
         onClick={() => step < 3 && setStep(step + 1)}
-        className="w-full flex-1 min-h-[120px] max-h-[185px] bg-white rounded-2xl border border-slate-200/80 p-2 flex flex-col items-center justify-center gap-2 shadow-2xs overflow-hidden cursor-pointer"
+        className="w-full flex-1 min-h-[100px] max-h-[185px] bg-white rounded-2xl border border-slate-200/80 p-2 flex flex-col items-center justify-center gap-2 shadow-2xs overflow-hidden cursor-pointer"
       >
         {step === 1 && (
           <div className="flex items-center gap-4 animate-fade-rise">
@@ -674,7 +674,7 @@ export const Fio5SmallestDivisibleSquareVisualizer: React.FC<PracticeVisualizerP
       </div>
 
       {/* 2. Step Title */}
-      <div className="text-micro font-bold text-slate-700 shrink-0">
+      <div className="px-3 py-2 min-h-[48px] rounded-xl bg-white/95 border border-slate-200/80 text-base sm:text-body font-medium leading-snug text-slate-800 flex items-center shrink-0 shadow-2xs">
         {step === 1 && <span>Step 1: Compute LCM of 4, 9, 10: 2² × 3² × 5¹ = 180</span>}
         {step === 2 && <span>Step 2: Check prime powers — 5 has an odd power (5¹)!</span>}
         {step === 3 && <span>Step 3: Multiply by 5 to make power even: 180 × 5 = 900 (30²)!</span>}
@@ -683,7 +683,7 @@ export const Fio5SmallestDivisibleSquareVisualizer: React.FC<PracticeVisualizerP
       {/* 3. Generative Stage */}
       <div
         onClick={() => step < 3 && setStep(step + 1)}
-        className="w-full flex-1 min-h-[120px] max-h-[185px] bg-white rounded-2xl border border-slate-200/80 p-2 flex flex-col items-center justify-center gap-2 shadow-2xs overflow-hidden cursor-pointer"
+        className="w-full flex-1 min-h-[100px] max-h-[185px] bg-white rounded-2xl border border-slate-200/80 p-2 flex flex-col items-center justify-center gap-2 shadow-2xs overflow-hidden cursor-pointer"
       >
         {step === 1 && (
           <div className="flex items-center gap-2 font-mono text-micro font-bold animate-fade-rise">
@@ -808,16 +808,16 @@ export const Fio6Multiply9408Visualizer: React.FC<PracticeVisualizerProps> = ({
       </div>
 
       {/* 2. Step Title */}
-      <div className="text-micro font-bold text-slate-700 shrink-0">
+      <div className="px-3 py-2 min-h-[48px] rounded-xl bg-white/95 border border-slate-200/80 text-base sm:text-body font-medium leading-snug text-slate-800 flex items-center shrink-0 shadow-2xs">
         {step === 1 && <span>Step 1: Prime factorise 9408: 2⁶ × 3¹ × 7²</span>}
         {step === 2 && <span>Step 2: Identify unpaired factor — 3 has no partner!</span>}
-        {step === 3 && <span>Step 3: Multiply by 3 $\rightarrow$ Product = 28,224, √28224 = 168!</span>}
+        {step === 3 && <span>Step 3: Multiply by 3 → Product = 28,224, √28224 = 168!</span>}
       </div>
 
       {/* 3. Generative Stage */}
       <div
         onClick={() => step < 3 && setStep(step + 1)}
-        className="w-full flex-1 min-h-[120px] max-h-[185px] bg-white rounded-2xl border border-slate-200/80 p-2 flex flex-col items-center justify-center gap-2 shadow-2xs overflow-hidden cursor-pointer"
+        className="w-full flex-1 min-h-[100px] max-h-[185px] bg-white rounded-2xl border border-slate-200/80 p-2 flex flex-col items-center justify-center gap-2 shadow-2xs overflow-hidden cursor-pointer"
       >
         {step === 1 && (
           <div className="flex flex-col items-center gap-1 font-mono text-micro font-bold animate-fade-rise">

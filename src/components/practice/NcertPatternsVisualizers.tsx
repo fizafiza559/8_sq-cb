@@ -63,7 +63,7 @@ export const Fio7NumbersBetweenVisualizer: React.FC<PracticeVisualizerProps> = (
       </div>
 
       {/* 2. Step Title */}
-      <div className="text-micro font-bold text-slate-700 shrink-0">
+      <div className="px-3 py-2 min-h-[48px] rounded-xl bg-white/95 border border-slate-200/80 text-base sm:text-body font-medium leading-snug text-slate-800 flex items-center shrink-0 shadow-2xs">
         {step === 1 && <span>Step 1: Formula rule — Between n² and (n+1)², there are exactly 2n non-squares!</span>}
         {step === 2 && <span>Step 2: Part (i) For 16 and 17: 2 × 16 = 32 numbers</span>}
         {step === 3 && <span>Step 3: Part (ii) For 99 and 100: 2 × 99 = 198 numbers!</span>}
@@ -72,7 +72,7 @@ export const Fio7NumbersBetweenVisualizer: React.FC<PracticeVisualizerProps> = (
       {/* 3. Generative Stage */}
       <div
         onClick={() => step < 3 && setStep(step + 1)}
-        className="w-full flex-1 min-h-[120px] max-h-[185px] bg-white rounded-2xl border border-slate-200/80 p-2 flex flex-col items-center justify-center gap-2 shadow-2xs overflow-hidden cursor-pointer"
+        className="w-full flex-1 min-h-[100px] max-h-[185px] bg-white rounded-2xl border border-slate-200/80 p-2 flex flex-col items-center justify-center gap-2 shadow-2xs overflow-hidden cursor-pointer"
       >
         {step === 1 && (
           <div className="flex flex-col items-center gap-2 animate-fade-rise">
@@ -200,7 +200,7 @@ export const Fio8PythagoreanPatternVisualizer: React.FC<PracticeVisualizerProps>
       </div>
 
       {/* 2. Step Title */}
-      <div className="text-micro font-bold text-slate-700 shrink-0">
+      <div className="px-3 py-2 min-h-[48px] rounded-xl bg-white/95 border border-slate-200/80 text-base sm:text-body font-medium leading-snug text-slate-800 flex items-center shrink-0 shadow-2xs">
         {step === 1 && <span>Step 1: First two terms are consecutive: n and n+1 (e.g. 4 and 5)</span>}
         {step === 2 && <span>Step 2: The 3rd term is their product: 4 × 5 = 20²</span>}
         {step === 3 && <span>Step 3: The right side is 1 more than 3rd term: 20 + 1 = 21²!</span>}
@@ -209,7 +209,7 @@ export const Fio8PythagoreanPatternVisualizer: React.FC<PracticeVisualizerProps>
       {/* 3. Generative Stage */}
       <div
         onClick={() => step < 3 && setStep(step + 1)}
-        className="w-full flex-1 min-h-[120px] max-h-[185px] bg-white rounded-2xl border border-slate-200/80 p-2 flex flex-col items-center justify-center gap-2 shadow-2xs overflow-hidden cursor-pointer"
+        className="w-full flex-1 min-h-[100px] max-h-[185px] bg-white rounded-2xl border border-slate-200/80 p-2 flex flex-col items-center justify-center gap-2 shadow-2xs overflow-hidden cursor-pointer"
       >
         <div className="flex flex-col gap-1.5 font-mono text-micro sm:text-small font-bold text-slate-800 animate-fade-rise">
           <div>1² + 2² + 2² = 3²</div>
@@ -346,7 +346,7 @@ export const Fio9TinySquaresVisualizer: React.FC<PracticeVisualizerProps> = ({
       </div>
 
       {/* 2. Step Title */}
-      <div className="text-micro font-bold text-slate-700 shrink-0">
+      <div className="px-3 py-2 min-h-[48px] rounded-xl bg-white/95 border border-slate-200/80 text-base sm:text-body font-medium leading-snug text-slate-800 flex items-center shrink-0 shadow-2xs">
         {step === 1 && <span>Step 1: Big squares = 9 × 9 = 81 big squares</span>}
         {step === 2 && <span>Step 2: Multiply by tiny squares: 81 × 25 = 2025 tiny squares</span>}
         {step === 3 && <span>Step 3: Prime factorisation: 3⁴ × 5² = (3² × 5)² = 45²!</span>}
@@ -355,7 +355,7 @@ export const Fio9TinySquaresVisualizer: React.FC<PracticeVisualizerProps> = ({
       {/* 3. Generative Stage */}
       <div
         onClick={() => step < 3 && setStep(step + 1)}
-        className="w-full flex-1 min-h-[120px] max-h-[185px] bg-white rounded-2xl border border-slate-200/80 p-2 flex flex-col items-center justify-center gap-2 shadow-2xs overflow-hidden cursor-pointer"
+        className="w-full flex-1 min-h-[100px] max-h-[185px] bg-white rounded-2xl border border-slate-200/80 p-2 flex flex-col items-center justify-center gap-2 shadow-2xs overflow-hidden cursor-pointer"
       >
         {step === 1 && (
           <div className="flex items-center gap-4 animate-fade-rise">

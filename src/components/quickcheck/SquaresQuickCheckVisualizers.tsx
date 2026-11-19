@@ -149,6 +149,7 @@ interface QuickCheckStepShellProps {
   insightText: React.ReactNode;
   insightTone?: 'neutral' | 'success' | 'warning' | 'danger';
   footerText: string;
+  prominentCue?: boolean;
   children: React.ReactNode;
 }
 
@@ -169,6 +170,7 @@ export const QuickCheckStepShell: React.FC<QuickCheckStepShellProps> = ({
   insightText,
   insightTone = 'neutral',
   footerText,
+  prominentCue = false,
   children,
 }) => {
   const totalSteps = steps.length;
@@ -253,7 +255,13 @@ export const QuickCheckStepShell: React.FC<QuickCheckStepShellProps> = ({
           })}
         </div>
 
-        <p className="text-micro font-bold text-[#002538] px-0.5 leading-snug">
+        <p
+          className={
+            prominentCue
+              ? 'px-3 py-2 min-h-[48px] rounded-xl bg-white/95 border border-slate-200/80 text-base sm:text-body font-medium text-[#002538] leading-snug flex items-center shadow-2xs'
+              : 'text-micro font-bold text-[#002538] px-0.5 leading-snug'
+          }
+        >
           {currentStepDef.cue}
         </p>
       </div>
@@ -275,7 +283,9 @@ export const QuickCheckStepShell: React.FC<QuickCheckStepShellProps> = ({
             : undefined
         }
         aria-label={!isFinalStep ? 'Tap canvas to advance to next step' : undefined}
-        className={`w-full flex-1 min-h-[116px] max-h-[175px] bg-white rounded-2xl border border-slate-200/80 p-2.5 flex flex-col items-center justify-center relative overflow-hidden shadow-2xs transition-colors ${
+        className={`w-full flex-1 ${
+          prominentCue ? 'min-h-[100px]' : 'min-h-[116px]'
+        } max-h-[175px] bg-white rounded-2xl border border-slate-200/80 p-2.5 flex flex-col items-center justify-center relative overflow-hidden shadow-2xs transition-colors ${
           !isFinalStep ? 'cursor-pointer hover:border-sky-300' : ''
         }`}
       >
