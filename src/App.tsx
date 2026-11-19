@@ -492,6 +492,7 @@ export default function App() {
         />
       ) : isSceneSubTab && inQuickCheck ? (
         <QuickCheck
+          sceneId={currentScene.id}
           questions={qcQuestions}
           currentIndex={quickCheckIndex!}
           answers={quickCheckAnswers}
