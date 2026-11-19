@@ -418,3 +418,119 @@ export const RootsPlusMinusScene: React.FC<RootsPlusMinusSceneProps> = ({
     </div>
   );
 };
+
+export interface PrincipalRootGateSvgProps {
+  targetSquare: number;
+  mode: 'both' | 'gate' | 'answer';
+  showPlusMinusOutput?: boolean;
+}
+
+export const PrincipalRootGateSvg: React.FC<PrincipalRootGateSvgProps> = ({
+  targetSquare,
+  mode,
+  showPlusMinusOutput = false,
+}) => {
+  const root = Math.round(Math.sqrt(targetSquare));
+  return (
+    <svg viewBox="0 0 340 116" className="h-[112px] w-full max-w-[340px] select-none">
+      {/* (+root)^2 pill */}
+      <g transform="translate(14, 14)">
+        <rect
+          x={0}
+          y={0}
+          width={98}
+          height={36}
+          rx={10}
+          fill="#ECFDF5"
+          stroke="#16A34A"
+          strokeWidth={2}
+        />
+        <text x={49} y={23} textAnchor="middle" fill="#14532D" fontSize={14} fontWeight={900}>
+          (+{root})² = {targetSquare}
+        </text>
+      </g>
+
+      {/* (-root)^2 pill */}
+      <g transform="translate(14, 62)" opacity={mode === 'both' || showPlusMinusOutput ? 1 : 0.45}>
+        <rect
+          x={0}
+          y={0}
+          width={98}
+          height={36}
+          rx={10}
+          fill={mode === 'both' || showPlusMinusOutput ? '#EFF6FF' : '#FEF2F2'}
+          stroke={mode === 'both' || showPlusMinusOutput ? '#0284C7' : '#DC2626'}
+          strokeWidth={2}
+        />
+        <text
+          x={49}
+          y={23}
+          textAnchor="middle"
+          fill={mode === 'both' || showPlusMinusOutput ? '#0C4A6E' : '#991B1B'}
+          fontSize={14}
+          fontWeight={900}
+        >
+          (−{root})² = {targetSquare}
+        </text>
+      </g>
+
+      {/* Principal √ Gate */}
+      <line x1={122} y1={32} x2={166} y2={48} stroke="#16A34A" strokeWidth={2.5} />
+      {mode === 'both' || showPlusMinusOutput ? (
+        <line x1={122} y1={80} x2={166} y2={64} stroke="#0284C7" strokeWidth={2} />
+      ) : (
+        <text x={144} y={84} textAnchor="middle" fill="#DC2626" fontSize={16} fontWeight={900}>
+          ✗
+        </text>
+      )}
+
+      <rect
+        x={168}
+        y={20}
+        width={48}
+        height={72}
+        rx={12}
+        fill="#005583"
+      />
+      <text x={192} y={52} textAnchor="middle" fill="#FFFFFF" fontSize={20} fontWeight={900}>
+        √
+      </text>
+      <text x={192} y={74} textAnchor="middle" fill="#BAE6FD" fontSize={14} fontWeight={800}>
+        {showPlusMinusOutput ? '±Root' : 'Gate'}
+      </text>
+
+      {/* Output Courtyard */}
+      <line x1={218} y1={56} x2={242} y2={56} stroke="#16A34A" strokeWidth={2.5} />
+      <rect
+        x={244}
+        y={18}
+        width={82}
+        height={76}
+        rx={12}
+        fill={mode === 'answer' ? '#16A34A' : '#F0FDF4'}
+        stroke="#16A34A"
+        strokeWidth={2}
+      />
+      <text
+        x={285}
+        y={50}
+        textAnchor="middle"
+        fill={mode === 'answer' ? '#FFFFFF' : '#14532D'}
+        fontSize={16}
+        fontWeight={900}
+      >
+        {showPlusMinusOutput ? `±${root}` : `+${root}`}
+      </text>
+      <text
+        x={285}
+        y={72}
+        textAnchor="middle"
+        fill={mode === 'answer' ? '#DCFCE7' : '#15803D'}
+        fontSize={14}
+        fontWeight={800}
+      >
+        {showPlusMinusOutput ? `Root of ${targetSquare}` : `Side ${root}`}
+      </text>
+    </svg>
+  );
+};

@@ -447,3 +447,206 @@ export const LastDigitPatternsScene: React.FC<LastDigitPatternsSceneProps> = ({
     </div>
   );
 };
+
+export interface LastDigitSortingTraysSvgProps {
+  digit: number;
+  inTray?: boolean;
+  showStamp?: boolean;
+}
+
+export const LastDigitSortingTraysSvg: React.FC<LastDigitSortingTraysSvgProps> = ({
+  digit,
+  inTray = false,
+  showStamp = false,
+}) => {
+  const isForbidden = [2, 3, 7, 8].includes(digit);
+  const allowedDigits = [0, 1, 4, 5, 6, 9];
+  const forbiddenDigits = [2, 3, 7, 8];
+
+  return (
+    <div className="w-full max-w-[360px] flex flex-col items-center gap-2">
+      <div className="grid grid-cols-2 gap-2.5 w-full">
+        {/* Allowed Tray */}
+        <div
+          className={`p-2 rounded-2xl border-2 text-center transition-all duration-400 ${
+            inTray && !isForbidden
+              ? 'bg-emerald-100 border-emerald-500 scale-[1.03]'
+              : 'bg-emerald-50/70 border-emerald-200'
+          }`}
+          style={{ transitionTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)' }}
+        >
+          <div className="text-micro font-extrabold text-emerald-800 flex items-center justify-center gap-1 mb-1">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+            <span>Allowed</span>
+          </div>
+          <div className="flex items-center justify-center gap-1 font-mono font-black text-micro flex-wrap">
+            {allowedDigits.map((d) => {
+              const hit = inTray && d === digit;
+              return (
+                <span
+                  key={d}
+                  className={`w-6 h-6 rounded-lg flex items-center justify-center border transition-all duration-300 ${
+                    hit
+                      ? 'bg-emerald-600 text-white border-emerald-700 scale-115 shadow-xs'
+                      : 'bg-white text-emerald-900 border-emerald-200'
+                  }`}
+                >
+                  {d}
+                </span>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Forbidden Tray */}
+        <div
+          className={`p-2 rounded-2xl border-2 text-center transition-all duration-400 ${
+            inTray && isForbidden
+              ? 'bg-rose-100 border-rose-500 scale-[1.03] shadow-xs'
+              : 'bg-rose-50/70 border-rose-200'
+          }`}
+          style={{ transitionTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)' }}
+        >
+          <div className="text-micro font-extrabold text-rose-800 flex items-center justify-center gap-1 mb-1">
+            <XCircle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+            <span>Forbidden</span>
+          </div>
+          <div className="flex items-center justify-center gap-1 font-mono font-black text-micro flex-wrap">
+            {forbiddenDigits.map((d) => {
+              const hit = inTray && d === digit;
+              return (
+                <span
+                  key={d}
+                  className={`w-6 h-6 rounded-lg flex items-center justify-center border transition-all duration-300 ${
+                    hit
+                      ? 'bg-rose-600 text-white border-rose-700 scale-120 shadow-xs'
+                      : 'bg-white text-rose-700 border-rose-200'
+                  }`}
+                >
+                  {d}
+                </span>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {showStamp && (
+        <div
+          className={`px-3 py-1 rounded-xl font-black text-micro tracking-wide border-2 ${
+            isForbidden
+              ? 'bg-rose-600 text-white border-rose-700'
+              : 'bg-emerald-600 text-white border-emerald-700'
+          }`}
+        >
+          {isForbidden ? 'IMPOSSIBLE ✗ (Never a Square)' : 'ALLOWED ENDING ✓'}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export interface SquareZerosParitySvgProps {
+  mode: 'zeros' | 'parity';
+  baseZeros?: number;
+  expanded?: boolean;
+  parityNum?: number;
+}
+
+export const SquareZerosParitySvg: React.FC<SquareZerosParitySvgProps> = ({
+  mode,
+  baseZeros = 2,
+  expanded = false,
+  parityNum = 5,
+}) => {
+  if (mode === 'zeros') {
+    const outZeros = expanded ? baseZeros * 2 : baseZeros;
+    return (
+      <div className="flex flex-col items-center gap-2">
+        <div className="flex items-center gap-2 font-mono font-black text-body">
+          <span className="px-2.5 py-1 rounded-xl bg-sky-50 border border-sky-200 text-[#005583]">
+            3 × 10^{baseZeros}
+          </span>
+          <span className="text-slate-400">→</span>
+          <div className="flex items-center gap-1">
+            {Array.from({ length: outZeros }).map((_, i) => (
+              <span
+                key={i}
+                className="w-7 h-8 rounded-lg bg-purple-600 text-white font-mono font-black text-small flex items-center justify-center shadow-2xs transition-all duration-300"
+                style={{ transitionDelay: `${i * 75}ms` }}
+              >
+                0
+              </span>
+            ))}
+          </div>
+        </div>
+        <span className="text-micro font-bold text-purple-800">
+          {expanded
+            ? `${baseZeros} zeros × 2 = ${outZeros} zeros (ALWAYS EVEN!)`
+            : `${baseZeros} trailing zeros waiting to double`}
+        </span>
+      </div>
+    );
+  }
+
+  // Parity SVG dot pairing (odd = leftover dot; odd x odd = odd)
+  const isOdd = parityNum % 2 === 1;
+  return (
+    <svg viewBox="0 0 260 110" className="h-[104px] w-auto select-none">
+      {/* Input Number Parity Dots */}
+      <g transform="translate(16, 18)">
+        <text x={36} y={-2} textAnchor="middle" fill="#0F172A" fontSize={14} fontWeight={800}>
+          {parityNum} ({isOdd ? 'Odd' : 'Even'})
+        </text>
+        {Array.from({ length: Math.min(7, parityNum) }).map((_, i) => {
+          const col = i % 2;
+          const row = Math.floor(i / 2);
+          const isSingle = isOdd && i === Math.min(7, parityNum) - 1;
+          return (
+            <circle
+              key={i}
+              cx={col * 22 + 24}
+              cy={row * 18 + 16}
+              r={6.5}
+              fill={isSingle ? '#F27A00' : '#0788D3'}
+              stroke={isSingle ? '#9A3412' : '#0369A1'}
+              strokeWidth={1.5}
+            />
+          );
+        })}
+      </g>
+
+      <text x={115} y={56} textAnchor="middle" fill="#64748B" fontSize={18} fontWeight={900}>
+        →
+      </text>
+
+      {/* Squared Parity Output Box */}
+      <g transform="translate(142, 18)">
+        <rect
+          x={0}
+          y={4}
+          width={106}
+          height={68}
+          rx={14}
+          fill={isOdd ? '#FFF7ED' : '#ECFDF5'}
+          stroke={isOdd ? '#F27A00' : '#16A34A'}
+          strokeWidth={2}
+        />
+        <text x={53} y={32} textAnchor="middle" fill="#0F172A" fontSize={15} fontWeight={900}>
+          {parityNum}² = {parityNum * parityNum}
+        </text>
+        <text
+          x={53}
+          y={54}
+          textAnchor="middle"
+          fill={isOdd ? '#C2410C' : '#15803D'}
+          fontSize={14}
+          fontWeight={800}
+        >
+          {isOdd ? 'Always ODD' : 'Always EVEN'}
+        </text>
+      </g>
+    </svg>
+  );
+};
+

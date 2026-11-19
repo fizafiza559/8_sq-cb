@@ -590,3 +590,128 @@ export const SquarePairsPuzzle: React.FC<SquarePairsPuzzleProps> = ({
     </div>
   );
 };
+
+export interface SquarePairsRowSvgProps {
+  pairs: number[];
+  snapped: boolean;
+  showSquareBadge?: string;
+}
+
+export const SquarePairsRowSvg: React.FC<SquarePairsRowSvgProps> = ({
+  pairs,
+  snapped,
+  showSquareBadge,
+}) => {
+  return (
+    <div className="flex flex-col items-center gap-2 w-full">
+      <div className="flex items-center justify-center flex-wrap gap-1">
+        {pairs.map((num, idx) => {
+          const isLast = idx === pairs.length - 1;
+          const nextNum = !isLast ? pairs[idx + 1] : null;
+          const sum = nextNum !== null ? num + nextNum : null;
+          return (
+            <React.Fragment key={`${num}-${idx}`}>
+              <div
+                className={`px-2.5 py-1.5 rounded-xl border-2 font-mono font-black text-small transition-all duration-400 ${
+                  snapped
+                    ? 'bg-emerald-50 border-emerald-500 text-emerald-950 shadow-2xs'
+                    : 'bg-sky-50 border-sky-300 text-[#005583]'
+                }`}
+              >
+                {num}
+              </div>
+              {nextNum !== null && (
+                <div
+                  className={`px-1.5 py-0.5 rounded-lg text-micro font-mono font-black transition-all duration-400 ${
+                    snapped
+                      ? 'bg-[#F27A00] text-white scale-105'
+                      : 'bg-slate-100 text-slate-400'
+                  }`}
+                >
+                  {snapped ? `+ = ${sum}` : '+'}
+                </div>
+              )}
+            </React.Fragment>
+          );
+        })}
+      </div>
+      {showSquareBadge && (
+        <div className="px-3 py-1 rounded-xl bg-emerald-600 text-white font-mono font-black text-micro">
+          {showSquareBadge}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export interface SquarePairsCircleSvgProps {
+  highlightSeam?: boolean;
+  completed?: boolean;
+}
+
+export const SquarePairsCircleSvg: React.FC<SquarePairsCircleSvgProps> = ({
+  highlightSeam = true,
+  completed = false,
+}) => {
+  const nodes = 16; // compact visual clock of 32-node cycle pairs
+  const sampleCycle = [32, 17, 8, 1, 15, 10, 6, 19, 30, 6, 3, 13, 12, 24, 25, 11];
+  return (
+    <svg viewBox="0 0 280 120" className="h-[112px] w-full max-w-[300px] select-none">
+      <circle
+        cx={74}
+        cy={60}
+        r={46}
+        fill="none"
+        stroke={completed ? '#16A34A' : '#EC4899'}
+        strokeWidth={2.5}
+        strokeDasharray={completed ? 'none' : '4 3'}
+      />
+      {Array.from({ length: nodes }).map((_, i) => {
+        const angle = (i * 2 * Math.PI) / nodes - Math.PI / 2;
+        const cx = 74 + 46 * Math.cos(angle);
+        const cy = 60 + 46 * Math.sin(angle);
+        const isSeam = highlightSeam && (i === 0 || i === 1);
+        return (
+          <circle
+            key={i}
+            cx={cx}
+            cy={cy}
+            r={isSeam ? 6 : 4}
+            fill={isSeam ? '#F27A00' : completed ? '#16A34A' : '#DB2777'}
+          />
+        );
+      })}
+      <text x={74} y={64} textAnchor="middle" fill="#831843" fontSize={14} fontWeight={900}>
+        1…32
+      </text>
+
+      {/* Right Summary Callout */}
+      <g transform="translate(142, 22)">
+        <rect
+          x={0}
+          y={0}
+          width={130}
+          height={76}
+          rx={14}
+          fill={completed ? '#ECFDF5' : '#FDF2F8'}
+          stroke={completed ? '#16A34A' : '#DB2777'}
+          strokeWidth={2}
+        />
+        <text x={65} y={30} textAnchor="middle" fill="#0F172A" fontSize={14} fontWeight={900}>
+          {sampleCycle[0]} + {sampleCycle[1]} = 49 (7²)
+        </text>
+        <text
+          x={65}
+          y={54}
+          textAnchor="middle"
+          fill={completed ? '#15803D' : '#9D174D'}
+          fontSize={14}
+          fontWeight={800}
+        >
+          {completed ? 'Closed Cycle ✓' : 'No Dead Ends!'}
+        </text>
+      </g>
+    </svg>
+  );
+};
+

@@ -491,3 +491,103 @@ export const HistoryVisualStory: React.FC<HistoryVisualStoryProps> = ({
     </div>
   );
 };
+
+export interface BabylonianTabletSvgProps {
+  stage: 'tablet' | 'wedges' | 'answer';
+}
+
+export const BabylonianTabletSvg: React.FC<BabylonianTabletSvgProps> = ({ stage }) => {
+  return (
+    <svg viewBox="0 0 340 116" className="h-[112px] w-full max-w-[340px] select-none">
+      {/* Clay Tablet */}
+      <g transform="translate(16, 10)">
+        <rect x={0} y={0} width={96} height={96} rx={22} fill="#FDE68A" stroke="#B45309" strokeWidth={2.5} />
+        <rect x={22} y={20} width={52} height={52} fill="none" stroke="#92400E" strokeWidth={2} />
+        <line x1={22} y1={20} x2={74} y2={72} stroke="#DC2626" strokeWidth={2.5} strokeDasharray="4 2" />
+        <text x={48} y={88} textAnchor="middle" fill="#78350F" fontSize={14} fontWeight={900}>
+          YBC 7289
+        </text>
+      </g>
+
+      {/* Right Info Area */}
+      {stage === 'tablet' && (
+        <g transform="translate(130, 34)">
+          <text x={0} y={14} fill="#78350F" fontSize={15} fontWeight={900}>
+            1800 BCE Clay Tablet
+          </text>
+          <text x={0} y={38} fill="#475569" fontSize={14} fontWeight={700}>
+            Unit square + diagonal √2
+          </text>
+        </g>
+      )}
+
+      {stage === 'wedges' && (
+        <g transform="translate(124, 20)">
+          <rect x={0} y={0} width={202} height={34} rx={10} fill="#FFFBEB" stroke="#D97706" strokeWidth={1.5} />
+          <text x={101} y={22} textAnchor="middle" fill="#92400E" fontSize={14} fontWeight={900}>
+            1 + 24/60 + 51/3600 + ...
+          </text>
+          <rect x={0} y={44} width={202} height={34} rx={10} fill="#EFF6FF" stroke="#0284C7" strokeWidth={1.5} />
+          <text x={101} y={66} textAnchor="middle" fill="#005583" fontSize={14} fontWeight={900}>
+            ≈ 1.414213 (√2!)
+          </text>
+        </g>
+      )}
+
+      {stage === 'answer' && (
+        <g transform="translate(128, 28)">
+          <rect x={0} y={0} width={196} height={56} rx={14} fill="#D97706" />
+          <text x={98} y={34} textAnchor="middle" fill="#FFFFFF" fontSize={16} fontWeight={900}>
+            The Babylonians ✓
+          </text>
+        </g>
+      )}
+    </svg>
+  );
+};
+
+export interface InverseCubeMachineSvgProps {
+  baseN: number;
+  phase: 'forward' | 'reverse' | 'cycle';
+}
+
+export const InverseCubeMachineSvg: React.FC<InverseCubeMachineSvgProps> = ({
+  baseN,
+  phase,
+}) => {
+  const cubeVal = baseN * baseN * baseN;
+  return (
+    <svg viewBox="0 0 340 114" className="h-[108px] w-full max-w-[340px] select-none">
+      {/* Edge Box */}
+      <rect x={12} y={30} width={66} height={52} rx={12} fill="#EFF6FF" stroke="#0284C7" strokeWidth={2} />
+      <text x={45} y={62} textAnchor="middle" fill="#005583" fontSize={16} fontWeight={900}>
+        {baseN}
+      </text>
+
+      {/* Top Forward Arc: x^3 */}
+      <path d="M 80 34 Q 170 4 256 34" fill="none" stroke="#F27A00" strokeWidth={phase === 'forward' || phase === 'cycle' ? 3 : 1.5} />
+      <rect x={126} y={4} width={88} height={26} rx={8} fill={phase === 'forward' ? '#F27A00' : '#FFF7ED'} stroke="#F27A00" strokeWidth={1.5} />
+      <text x={170} y={22} textAnchor="middle" fill={phase === 'forward' ? '#FFFFFF' : '#9A3412'} fontSize={14} fontWeight={900}>
+        Cube (³)
+      </text>
+
+      {/* Volume Box */}
+      <rect x={260} y={30} width={68} height={52} rx={12} fill="#F5F3FF" stroke="#7C3AED" strokeWidth={2} />
+      <text x={294} y={62} textAnchor="middle" fill="#5B21B6" fontSize={16} fontWeight={900}>
+        {cubeVal}
+      </text>
+
+      {/* Bottom Reverse Arc: cbrt */}
+      {phase !== 'forward' && (
+        <g>
+          <path d="M 256 80 Q 170 110 80 80" fill="none" stroke="#16A34A" strokeWidth={3} />
+          <rect x={110} y={84} width={120} height={26} rx={8} fill="#16A34A" />
+          <text x={170} y={102} textAnchor="middle" fill="#FFFFFF" fontSize={14} fontWeight={900}>
+            Cube Root (∛)
+          </text>
+        </g>
+      )}
+    </svg>
+  );
+};
+

@@ -528,3 +528,139 @@ export const CubeOddSumsAndTaxiScene: React.FC<CubeOddSumsAndTaxiSceneProps> = (
     </div>
   );
 };
+
+export interface TaxicabBalanceScaleSvgProps {
+  taxicab: TaxicabId;
+  showRightPan?: boolean;
+  balanced?: boolean;
+}
+
+export const TaxicabBalanceScaleSvg: React.FC<TaxicabBalanceScaleSvgProps> = ({
+  taxicab,
+  showRightPan = true,
+  balanced = true,
+}) => {
+  const cfg = TAXICAB_PRESETS[taxicab];
+  const tiltDeg = !showRightPan ? -7 : balanced ? 0 : -6;
+
+  return (
+    <div className="w-full max-w-[360px] flex flex-col items-center gap-1">
+      <div
+        className="w-full grid grid-cols-2 gap-3 items-end transition-transform duration-500 ease-out origin-center"
+        style={{ transform: `rotate(${tiltDeg}deg)` }}
+      >
+        <div className="p-1.5 rounded-2xl bg-white border-2 border-[#0788D3] flex items-end justify-center gap-1.5 shadow-2xs">
+          <MiniIsoCube
+            size={12}
+            label={`${cfg.way1.a}³=${cfg.way1.aCube}`}
+            topFill="#DBEAFE"
+            leftFill="#60A5FA"
+            rightFill="#93C5FD"
+            stroke="#1D4ED8"
+          />
+          <span className="text-micro font-black text-slate-400 pb-3">+</span>
+          <MiniIsoCube
+            size={20}
+            label={`${cfg.way1.b}³=${cfg.way1.bCube}`}
+            topFill="#FED7AA"
+            leftFill="#FB923C"
+            rightFill="#FDBA74"
+            stroke="#C2410C"
+          />
+        </div>
+
+        <div
+          className={`p-1.5 rounded-2xl bg-white border-2 border-[#F27A00] flex items-end justify-center gap-1.5 shadow-2xs transition-opacity duration-400 ${
+            showRightPan ? 'opacity-100' : 'opacity-25'
+          }`}
+        >
+          <MiniIsoCube
+            size={16}
+            label={`${cfg.way2.a}³=${cfg.way2.aCube}`}
+            topFill="#EDE9FE"
+            leftFill="#A78BFA"
+            rightFill="#C4B5FD"
+            stroke="#6D28D9"
+          />
+          <span className="text-micro font-black text-slate-400 pb-3">+</span>
+          <MiniIsoCube
+            size={18}
+            label={`${cfg.way2.b}³=${cfg.way2.bCube}`}
+            topFill="#DCFCE7"
+            leftFill="#4ADE80"
+            rightFill="#86EFAC"
+            stroke="#15803D"
+          />
+        </div>
+      </div>
+
+      {/* Fulcrum */}
+      <div className="flex flex-col items-center -mt-0.5">
+        <div className="w-56 h-1.5 rounded-full bg-slate-800" />
+        <svg width="34" height="16" viewBox="0 0 56 32">
+          <polygon points="28,0 52,32 4,32" fill="#334155" />
+          <circle cx="28" cy="10" r="4" fill="#F8FAFC" />
+        </svg>
+      </div>
+    </div>
+  );
+};
+
+export interface CubeOddTapeSvgProps {
+  highlightN: number;
+  challengeRange?: boolean;
+}
+
+export const CubeOddTapeSvg: React.FC<CubeOddTapeSvgProps> = ({
+  highlightN,
+  challengeRange = false,
+}) => {
+  if (challengeRange) {
+    const terms = [91, 93, 95, 97, 99, 101, 103, 105, 107, 109];
+    return (
+      <div className="flex flex-col items-center gap-1.5 w-full max-w-[360px]">
+        <div className="flex flex-wrap items-center justify-center gap-1">
+          {terms.map((t, idx) => (
+            <span
+              key={t}
+              className="px-1.5 py-0.5 rounded-lg bg-[#F27A00] text-white font-mono font-black text-micro border border-[#9A3412]"
+              style={{ transitionDelay: `${idx * 35}ms` }}
+            >
+              {t}
+            </span>
+          ))}
+        </div>
+        <div className="text-micro font-extrabold text-purple-900">
+          10 consecutive odds → 10³ = 1,000!
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col items-center gap-1.5 w-full max-w-[360px]">
+      {ODD_CUBE_GROUPS.slice(0, 4).map((g) => {
+        const isTarget = g.n === highlightN;
+        const isPast = g.n < highlightN;
+        if (g.n > highlightN) return null;
+        return (
+          <div
+            key={g.n}
+            className={`w-full px-2.5 py-1 rounded-xl border flex items-center justify-between gap-2 font-mono text-micro font-bold transition-all ${
+              isTarget
+                ? 'bg-orange-50 border-[#F27A00] text-orange-950 scale-[1.02]'
+                : isPast
+                ? 'bg-slate-50 border-slate-200 text-slate-600'
+                : 'bg-white border-slate-200'
+            }`}
+          >
+            <span className="font-black text-purple-800">{g.n}³ =</span>
+            <span className="truncate">{g.odds.join(' + ')}</span>
+            <span className="font-black text-[#005583]">= {g.sum}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+

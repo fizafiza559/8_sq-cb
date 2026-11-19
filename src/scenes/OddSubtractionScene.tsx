@@ -379,3 +379,146 @@ export const OddSubtractionScene: React.FC<OddSubtractionSceneProps> = ({
     </div>
   );
 };
+
+export interface OddSubtractionMeterSvgProps {
+  startValue: number;
+  oddsSubtracted: number[];
+  overshotValue?: number | null;
+  overshotOdd?: number;
+}
+
+export const OddSubtractionMeterSvg: React.FC<OddSubtractionMeterSvgProps> = ({
+  startValue,
+  oddsSubtracted,
+  overshotValue = null,
+  overshotOdd = 15,
+}) => {
+  const totalRemoved = oddsSubtracted.reduce((acc, v) => acc + v, 0);
+  const currentRem = startValue - totalRemoved;
+  const fillRatio = Math.max(0, Math.min(1, currentRem / Math.max(1, startValue)));
+
+  return (
+    <div className="flex items-center justify-center gap-4 w-full max-w-[340px]">
+      <svg viewBox="0 0 110 120" className="h-[104px] w-[96px] shrink-0 select-none">
+        {/* Fuel Tank Frame */}
+        <rect x={28} y={10} width={54} height={82} rx={10} fill="#F8FAFC" stroke="#94A3B8" strokeWidth={2} />
+        {/* Zero Target Line */}
+        <line x1={18} y1={92} x2={94} y2={92} stroke={overshotValue !== null ? '#DC2626' : '#16A34A'} strokeWidth={2.5} strokeDasharray="4 2" />
+        <text x={96} y={96} fill={overshotValue !== null ? '#DC2626' : '#15803D'} fontSize={14} fontWeight={900}>
+          0
+        </text>
+        {/* Remaining Volume Bar */}
+        {currentRem > 0 && (
+          <rect
+            x={32}
+            y={90 - fillRatio * 76}
+            width={46}
+            height={Math.max(6, fillRatio * 76)}
+            rx={6}
+            fill={currentRem <= 2 ? '#F59E0B' : '#0EA5E9'}
+            style={{ transition: 'all 350ms cubic-bezier(0.22, 1, 0.36, 1)' }}
+          />
+        )}
+        {overshotValue !== null && (
+          <rect
+            x={32}
+            y={94}
+            width={46}
+            height={18}
+            rx={5}
+            fill="#DC2626"
+          />
+        )}
+        <text x={55} y={54} textAnchor="middle" fill="#0F172A" fontSize={15} fontWeight={900}>
+          {overshotValue !== null ? overshotValue : currentRem}
+        </text>
+      </svg>
+
+      <div className="flex flex-col gap-1 min-w-0">
+        <div className="flex flex-wrap gap-1 font-mono font-bold text-micro">
+          {oddsSubtracted.map((o) => (
+            <span key={o} className="px-1.5 py-0.5 rounded-md bg-purple-50 border border-purple-200 text-purple-800">
+              −{o}
+            </span>
+          ))}
+        </div>
+        <div className="text-micro font-extrabold text-slate-700">
+          {overshotValue !== null
+            ? `−${overshotOdd} drops to ${overshotValue} (Misses 0!)`
+            : `${startValue} − ${totalRemoved} = ${currentRem}`}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export interface BetweenSquaresLineSvgProps {
+  n: number;
+  highlightGap: boolean;
+  showCountBadge?: boolean;
+}
+
+export const BetweenSquaresLineSvg: React.FC<BetweenSquaresLineSvgProps> = ({
+  n,
+  highlightGap,
+  showCountBadge = false,
+}) => {
+  const low = n * n;
+  const high = (n + 1) * (n + 1);
+  const gap = high - low - 1;
+
+  return (
+    <svg viewBox="0 0 360 112" className="h-[104px] w-full max-w-[350px] select-none">
+      {/* Main Number Line */}
+      <line x1={38} y1={58} x2={322} y2={58} stroke="#64748B" strokeWidth={3} strokeLinecap="round" />
+
+      {/* Highlighted Gap Ribbon */}
+      {highlightGap && (
+        <rect
+          x={74}
+          y={46}
+          width={212}
+          height={24}
+          rx={12}
+          fill="#DCFCE7"
+          stroke="#16A34A"
+          strokeWidth={2}
+        />
+      )}
+
+      {/* Left Square Pillar */}
+      <g transform="translate(52, 58)">
+        <circle cx={0} cy={0} r={22} fill="#005583" />
+        <text x={0} y={-2} textAnchor="middle" fill="#FFFFFF" fontSize={14} fontWeight={900}>
+          {low}
+        </text>
+        <text x={0} y={13} textAnchor="middle" fill="#BAE6FD" fontSize={14} fontWeight={700}>
+          {n}²
+        </text>
+      </g>
+
+      {/* Right Square Pillar */}
+      <g transform="translate(308, 58)">
+        <circle cx={0} cy={0} r={22} fill="#005583" />
+        <text x={0} y={-2} textAnchor="middle" fill="#FFFFFF" fontSize={14} fontWeight={900}>
+          {high}
+        </text>
+        <text x={0} y={13} textAnchor="middle" fill="#BAE6FD" fontSize={14} fontWeight={700}>
+          {n + 1}²
+        </text>
+      </g>
+
+      {/* Gap Count Callout */}
+      <text
+        x={180}
+        y={highlightGap ? 63 : 38}
+        textAnchor="middle"
+        fill={showCountBadge ? '#15803D' : '#0F172A'}
+        fontSize={14}
+        fontWeight={900}
+      >
+        {showCountBadge ? `${gap} non-squares (2 × ${n})` : `${low + 1} … ${high - 1}`}
+      </text>
+    </svg>
+  );
+};

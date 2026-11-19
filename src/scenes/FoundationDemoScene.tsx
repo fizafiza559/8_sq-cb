@@ -179,3 +179,238 @@ export const FoundationDemoScene: React.FC<SceneComponentProps> = ({
     </svg>
   );
 };
+
+export interface SquareAreaCanvasSvgProps {
+  side: number;
+  filledCount: number;
+  pulseOutline?: boolean;
+  showTotalBadge?: boolean;
+  fillColor?: string;
+  strokeColor?: string;
+  customBadgeText?: string;
+}
+
+export const SquareAreaCanvasSvg: React.FC<SquareAreaCanvasSvgProps> = ({
+  side,
+  filledCount,
+  pulseOutline = false,
+  showTotalBadge = false,
+  fillColor = '#10B981',
+  strokeColor = '#059669',
+  customBadgeText,
+}) => {
+  const tileSize = Math.min(18, Math.floor(136 / Math.max(1, side)));
+  const gridPx = side * tileSize;
+  const viewW = 240;
+  const viewH = 176;
+  const ox = (viewW - gridPx) / 2 + 8;
+  const oy = (viewH - gridPx) / 2 + 6;
+
+  return (
+    <svg viewBox={`0 0 ${viewW} ${viewH}`} className="h-[118px] w-auto select-none">
+      {/* Top Side Dimension Line */}
+      <line x1={ox} y1={oy - 8} x2={ox + gridPx} y2={oy - 8} stroke={COLORS.side.solid} strokeWidth={2} />
+      <text x={ox + gridPx / 2} y={oy - 14} textAnchor="middle" fill={COLORS.side.text} fontSize={14} fontWeight={800}>
+        {side} cols
+      </text>
+
+      {/* Left Side Dimension Line */}
+      <line x1={ox - 8} y1={oy} x2={ox - 8} y2={oy + gridPx} stroke={COLORS.side.solid} strokeWidth={2} />
+      <text
+        x={ox - 16}
+        y={oy + gridPx / 2}
+        textAnchor="middle"
+        fill={COLORS.side.text}
+        fontSize={14}
+        fontWeight={800}
+        transform={`rotate(-90 ${ox - 16} ${oy + gridPx / 2})`}
+      >
+        {side} rows
+      </text>
+
+      {/* Grid Outline + Sweeping Tiles */}
+      <rect
+        x={ox - 2}
+        y={oy - 2}
+        width={gridPx + 4}
+        height={gridPx + 4}
+        rx={5}
+        fill={COLORS.area.tint}
+        stroke={pulseOutline ? '#0284C7' : COLORS.area.solid}
+        strokeWidth={pulseOutline ? 3 : 2}
+        className={pulseOutline ? 'animate-pulse' : ''}
+      />
+      {Array.from({ length: side }).map((_, r) =>
+        Array.from({ length: side }).map((__, c) => {
+          const idx = r * side + c + 1;
+          const isFilled = idx <= filledCount;
+          return (
+            <rect
+              key={`${r}-${c}`}
+              x={ox + c * tileSize + 0.5}
+              y={oy + r * tileSize + 0.5}
+              width={tileSize - 1}
+              height={tileSize - 1}
+              rx={2}
+              fill={isFilled ? fillColor : '#FFFFFF'}
+              stroke={isFilled ? strokeColor : '#CBD5E1'}
+              strokeWidth={1}
+              style={{
+                transition: 'fill 160ms ease',
+              }}
+            />
+          );
+        })
+      )}
+
+      {showTotalBadge && (
+        <g transform={`translate(${ox + gridPx / 2}, ${oy + gridPx / 2})`}>
+          <rect
+            x={-54}
+            y={-15}
+            width={108}
+            height={30}
+            rx={8}
+            fill="#FFFFFF"
+            stroke={COLORS.area.solid}
+            strokeWidth={2}
+          />
+          <text
+            x={0}
+            y={1}
+            textAnchor="middle"
+            dominantBaseline="central"
+            fill={COLORS.area.text}
+            fontSize={14}
+            fontWeight={900}
+          >
+            {customBadgeText ?? `${side}² = ${side * side}`}
+          </text>
+        </g>
+      )}
+    </svg>
+  );
+};
+
+export interface FractionDecimalSquareCanvasSvgProps {
+  stage: 'outline' | 'partition' | 'compare';
+}
+
+export const FractionDecimalSquareCanvasSvg: React.FC<FractionDecimalSquareCanvasSvgProps> = ({
+  stage,
+}) => {
+  const showArea = stage !== 'outline';
+  return (
+    <svg viewBox="0 0 360 128" className="h-[116px] w-full max-w-[360px] select-none">
+      {/* Left: 3/5 inside 5x5 unit square */}
+      <g transform="translate(32, 22)">
+        <text x={45} y={-8} textAnchor="middle" fill="#005583" fontSize={14} fontWeight={900}>
+          side = 3/5
+        </text>
+        <rect x={0} y={0} width={90} height={90} rx={5} fill="#F8FAFC" stroke="#94A3B8" strokeWidth={1.5} strokeDasharray="4 2" />
+        {Array.from({ length: 5 }).map((_, r) =>
+          Array.from({ length: 5 }).map((__, c) => {
+            const inFrac = r < 3 && c < 3;
+            return (
+              <rect
+                key={`f-${r}-${c}`}
+                x={c * 18 + 1}
+                y={r * 18 + 1}
+                width={16}
+                height={16}
+                rx={2}
+                fill={inFrac && showArea ? '#0284C7' : inFrac ? '#E0F2FE' : '#FFFFFF'}
+                stroke={inFrac ? '#0369A1' : '#CBD5E1'}
+                strokeWidth={inFrac ? 1.4 : 0.8}
+                style={{ transition: 'fill 320ms cubic-bezier(0.22, 1, 0.36, 1)' }}
+              />
+            );
+          })
+        )}
+        {showArea && (
+          <g transform="translate(45, 76)">
+            <rect x={-30} y={-11} width={60} height={22} rx={7} fill="#FFFFFF" stroke="#0284C7" strokeWidth={1.5} />
+            <text x={0} y={4} textAnchor="middle" fill="#005583" fontSize={14} fontWeight={900}>
+              9/25
+            </text>
+          </g>
+        )}
+      </g>
+
+      {/* Right: 2.5 x 2.5 partitioned area (2+0.5) x (2+0.5) */}
+      <g transform="translate(210, 22)">
+        <text x={45} y={-8} textAnchor="middle" fill="#B45309" fontSize={14} fontWeight={900}>
+          side = 2.5
+        </text>
+        {/* 2x2 = 4 */}
+        <rect
+          x={0}
+          y={0}
+          width={72}
+          height={72}
+          rx={3}
+          fill={showArea ? '#F59E0B' : '#FEF3C7'}
+          stroke="#B45309"
+          strokeWidth={1.5}
+          style={{ transition: 'fill 320ms cubic-bezier(0.22, 1, 0.36, 1)' }}
+        />
+        <text x={36} y={40} textAnchor="middle" fill={showArea ? '#FFFFFF' : '#92400E'} fontSize={14} fontWeight={900}>
+          {showArea ? '4' : '2×2'}
+        </text>
+        {/* 2 x 0.5 = 1 */}
+        <rect
+          x={72}
+          y={0}
+          width={18}
+          height={72}
+          rx={2}
+          fill={showArea ? '#FBBF24' : '#FEF3C7'}
+          stroke="#B45309"
+          strokeWidth={1.5}
+        />
+        {/* 0.5 x 2 = 1 */}
+        <rect
+          x={0}
+          y={72}
+          width={72}
+          height={18}
+          rx={2}
+          fill={showArea ? '#FBBF24' : '#FEF3C7'}
+          stroke="#B45309"
+          strokeWidth={1.5}
+        />
+        {/* 0.5 x 0.5 = 0.25 */}
+        <rect
+          x={72}
+          y={72}
+          width={18}
+          height={18}
+          rx={2}
+          fill={showArea ? '#FDE68A' : '#FFFBEB'}
+          stroke="#B45309"
+          strokeWidth={1.5}
+        />
+        {showArea && (
+          <g transform="translate(45, 76)">
+            <rect x={-30} y={-11} width={60} height={22} rx={7} fill="#FFFFFF" stroke="#D97706" strokeWidth={1.5} />
+            <text x={0} y={4} textAnchor="middle" fill="#92400E" fontSize={14} fontWeight={900}>
+              6.25
+            </text>
+          </g>
+        )}
+      </g>
+
+      {/* Center Status */}
+      {stage === 'compare' && (
+        <g transform="translate(154, 52)">
+          <rect x={-26} y={-14} width={52} height={28} rx={10} fill="#FFFBEB" stroke="#D97706" strokeWidth={1.5} />
+          <text x={0} y={5} textAnchor="middle" fill="#92400E" fontSize={14} fontWeight={900}>
+            Real²
+          </text>
+        </g>
+      )}
+    </svg>
+  );
+};
+
+

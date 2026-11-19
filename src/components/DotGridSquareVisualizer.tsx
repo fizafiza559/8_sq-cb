@@ -386,3 +386,92 @@ export const DotGridSquareVisualizer: React.FC<DotGridSquareVisualizerProps> = (
     </div>
   );
 };
+
+export interface OddGnomonCanvasSvgProps {
+  layers: number;
+  highlightOuter?: boolean;
+  outerLabel?: string;
+  innerSquareLabel?: string;
+  hideOuterLayer?: boolean;
+}
+
+export const OddGnomonCanvasSvg: React.FC<OddGnomonCanvasSvgProps> = ({
+  layers,
+  highlightOuter = false,
+  outerLabel,
+  innerSquareLabel,
+  hideOuterLayer = false,
+}) => {
+  const safeLayers = Math.max(1, Math.min(10, layers));
+  const tileSize = Math.min(18, Math.floor(144 / safeLayers));
+  const gridPx = safeLayers * tileSize;
+  const viewSize = 180;
+  const ox = (viewSize - gridPx) / 2;
+  const oy = (viewSize - gridPx) / 2;
+  const innerSide = Math.max(1, safeLayers - 1) * tileSize;
+
+  return (
+    <svg viewBox={`0 0 ${viewSize} ${viewSize}`} className="h-[116px] w-[116px] shrink-0 select-none">
+      {Array.from({ length: safeLayers }).map((_, layerIdx) => {
+        const layerColor = L_LAYER_COLORS[layerIdx % L_LAYER_COLORS.length];
+        const isOuter = layerIdx === safeLayers - 1;
+        if (hideOuterLayer && isOuter) return null;
+        const isHighlightedOuter = highlightOuter && isOuter;
+        const tilesInLayer: { col: number; row: number }[] = [];
+
+        for (let r = 0; r <= layerIdx; r++) {
+          tilesInLayer.push({ col: layerIdx, row: r });
+        }
+        for (let c = 0; c < layerIdx; c++) {
+          tilesInLayer.push({ col: c, row: layerIdx });
+        }
+
+        return (
+          <g
+            key={layerIdx}
+            style={{
+              opacity: highlightOuter && !isHighlightedOuter ? 0.55 : 1,
+              transition: 'opacity 300ms ease',
+            }}
+          >
+            {tilesInLayer.map((t, i) => (
+              <rect
+                key={`${layerIdx}-${i}`}
+                x={ox + t.col * tileSize + 0.5}
+                y={oy + t.row * tileSize + 0.5}
+                width={tileSize - 1}
+                height={tileSize - 1}
+                rx={2}
+                fill={isHighlightedOuter ? '#F27A00' : layerColor.fill}
+                stroke={isHighlightedOuter ? '#9A3412' : layerColor.stroke}
+                strokeWidth={isHighlightedOuter ? 1.5 : 1}
+              />
+            ))}
+          </g>
+        );
+      })}
+      {innerSquareLabel && (
+        <g transform={`translate(${ox + innerSide / 2}, ${oy + innerSide / 2})`}>
+          <rect x={-34} y={-13} width={68} height={26} rx={7} fill="#FFFFFF" stroke="#005583" strokeWidth={1.5} />
+          <text x={0} y={5} textAnchor="middle" fill="#005583" fontSize={14} fontWeight={900}>
+            {innerSquareLabel}
+          </text>
+        </g>
+      )}
+      {outerLabel && (
+        <text
+          x={viewSize / 2}
+          y={viewSize - 6}
+          textAnchor="middle"
+          fill="#9A3412"
+          fontSize={14}
+          fontWeight={900}
+        >
+          {outerLabel}
+        </text>
+      )}
+    </svg>
+  );
+};
+
+

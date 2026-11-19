@@ -407,3 +407,85 @@ export const IsometricCubeRenderer: React.FC<IsometricCubeRendererProps> = ({
     </div>
   );
 };
+
+export interface CompactIsometricCubeSvgProps {
+  n: number;
+  visibleLayers: number;
+  showFinalHighlight?: boolean;
+}
+
+export const CompactIsometricCubeSvg: React.FC<CompactIsometricCubeSvgProps> = ({
+  n,
+  visibleLayers,
+  showFinalHighlight = false,
+}) => {
+  const safeN = Math.max(1, Math.min(5, n));
+  const safeVisible = Math.max(1, Math.min(safeN, visibleLayers));
+  const viewW = 200;
+  const viewH = 175;
+  const cubeSize = safeN === 5 ? 11.5 : safeN === 4 ? 14 : 18;
+  const cx = viewW / 2;
+  const cy = 96;
+
+  // Outline box corners for full n x n x n ghost frame
+  const topPt = projectIso(0, 0, safeN, cubeSize, cx, cy);
+  const rightPt = projectIso(safeN, 0, safeN, cubeSize, cx, cy);
+  const frontTopPt = projectIso(safeN, safeN, safeN, cubeSize, cx, cy);
+  const leftPt = projectIso(0, safeN, safeN, cubeSize, cx, cy);
+  const rightBotPt = projectIso(safeN, 0, 0, cubeSize, cx, cy);
+  const frontBotPt = projectIso(safeN, safeN, 0, cubeSize, cx, cy);
+  const leftBotPt = projectIso(0, safeN, 0, cubeSize, cx, cy);
+
+  return (
+    <svg viewBox={`0 0 ${viewW} ${viewH}`} className="h-[118px] w-auto shrink-0 select-none">
+      {/* Ghost n x n x n outline */}
+      <polygon
+        points={`${topPt.x},${topPt.y} ${rightPt.x},${rightPt.y} ${rightBotPt.x},${rightBotPt.y} ${frontBotPt.x},${frontBotPt.y} ${leftBotPt.x},${leftBotPt.y} ${leftPt.x},${leftPt.y}`}
+        fill="#F8FAFC"
+        stroke="#CBD5E1"
+        strokeWidth={1.5}
+        strokeDasharray="4 3"
+      />
+      <line x1={leftPt.x} y1={leftPt.y} x2={frontTopPt.x} y2={frontTopPt.y} stroke="#E2E8F0" strokeWidth={1} />
+      <line x1={rightPt.x} y1={rightPt.y} x2={frontTopPt.x} y2={frontTopPt.y} stroke="#E2E8F0" strokeWidth={1} />
+      <line x1={frontTopPt.x} y1={frontTopPt.y} x2={frontBotPt.x} y2={frontBotPt.y} stroke="#E2E8F0" strokeWidth={1} />
+
+      {/* Render visible isometric cube layers back-to-front */}
+      {Array.from({ length: safeVisible }).map((_, z) => {
+        const isTopLayer = z === safeVisible - 1;
+        return (
+          <g key={`layer-${z}`}>
+            {Array.from({ length: safeN }).map((__, x) =>
+              Array.from({ length: safeN }).map((___, y) => {
+                const { topFace, rightFace, leftFace } = getCubeFaces(x, y, z, cubeSize, cx, cy);
+                const topCol = showFinalHighlight
+                  ? '#86EFAC'
+                  : isTopLayer
+                  ? '#C4B5FD'
+                  : '#DDD6FE';
+                const rightCol = showFinalHighlight
+                  ? '#22C55E'
+                  : isTopLayer
+                  ? '#8B5CF6'
+                  : '#A78BFA';
+                const leftCol = showFinalHighlight
+                  ? '#15803D'
+                  : isTopLayer
+                  ? '#6D28D9'
+                  : '#7C3AED';
+                return (
+                  <g key={`c-${z}-${x}-${y}`}>
+                    <polygon points={topFace} fill={topCol} stroke="#FFFFFF" strokeWidth={0.7} />
+                    <polygon points={leftFace} fill={leftCol} stroke="#FFFFFF" strokeWidth={0.7} />
+                    <polygon points={rightFace} fill={rightCol} stroke="#FFFFFF" strokeWidth={0.7} />
+                  </g>
+                );
+              })
+            )}
+          </g>
+        );
+      })}
+    </svg>
+  );
+};
+

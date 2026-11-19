@@ -3,20 +3,19 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ArrowRight,
-  CheckCircle2,
   ChevronRight,
-  Grid,
-  Layers,
-  Lock,
   RotateCcw,
   Sparkles,
-  Unlock,
-  XCircle,
 } from 'lucide-react';
-import { Katex } from '../Katex';
+import { LockerGridCanvas } from '../../sections/LockerStorySection';
+import { SquareAreaCanvasSvg } from '../../scenes/FoundationDemoScene';
+import {
+  LastDigitSortingTraysSvg,
+  SquareZerosParitySvg,
+} from '../../scenes/LastDigitPatternsScene';
 
 export interface QuickCheckVisualizerStageProps {
   onNext: () => void;
@@ -26,139 +25,299 @@ export interface QuickCheckVisualizerStageProps {
 }
 
 // -----------------------------------------------------------------------------
-// Helper: Step Scrubber
+// SHARED STEP-BY-STEP HELPERS & SHELL (Gold Standard Primitives)
 // -----------------------------------------------------------------------------
-const StepScrubber: React.FC<{
-  step: 1 | 2 | 3;
-  setStep: React.Dispatch<React.SetStateAction<1 | 2 | 3>>;
-}> = ({ step, setStep }) => {
-  const stepLabels = ['Step 1', 'Step 2', 'Step 3 (Answer)'];
-  return (
-    <div className="flex items-center gap-1.5 shrink-0 py-0.5">
-      {stepLabels.map((label, idx) => {
-        const stepNum = (idx + 1) as 1 | 2 | 3;
-        const isActive = step === stepNum;
-        const isPast = step > stepNum;
-        return (
-          <React.Fragment key={stepNum}>
-            <button
-              type="button"
-              onClick={() => isPast && setStep(stepNum)}
-              className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border transition-all ${
-                isActive
-                  ? 'bg-[#005583] text-white border-[#003F62] shadow-2xs'
-                  : isPast
-                  ? 'bg-white border-slate-200 text-[#005583] cursor-pointer hover:bg-slate-50'
-                  : 'bg-slate-100 border-slate-200 text-slate-400 cursor-default'
-              }`}
-            >
-              {label}
-            </button>
-            {idx < 2 && <span className="text-slate-300 text-[11px]">→</span>}
-          </React.Fragment>
-        );
-      })}
-    </div>
-  );
-};
 
-// -----------------------------------------------------------------------------
-// Helper: Card Shell Frame
-// -----------------------------------------------------------------------------
-interface VisualizerFrameProps {
-  title: string;
-  badge: string;
-  cue: React.ReactNode;
-  step: 1 | 2 | 3;
-  setStep: React.Dispatch<React.SetStateAction<1 | 2 | 3>>;
-  onNext: () => void;
-  onReset?: () => void;
-  isLastQuestion: boolean;
-  children: React.ReactNode;
-  footerNote?: string;
-}
+export function useStepProgress(totalSteps: number = 3) {
+  const [step, setStep] = useState<number>(1);
+  const [maxStep, setMaxStep] = useState<number>(1);
 
-const VisualizerFrame: React.FC<VisualizerFrameProps> = ({
-  title,
-  badge,
-  cue,
-  step,
-  setStep,
-  onNext,
-  onReset,
-  isLastQuestion,
-  children,
-  footerNote,
-}) => {
-  const advanceStep = () => {
-    if (step < 3) setStep((s) => (s + 1) as 1 | 2 | 3);
+  const advance = () => {
+    setStep((prev) => {
+      const next = prev < totalSteps ? prev + 1 : prev;
+      setMaxStep((m) => Math.max(m, next));
+      return next;
+    });
   };
 
+  const selectStep = (target: number) => {
+    if (target <= maxStep && target >= 1 && target <= totalSteps) {
+      setStep(target);
+    }
+  };
+
+  const replay = () => {
+    setStep(1);
+    setMaxStep(1);
+  };
+
+  return { step, maxStep, advance, selectStep, replay };
+}
+
+export function useStepReady(step: number, delayMs: number = 35): boolean {
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    setReady(false);
+    const timer = window.setTimeout(() => setReady(true), delayMs);
+    return () => window.clearTimeout(timer);
+  }, [step, delayMs]);
+
+  return ready;
+}
+
+export function useSequenceTick(
+  active: boolean,
+  maxTick: number,
+  intervalMs: number = 320,
+  resetKey: unknown = 0
+): number {
+  const [tick, setTick] = useState(0);
+
+  useEffect(() => {
+    setTick(0);
+    if (!active || maxTick <= 0) return;
+
+    let current = 0;
+    const id = window.setInterval(() => {
+      current += 1;
+      setTick(current);
+      if (current >= maxTick) {
+        window.clearInterval(id);
+      }
+    }, intervalMs);
+
+    return () => window.clearInterval(id);
+  }, [active, maxTick, intervalMs, resetKey]);
+
+  return tick;
+}
+
+export function useAnimatedNumber(
+  target: number,
+  active: boolean,
+  durationMs: number = 650,
+  startVal: number = 0
+): number {
+  const [value, setValue] = useState(active ? startVal : target);
+
+  useEffect(() => {
+    if (!active) {
+      setValue(startVal);
+      return;
+    }
+
+    let rafId = 0;
+    const startTime = performance.now();
+
+    const frame = (now: number) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(1, elapsed / durationMs);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setValue(Math.round(startVal + (target - startVal) * eased));
+      if (progress < 1) {
+        rafId = requestAnimationFrame(frame);
+      }
+    };
+
+    rafId = requestAnimationFrame(frame);
+    return () => cancelAnimationFrame(rafId);
+  }, [target, active, durationMs, startVal]);
+
+  return value;
+}
+
+export interface StepDefinition {
+  label: string;
+  cue: string;
+}
+
+interface QuickCheckStepShellProps {
+  ariaLabel: string;
+  isCorrect: boolean;
+  headerTitle: string;
+  headerBadge: string;
+  steps: StepDefinition[];
+  step: number;
+  maxStep: number;
+  onSelectStep: (s: number) => void;
+  onAdvance: () => void;
+  onReset?: () => void;
+  onNext?: () => void;
+  isLastQuestion?: boolean;
+  nextLabel?: string;
+  insightText: React.ReactNode;
+  insightTone?: 'neutral' | 'success' | 'warning' | 'danger';
+  footerText: string;
+  children: React.ReactNode;
+}
+
+export const QuickCheckStepShell: React.FC<QuickCheckStepShellProps> = ({
+  ariaLabel,
+  isCorrect,
+  headerTitle,
+  headerBadge,
+  steps,
+  step,
+  maxStep,
+  onSelectStep,
+  onAdvance,
+  onReset,
+  onNext,
+  isLastQuestion = false,
+  nextLabel,
+  insightText,
+  insightTone = 'neutral',
+  footerText,
+  children,
+}) => {
+  const totalSteps = steps.length;
+  const currentStepDef = steps[Math.max(0, Math.min(totalSteps - 1, step - 1))];
+  const isFinalStep = step >= totalSteps;
+
+  const insightStyles = {
+    neutral: 'bg-sky-50 border-sky-200 text-sky-950',
+    success: 'bg-emerald-50 border-emerald-300 text-emerald-950',
+    warning: 'bg-amber-50 border-amber-300 text-amber-950',
+    danger: 'bg-rose-50 border-rose-200 text-rose-950',
+  }[insightTone];
+
+  const resolvedNextLabel = nextLabel ?? (!isLastQuestion ? 'Next Question' : 'See Results');
+
   return (
-    <div className="w-full h-full min-h-0 bg-slate-50/80 border border-slate-200/80 rounded-3xl p-3 sm:p-3.5 flex flex-col justify-between gap-1.5 overflow-hidden shadow-2xs animate-fade-rise">
-      {/* Header Bar */}
-      <div className="flex items-center justify-between gap-2 pb-1 border-b border-slate-200/70 shrink-0">
+    <div
+      aria-label={ariaLabel}
+      className="w-full h-full min-h-0 bg-slate-50/80 border border-slate-200/80 rounded-3xl p-3 sm:p-3.5 flex flex-col justify-between gap-2 overflow-hidden shadow-2xs animate-fade-rise"
+    >
+      {/* 1. Header Bar */}
+      <div className="flex items-center justify-between gap-2 pb-1.5 border-b border-slate-200/70 shrink-0">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-micro font-extrabold uppercase tracking-wider text-[#005583]">
-            {title}
+          <span
+            className={`text-micro font-extrabold uppercase tracking-wider ${
+              isCorrect ? 'text-emerald-700' : 'text-rose-700'
+            }`}
+          >
+            {headerTitle}
           </span>
-          <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200/80 text-[11px] font-bold text-slate-700 tabular-nums">
-            {badge}
+          <span className="px-2.5 py-0.5 rounded-md bg-white border border-slate-200/80 text-micro font-bold text-[#005583] tabular-nums">
+            {headerBadge}
           </span>
         </div>
+
         {onReset && (
           <button
             type="button"
-            onClick={() => {
-              setStep(1);
-              onReset();
-            }}
-            className="min-h-[28px] px-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
+            onClick={onReset}
+            className="min-h-[34px] px-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 text-micro font-bold flex items-center gap-1.5 cursor-pointer transition-colors shrink-0 shadow-2xs"
           >
-            <RotateCcw className="w-3 h-3" />
-            <span>Reset</span>
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>Re-try</span>
           </button>
         )}
       </div>
 
-      {/* Step Scrubber */}
-      <StepScrubber step={step} setStep={setStep} />
+      {/* 2. Step Scrubber + Single-Action Cue */}
+      <div className="flex flex-col gap-1.5 shrink-0">
+        <div className="flex items-center gap-1 flex-wrap" role="tablist" aria-label="Solution steps">
+          {steps.map((sDef, idx) => {
+            const sNum = idx + 1;
+            const isActive = sNum === step;
+            const isUnlocked = sNum <= maxStep;
+            const isAnswerPill = sNum === totalSteps;
+            return (
+              <React.Fragment key={sDef.label}>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={isActive}
+                  disabled={!isUnlocked}
+                  onClick={() => onSelectStep(sNum)}
+                  className={`px-2.5 py-1 rounded-full text-micro font-bold border transition-all inline-flex items-center gap-1 ${
+                    isActive
+                      ? isAnswerPill
+                        ? 'bg-emerald-600 text-white border-emerald-700 shadow-xs'
+                        : 'bg-[#005583] text-white border-[#003F62] shadow-xs'
+                      : isUnlocked
+                      ? 'bg-white border-slate-200 text-[#005583] hover:bg-slate-100 cursor-pointer'
+                      : 'bg-slate-100 border-slate-200 text-slate-400 cursor-default'
+                  }`}
+                >
+                  <span>{sNum}.</span>
+                  <span>{sDef.label}</span>
+                </button>
+                {idx < steps.length - 1 && (
+                  <ArrowRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                )}
+              </React.Fragment>
+            );
+          })}
+        </div>
 
-      {/* Single Action Cue (≤ 12 words) */}
-      <div className="text-micro font-bold text-slate-700 shrink-0 min-h-[20px] flex items-center">
-        {cue}
+        <p className="text-micro font-bold text-[#002538] px-0.5 leading-snug">
+          {currentStepDef.cue}
+        </p>
       </div>
 
-      {/* Central Tappable Canvas Area */}
+      {/* 3. Tappable Generative Visual Canvas (max-h-[175px]) */}
       <div
-        onClick={advanceStep}
-        title={step < 3 ? 'Tap anywhere to advance →' : undefined}
-        className="w-full flex-1 min-h-[110px] max-h-[175px] bg-white rounded-2xl border border-slate-200/80 p-2 flex flex-col items-center justify-center gap-2 shadow-2xs overflow-hidden cursor-pointer select-none transition-colors duration-200 hover:border-[#005583]/40"
+        role={!isFinalStep ? 'button' : undefined}
+        tabIndex={!isFinalStep ? 0 : undefined}
+        title={!isFinalStep ? 'Tap anywhere to advance →' : undefined}
+        onClick={!isFinalStep ? onAdvance : undefined}
+        onKeyDown={
+          !isFinalStep
+            ? (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onAdvance();
+                }
+              }
+            : undefined
+        }
+        aria-label={!isFinalStep ? 'Tap canvas to advance to next step' : undefined}
+        className={`w-full flex-1 min-h-[116px] max-h-[175px] bg-white rounded-2xl border border-slate-200/80 p-2.5 flex flex-col items-center justify-center relative overflow-hidden shadow-2xs transition-colors ${
+          !isFinalStep ? 'cursor-pointer hover:border-sky-300' : ''
+        }`}
       >
         {children}
+
+        {!isFinalStep && (
+          <div className="mt-1.5 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-sky-50 border border-sky-200 text-micro font-bold text-[#005583] shrink-0">
+            <span>Tap anywhere for Step {step + 1}</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </div>
+        )}
       </div>
 
-      {/* Footer Navigation */}
-      <div className="pt-1 border-t border-slate-200/70 flex items-center justify-between gap-2 shrink-0">
-        <span className="text-micro font-bold text-slate-600 truncate">
-          {footerNote || (step < 3 ? 'Tap canvas or click next step' : '✓ Solution verified!')}
-        </span>
-        {step < 3 ? (
-          <button
-            type="button"
-            onClick={advanceStep}
-            className="min-h-[32px] px-3.5 rounded-xl bg-[#005583] hover:bg-[#003F62] text-white text-micro font-bold inline-flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
-          >
-            <span>Step {step + 1}</span>
-            <ChevronRight className="w-3.5 h-3.5" />
-          </button>
-        ) : (
+      {/* 4. Dynamic Insight Box */}
+      <div
+        className={`px-3 py-1.5 rounded-xl border font-bold text-micro shrink-0 flex items-center gap-2 leading-snug transition-colors ${insightStyles}`}
+      >
+        <Sparkles className="w-4 h-4 shrink-0 opacity-85" />
+        <div className="min-w-0">{insightText}</div>
+      </div>
+
+      {/* 5. Footer Bar */}
+      <div className="pt-1.5 border-t border-slate-200/70 flex items-center justify-between gap-2 shrink-0">
+        <span className="text-micro font-bold text-emerald-700 truncate">{footerText}</span>
+
+        {onNext && !isLastQuestion && (
           <button
             type="button"
             onClick={onNext}
-            className="min-h-[32px] px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-micro font-bold inline-flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
+            className="min-h-[36px] px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-micro font-bold inline-flex items-center gap-1 cursor-pointer transition-colors shrink-0 shadow-2xs"
           >
-            <span>{!isLastQuestion ? 'Next Question' : 'See Results'}</span>
+            <span>{resolvedNextLabel}</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </button>
+        )}
+        {onNext && isLastQuestion && !nextLabel && (
+          <button
+            type="button"
+            onClick={onNext}
+            className="min-h-[36px] px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-micro font-bold inline-flex items-center gap-1 cursor-pointer transition-colors shrink-0 shadow-2xs"
+          >
+            <span>{resolvedNextLabel}</span>
             <ChevronRight className="w-3.5 h-3.5" />
           </button>
         )}
@@ -168,384 +327,321 @@ const VisualizerFrame: React.FC<VisualizerFrameProps> = ({
 };
 
 // -----------------------------------------------------------------------------
-// SCENE 0: The Locker Puzzle (Lockers 1–16)
+// SCENE 0: LOCKERS 1–16 (Reuses LockerGridCanvas from LockerStorySection)
 // -----------------------------------------------------------------------------
-export const LockerGridSolutionVisualizer: React.FC<QuickCheckVisualizerStageProps> = (props) => {
-  const [step, setStep] = useState<1 | 2 | 3>(1);
-  const squares = [1, 4, 9, 16];
+const LOCKER_12_GUARDS = [1, 2, 3, 4, 6, 12];
 
-  const cues: Record<1 | 2 | 3, React.ReactNode> = {
-    1: <span>Step 1: Every factor flips a locker open or closed!</span>,
-    2: <span>Step 2: Watch even factor counts close, odd factor counts stay open!</span>,
-    3: <span className="text-emerald-700">Step 3: Only perfect squares (1, 4, 9, 16) stay OPEN!</span>,
-  };
+export const LockerGridSolutionVisualizer: React.FC<QuickCheckVisualizerStageProps> = ({
+  onNext,
+  onReset,
+  isCorrect,
+  isLastQuestion,
+}) => {
+  const { step, maxStep, advance, selectStep } = useStepProgress(3);
+  const flipTick = useSequenceTick(step === 1, LOCKER_12_GUARDS.length, 360, step);
+
+  const lockers16 = Array.from({ length: 16 }, (_, i) => i + 1);
+  const squares16 = [1, 4, 9, 16];
+  const is12Open = flipTick % 2 === 1;
+
+  const steps: StepDefinition[] = [
+    { label: 'Flip #12', cue: 'Step 1: Every factor flips a locker open or shut.' },
+    { label: 'Flip all 16', cue: 'Step 2: Even-factor lockers close; odd-factor lockers stay open!' },
+    { label: 'Answer', cue: 'Step 3: Only perfect squares (1, 4, 9, 16) stay OPEN!' },
+  ];
 
   return (
-    <VisualizerFrame
-      title="The Locker Puzzle"
-      badge="Lockers 1 to 16"
-      cue={cues[step]}
+    <QuickCheckStepShell
+      ariaLabel="Locker Puzzle Step-by-Step Solution"
+      isCorrect={isCorrect}
+      headerTitle={isCorrect ? '✓ Right! Locker Puzzle' : 'Review — Locker Puzzle'}
+      headerBadge={step < 3 ? 'Lockers 1–16' : 'Squares Stay Open'}
+      steps={steps}
       step={step}
-      setStep={setStep}
-      onNext={props.onNext}
-      onReset={props.onReset}
-      isLastQuestion={props.isLastQuestion}
+      maxStep={maxStep}
+      onSelectStep={selectStep}
+      onAdvance={advance}
+      onReset={onReset}
+      onNext={onNext}
+      isLastQuestion={isLastQuestion}
+      insightTone={step === 3 ? 'success' : 'neutral'}
+      insightText={
+        step === 1
+          ? 'Locker #12 has 6 factors (1, 2, 3, 4, 6, 12). Six flips leave it SHUT!'
+          : step === 2
+          ? 'Most numbers pair off and shut. Only 1, 4, 9, and 16 stay OPEN!'
+          : '🎉 Perfect squares have an odd factor count, so they stay OPEN!'
+      }
+      footerText={step === 3 ? '✓ Perfect squares stay open!' : `Step ${step} of 3`}
     >
       {step === 1 && (
-        <div className="flex flex-col items-center gap-2 animate-fade-rise">
-          <div className="flex items-center gap-2 font-mono text-micro font-bold text-slate-700">
-            <span>Example: Locker 12 has 6 factors:</span>
-            <span className="px-2 py-0.5 rounded bg-sky-100 text-[#005583]">
-              1, 2, 3, 4, 6, 12
-            </span>
-          </div>
-          <div className="flex items-center gap-1 text-[11px] font-mono text-slate-600">
-            <span>Open</span>
-            <span className="text-slate-400">→</span>
-            <span>Shut</span>
-            <span className="text-slate-400">→</span>
-            <span>Open</span>
-            <span className="text-slate-400">→</span>
-            <span>Shut</span>
-            <span className="text-slate-400">→</span>
-            <span>Open</span>
-            <span className="text-slate-400">→</span>
-            <span className="font-extrabold text-rose-600">SHUT (6 flips = closed!)</span>
-          </div>
-          <span className="text-micro text-slate-500 font-medium">
-            Even number of factors = ends up CLOSED.
-          </span>
-        </div>
-      )}
-
-      {step === 2 && (
-        <div className="grid grid-cols-8 sm:grid-cols-8 gap-1.5 w-full max-w-md animate-fade-rise">
-          {Array.from({ length: 16 }, (_, i) => i + 1).map((num) => {
-            const isSq = squares.includes(num);
-            return (
-              <div
-                key={num}
-                className={`p-1 rounded-lg text-center font-mono text-micro font-extrabold flex flex-col items-center justify-center transition-all ${
-                  isSq
-                    ? 'bg-emerald-100 border-2 border-emerald-500 text-emerald-950 scale-105 shadow-xs'
-                    : 'bg-slate-100 border border-slate-200 text-slate-400 opacity-60'
-                }`}
-              >
-                <span>{num}</span>
-                {isSq ? (
-                  <Unlock className="w-3 h-3 text-emerald-600 mt-0.5" />
-                ) : (
-                  <Lock className="w-2.5 h-2.5 text-slate-400 mt-0.5" />
-                )}
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {step === 3 && (
-        <div className="flex flex-col items-center gap-2 animate-fade-rise">
-          <div className="flex items-center gap-2 font-mono">
-            {squares.map((sq) => (
-              <div
-                key={sq}
-                className="px-3 py-1.5 rounded-xl bg-emerald-600 text-white font-black text-small flex items-center gap-1 shadow-xs"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                <span>#{sq}</span>
-              </div>
-            ))}
-          </div>
-          <div className="px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 font-bold text-micro text-center max-w-sm">
-            🎉 Only squares have an ODD number of factors because their square root pairs with itself!
-          </div>
-        </div>
-      )}
-    </VisualizerFrame>
-  );
-};
-
-// -----------------------------------------------------------------------------
-// SCENE 2: Square as Area (Side 8 → 64 sq units)
-// -----------------------------------------------------------------------------
-export const SquareAreaGridVisualizer: React.FC<QuickCheckVisualizerStageProps> = (props) => {
-  const [step, setStep] = useState<1 | 2 | 3>(1);
-
-  const cues: Record<1 | 2 | 3, React.ReactNode> = {
-    1: <span>Step 1: A square of side 8 has 8 rows and 8 columns.</span>,
-    2: <span>Step 2: Sweep each row — 8 rows of 8 unit squares fill up!</span>,
-    3: <span className="text-emerald-700">Step 3: Total area = 8 × 8 = 8² = 64 square units!</span>,
-  };
-
-  return (
-    <VisualizerFrame
-      title="Square as Area"
-      badge="Side 8 Grid"
-      cue={cues[step]}
-      step={step}
-      setStep={setStep}
-      onNext={props.onNext}
-      onReset={props.onReset}
-      isLastQuestion={props.isLastQuestion}
-    >
-      {step === 1 && (
-        <div className="flex items-center gap-4 animate-fade-rise">
-          <div className="relative w-24 h-24 border-2 border-dashed border-[#005583] rounded-xl flex items-center justify-center bg-sky-50/50">
-            <span className="text-micro font-bold text-[#005583]">8 × 8 outline</span>
-            <span className="absolute -top-3 px-1.5 rounded bg-white border border-sky-300 text-[10px] font-bold text-[#005583]">
-              8 units
-            </span>
-            <span className="absolute -left-3 rotate-[-90deg] px-1.5 rounded bg-white border border-sky-300 text-[10px] font-bold text-[#005583]">
-              8 units
-            </span>
-          </div>
-          <div className="text-micro text-slate-600 font-medium max-w-[180px]">
-            Both side lengths are equal to 8. Tap to fill the grid!
-          </div>
-        </div>
-      )}
-
-      {step === 2 && (
-        <div className="flex flex-col items-center gap-1.5 animate-fade-rise">
-          <div className="grid grid-cols-8 gap-0.5 p-1 rounded-xl bg-slate-100 border border-slate-300">
-            {Array.from({ length: 64 }, (_, i) => (
-              <div
-                key={i}
-                className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-2xs bg-emerald-500 shadow-2xs"
-                style={{
-                  transition: 'opacity 300ms cubic-bezier(0.22, 1, 0.36, 1)',
-                  opacity: i < 64 ? 1 : 0,
-                }}
-              />
-            ))}
-          </div>
-          <span className="font-mono text-micro font-extrabold text-emerald-800">
-            Filled 64 unit squares
-          </span>
-        </div>
-      )}
-
-      {step === 3 && (
-        <div className="flex flex-col items-center gap-2 animate-fade-rise">
-          <div className="px-5 py-2 rounded-2xl bg-emerald-600 text-white font-mono font-black text-statement shadow-xs">
-            8 × 8 = 8² = 64
-          </div>
-          <div className="px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 font-bold text-micro text-center">
-            💡 Any square number IS a physical geometric area — that's why it's called "squaring"!
-          </div>
-        </div>
-      )}
-    </VisualizerFrame>
-  );
-};
-
-// -----------------------------------------------------------------------------
-// SCENE 3 Q0: Last Digit Scanner (3287 ends in 7)
-// -----------------------------------------------------------------------------
-export const LastDigitScannerVisualizer: React.FC<QuickCheckVisualizerStageProps> = (props) => {
-  const [step, setStep] = useState<1 | 2 | 3>(1);
-
-  const cues: Record<1 | 2 | 3, React.ReactNode> = {
-    1: <span>Step 1: Look ONLY at the units (last) digit of 3287!</span>,
-    2: <span>Step 2: Check the sorting tray — is 7 allowed or forbidden?</span>,
-    3: <span className="text-rose-700">Step 3: 3287 ends in 7, so it CANNOT be a square!</span>,
-  };
-
-  return (
-    <VisualizerFrame
-      title="Last Digit Scanner"
-      badge="Testing 3287"
-      cue={cues[step]}
-      step={step}
-      setStep={setStep}
-      onNext={props.onNext}
-      onReset={props.onReset}
-      isLastQuestion={props.isLastQuestion}
-    >
-      {step === 1 && (
-        <div className="flex flex-col items-center gap-2 animate-fade-rise font-mono">
-          <div className="text-display font-black text-slate-800 tracking-wider">
-            328
-            <span className="text-rose-600 bg-rose-100 px-2 py-0.5 rounded-xl border-2 border-rose-500 animate-pulse">
-              7
-            </span>
-          </div>
-          <span className="text-micro font-bold text-slate-500">
-            Spotlight is locked onto the last digit: 7
-          </span>
-        </div>
-      )}
-
-      {step === 2 && (
-        <div className="flex flex-col gap-2 w-full max-w-sm animate-fade-rise">
-          <div className="p-2 rounded-xl bg-rose-50 border-2 border-rose-400 flex items-center justify-between">
-            <span className="text-micro font-extrabold text-rose-900">
-              🚫 FORBIDDEN Trays: [2, 3, <strong className="underline text-rose-600">7</strong>, 8]
-            </span>
-            <span className="px-2 py-0.5 rounded bg-rose-200 text-rose-900 font-mono font-black text-micro animate-bounce">
-              Lands Here!
-            </span>
-          </div>
-          <div className="p-2 rounded-xl bg-slate-100 border border-slate-200 opacity-60 flex items-center justify-between text-micro text-slate-600">
-            <span>Allowed Trays: [0, 1, 4, 5, 6, 9]</span>
-            <span className="text-[10px]">Empty</span>
-          </div>
-        </div>
-      )}
-
-      {step === 3 && (
-        <div className="flex flex-col items-center gap-1.5 animate-fade-rise">
-          <div className="px-4 py-1.5 rounded-2xl bg-rose-600 text-white font-mono font-black text-statement shadow-xs">
-            IMPOSSIBLE ✗
-          </div>
-          <div className="px-3 py-1 rounded-xl bg-rose-50 border border-rose-300 text-rose-950 font-bold text-micro text-center">
-            No perfect square ever ends in 2, 3, 7, or 8. Since 3287 ends in 7, it fails instantly!
-          </div>
-        </div>
-      )}
-    </VisualizerFrame>
-  );
-};
-
-// -----------------------------------------------------------------------------
-// SCENE 3 Q1: Zero Multiplier (300² → 4 zeros)
-// -----------------------------------------------------------------------------
-export const ZeroMultiplierVisualizer: React.FC<QuickCheckVisualizerStageProps> = (props) => {
-  const [step, setStep] = useState<1 | 2 | 3>(1);
-
-  const cues: Record<1 | 2 | 3, React.ReactNode> = {
-    1: <span>Step 1: Count the trailing zeros in 300 — it has 2 zeros.</span>,
-    2: <span>Step 2: Squaring doubles trailing zeros (2 zeros × 2 = 4 zeros)!</span>,
-    3: <span className="text-emerald-700">Step 3: 300² = 90,000 (exactly 4 zeros)!</span>,
-  };
-
-  return (
-    <VisualizerFrame
-      title="Zero Multiplier Rule"
-      badge="Squaring 300"
-      cue={cues[step]}
-      step={step}
-      setStep={setStep}
-      onNext={props.onNext}
-      onReset={props.onReset}
-      isLastQuestion={props.isLastQuestion}
-    >
-      {step === 1 && (
-        <div className="flex flex-col items-center gap-2 animate-fade-rise font-mono">
-          <div className="text-display font-black text-slate-800">
-            3
-            <span className="text-amber-600 bg-amber-100 px-2 py-0.5 rounded-xl border border-amber-300">
-              00
-            </span>
-          </div>
-          <div className="text-micro font-bold text-amber-700">
-            Base number has <strong>2 trailing zeros</strong>
-          </div>
-        </div>
-      )}
-
-      {step === 2 && (
-        <div className="flex items-center gap-3 animate-fade-rise font-mono">
-          <div className="px-3 py-1.5 rounded-xl bg-amber-100 text-amber-950 font-bold text-small border border-amber-300">
-            2 zeros
-          </div>
-          <span className="text-statement font-black text-[#005583]">× 2</span>
-          <ArrowRight className="w-4 h-4 text-slate-400" />
-          <div className="px-3 py-1.5 rounded-xl bg-emerald-100 text-emerald-950 font-black text-small border border-emerald-400">
-            4 zeros
-          </div>
-        </div>
-      )}
-
-      {step === 3 && (
-        <div className="flex flex-col items-center gap-1.5 animate-fade-rise font-mono">
-          <div className="text-statement font-black text-slate-900">
-            300² = 9<span className="text-emerald-600 underline">0000</span>
-          </div>
-          <div className="px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 font-bold text-micro text-center">
-            Trailing zeros ALWAYS double when you square! 2 × 2 = 4 zeros.
-          </div>
-        </div>
-      )}
-    </VisualizerFrame>
-  );
-};
-
-// -----------------------------------------------------------------------------
-// SCENE 3 Q2: Parity Dots (Odd² is always odd)
-// -----------------------------------------------------------------------------
-export const ParityDotsVisualizer: React.FC<QuickCheckVisualizerStageProps> = (props) => {
-  const [step, setStep] = useState<1 | 2 | 3>(1);
-
-  const cues: Record<1 | 2 | 3, React.ReactNode> = {
-    1: <span>Step 1: Any odd number (like 5) leaves 1 lonely unpaired dot.</span>,
-    2: <span>Step 2: Squaring odd × odd pairs everything except one corner!</span>,
-    3: <span className="text-emerald-700">Step 3: (Odd)² is ALWAYS odd. No exceptions!</span>,
-  };
-
-  return (
-    <VisualizerFrame
-      title="Parity Rule"
-      badge="Odd Numbers"
-      cue={cues[step]}
-      step={step}
-      setStep={setStep}
-      onNext={props.onNext}
-      onReset={props.onReset}
-      isLastQuestion={props.isLastQuestion}
-    >
-      {step === 1 && (
-        <div className="flex flex-col items-center gap-2 animate-fade-rise">
-          <div className="flex items-center gap-2">
-            <div className="flex gap-1 p-1.5 rounded-xl bg-sky-50 border border-sky-200">
-              <div className="w-3.5 h-3.5 rounded-full bg-[#005583]" />
-              <div className="w-3.5 h-3.5 rounded-full bg-[#005583]" />
-            </div>
-            <div className="flex gap-1 p-1.5 rounded-xl bg-sky-50 border border-sky-200">
-              <div className="w-3.5 h-3.5 rounded-full bg-[#005583]" />
-              <div className="w-3.5 h-3.5 rounded-full bg-[#005583]" />
-            </div>
-            <div className="p-1.5 rounded-xl bg-amber-100 border border-amber-400 animate-pulse">
-              <div className="w-3.5 h-3.5 rounded-full bg-amber-600" />
-            </div>
-          </div>
-          <span className="text-micro font-bold text-slate-600">
-            5 = 2 pairs + <strong className="text-amber-600">1 lonely dot</strong>
-          </span>
-        </div>
-      )}
-
-      {step === 2 && (
-        <div className="flex flex-col items-center gap-1.5 animate-fade-rise">
-          <div className="grid grid-cols-5 gap-1 p-1.5 rounded-xl bg-slate-50 border border-slate-200">
-            {Array.from({ length: 25 }, (_, idx) => {
-              const isCorner = idx === 24;
+        <div className="flex flex-col items-center gap-2">
+          <LockerGridCanvas
+            numbers={[12]}
+            openNumbers={is12Open ? [12] : []}
+            touchedNumbers={flipTick > 0 ? [12] : []}
+            columns={1}
+            maxWidthClass="max-w-[72px]"
+          />
+          <div className="flex items-center gap-1 flex-wrap justify-center">
+            {LOCKER_12_GUARDS.map((g, idx) => {
+              const hit = idx < flipTick;
               return (
-                <div
-                  key={idx}
-                  className={`w-3 h-3 rounded-full ${
-                    isCorner ? 'bg-amber-500 animate-pulse ring-2 ring-amber-300' : 'bg-[#005583]'
+                <span
+                  key={g}
+                  className={`px-2 py-0.5 rounded-lg text-micro font-mono font-bold border transition-all ${
+                    hit
+                      ? idx % 2 === 0
+                        ? 'bg-emerald-50 border-emerald-400 text-emerald-800'
+                        : 'bg-slate-100 border-slate-300 text-slate-700'
+                      : 'bg-white border-slate-200 text-slate-400'
                   }`}
-                />
+                >
+                  ÷{g}
+                </span>
               );
             })}
           </div>
-          <span className="text-[11px] font-bold text-slate-700">
-            24 dots make 12 pairs + <strong className="text-amber-600">1 leftover dot!</strong>
+        </div>
+      )}
+
+      {step >= 2 && (
+        <LockerGridCanvas
+          numbers={lockers16}
+          openNumbers={squares16}
+          highlightNumbers={step === 3 ? squares16 : []}
+          columns={8}
+        />
+      )}
+    </QuickCheckStepShell>
+  );
+};
+
+// -----------------------------------------------------------------------------
+// SCENE 2: SQUARE AS AREA (Side 8 -> 64)
+// -----------------------------------------------------------------------------
+export const SquareAreaGridVisualizer: React.FC<QuickCheckVisualizerStageProps> = ({
+  onNext,
+  onReset,
+  isCorrect,
+  isLastQuestion,
+}) => {
+  const { step, maxStep, advance, selectStep } = useStepProgress(3);
+  const rowTick = useSequenceTick(step === 2, 8, 170, step);
+  const filledCount = step === 1 ? 0 : step === 2 ? Math.min(64, rowTick * 8) : 64;
+
+  const steps: StepDefinition[] = [
+    { label: 'Side 8', cue: 'Step 1: A square side 8 means 8 rows and 8 columns.' },
+    { label: 'Sweep rows', cue: 'Step 2: Sweep row by row — 64 unit squares fill up!' },
+    { label: 'Answer', cue: 'Step 3: Area = 8 × 8 = 8² = 64 square units!' },
+  ];
+
+  return (
+    <QuickCheckStepShell
+      ariaLabel="Square Area Step-by-Step Solution"
+      isCorrect={isCorrect}
+      headerTitle={isCorrect ? '✓ Right! Square Area' : 'Review — Square Area'}
+      headerBadge={step < 3 ? 'Side = 8' : 'Area = 64'}
+      steps={steps}
+      step={step}
+      maxStep={maxStep}
+      onSelectStep={selectStep}
+      onAdvance={advance}
+      onReset={onReset}
+      onNext={onNext}
+      isLastQuestion={isLastQuestion}
+      insightTone={step === 3 ? 'success' : 'neutral'}
+      insightText={
+        step === 1
+          ? 'Equal width and height make an 8 × 8 square frame.'
+          : step === 2
+          ? `${Math.min(8, rowTick)} of 8 rows filled — running total = ${filledCount} tiles!`
+          : '🎉 8 rows of 8 tiles pack 64 square units inside!'
+      }
+      footerText={step === 3 ? '✓ Area = 64 sq. units!' : `Step ${step} of 3`}
+    >
+      <div className="flex items-center justify-center gap-4">
+        <SquareAreaCanvasSvg
+          side={8}
+          filledCount={filledCount}
+          pulseOutline={step === 1}
+          showTotalBadge={step === 3}
+        />
+        <div className="px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 font-mono font-black text-small text-emerald-900 tabular-nums">
+          {filledCount} / 64
+        </div>
+      </div>
+    </QuickCheckStepShell>
+  );
+};
+
+// -----------------------------------------------------------------------------
+// SCENE 3 Q0: LAST DIGIT SCANNER (3287)
+// -----------------------------------------------------------------------------
+export const LastDigitScannerVisualizer: React.FC<QuickCheckVisualizerStageProps> = ({
+  onNext,
+  onReset,
+  isCorrect,
+  isLastQuestion,
+}) => {
+  const { step, maxStep, advance, selectStep } = useStepProgress(3);
+  const ready = useStepReady(step);
+
+  const steps: StepDefinition[] = [
+    { label: 'Spotlight 7', cue: 'Step 1: Look ONLY at the last digit: 7.' },
+    { label: 'Sort trays', cue: 'Step 2: Check trays — 7 lands in FORBIDDEN [2, 3, 7, 8]!' },
+    { label: 'Answer', cue: 'Step 3: 3287 can NEVER be a square. IMPOSSIBLE ✗!' },
+  ];
+
+  return (
+    <QuickCheckStepShell
+      ariaLabel="Last Digit Scanner Step-by-Step Solution"
+      isCorrect={isCorrect}
+      headerTitle={isCorrect ? '✓ Right! Last Digit Rule' : 'Review — Last Digit Rule'}
+      headerBadge={step < 3 ? 'Check 3287' : 'Ends in 7 ✗'}
+      steps={steps}
+      step={step}
+      maxStep={maxStep}
+      onSelectStep={selectStep}
+      onAdvance={advance}
+      onReset={onReset}
+      onNext={onNext}
+      isLastQuestion={isLastQuestion}
+      insightTone={step === 3 ? 'danger' : 'neutral'}
+      insightText={
+        step === 1
+          ? 'Ignore 3, 2, and 8 at the front — only the last digit 7 decides!'
+          : step === 2
+          ? 'Squares only end in 0, 1, 4, 5, 6, or 9. Digit 7 is forbidden!'
+          : 'No square number ever ends in 2, 3, 7, or 8 — so 3287 cannot be a square!'
+      }
+      footerText={step === 3 ? '✓ 3287 is NOT a square!' : `Step ${step} of 3`}
+    >
+      {step === 1 && (
+        <div className="flex items-center justify-center gap-1.5 font-mono text-title font-black">
+          {['3', '2', '8'].map((d, i) => (
+            <span
+              key={i}
+              className="w-10 h-11 rounded-xl bg-slate-100 text-slate-400 flex items-center justify-center"
+            >
+              {d}
+            </span>
+          ))}
+          <span
+            className="w-11 h-12 rounded-xl bg-rose-600 text-white border-2 border-rose-700 flex items-center justify-center shadow-sm transition-transform duration-500"
+            style={{ transform: ready ? 'scale(1.12)' : 'scale(0.9)' }}
+          >
+            7
           </span>
         </div>
       )}
 
-      {step === 3 && (
-        <div className="flex flex-col items-center gap-1.5 animate-fade-rise font-mono">
-          <div className="px-4 py-1.5 rounded-2xl bg-emerald-600 text-white font-black text-small shadow-xs">
-            Odd × Odd = ALWAYS ODD
-          </div>
-          <div className="px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 font-bold text-micro text-center">
-            Even² is always Even (0, 4, 16, 36...). Odd² is always Odd (1, 9, 25, 49...).
-          </div>
-        </div>
+      {step >= 2 && (
+        <LastDigitSortingTraysSvg
+          digit={7}
+          inTray={true}
+          showStamp={step === 3}
+        />
       )}
-    </VisualizerFrame>
+    </QuickCheckStepShell>
+  );
+};
+
+// -----------------------------------------------------------------------------
+// SCENE 3 Q1: TRAILING ZEROS DOUBLER (300²)
+// -----------------------------------------------------------------------------
+export const ZeroMultiplierVisualizer: React.FC<QuickCheckVisualizerStageProps> = ({
+  onNext,
+  onReset,
+  isCorrect,
+  isLastQuestion,
+}) => {
+  const { step, maxStep, advance, selectStep } = useStepProgress(3);
+
+  const steps: StepDefinition[] = [
+    { label: 'Count zeros', cue: 'Step 1: Count the trailing zeros inside 300: 2 zeros!' },
+    { label: 'Double them', cue: 'Step 2: Squaring doubles the zeros: 2 × 2 = 4 zeros!' },
+    { label: 'Answer', cue: 'Step 3: 300² = 90,000 — ends in 4 trailing zeros!' },
+  ];
+
+  return (
+    <QuickCheckStepShell
+      ariaLabel="Trailing Zeros Step-by-Step Solution"
+      isCorrect={isCorrect}
+      headerTitle={isCorrect ? '✓ Right! Trailing Zeros' : 'Review — Trailing Zeros'}
+      headerBadge={step < 3 ? '300²' : '4 Zeros'}
+      steps={steps}
+      step={step}
+      maxStep={maxStep}
+      onSelectStep={selectStep}
+      onAdvance={advance}
+      onReset={onReset}
+      onNext={onNext}
+      isLastQuestion={isLastQuestion}
+      insightTone={step === 3 ? 'success' : 'neutral'}
+      insightText={
+        step === 1
+          ? '300 has 2 trailing zeros at the end (3 × 100).'
+          : step === 2
+          ? '300 × 300 gives 9 followed by 2 + 2 = 4 zeros!'
+          : '🎉 300² = 90,000! Every ending zero doubles when squared.'
+      }
+      footerText={step === 3 ? '✓ 300² ends in 4 zeros!' : `Step ${step} of 3`}
+    >
+      <SquareZerosParitySvg
+        mode="zeros"
+        baseZeros={2}
+        expanded={step >= 2}
+      />
+    </QuickCheckStepShell>
+  );
+};
+
+// -----------------------------------------------------------------------------
+// SCENE 3 Q2: PARITY DOTS (Odd² is always Odd)
+// -----------------------------------------------------------------------------
+export const ParityDotsVisualizer: React.FC<QuickCheckVisualizerStageProps> = ({
+  onNext,
+  onReset,
+  isCorrect,
+  isLastQuestion,
+}) => {
+  const { step, maxStep, advance, selectStep } = useStepProgress(3);
+
+  const steps: StepDefinition[] = [
+    { label: 'Spot odd dot', cue: 'Step 1: An odd number always has 1 unpaired dot!' },
+    { label: 'Odd × Odd', cue: 'Step 2: Odd × Odd leaves a single corner dot unpaired!' },
+    { label: 'Answer', cue: 'Step 3: The square of an odd number is ALWAYS ODD!' },
+  ];
+
+  return (
+    <QuickCheckStepShell
+      ariaLabel="Parity Rule Step-by-Step Solution"
+      isCorrect={isCorrect}
+      headerTitle={isCorrect ? '✓ Right! Odd Parity' : 'Review — Odd Parity'}
+      headerBadge={step < 3 ? 'Odd² Parity' : 'Always Odd'}
+      steps={steps}
+      step={step}
+      maxStep={maxStep}
+      onSelectStep={selectStep}
+      onAdvance={advance}
+      onReset={onReset}
+      onNext={onNext}
+      isLastQuestion={isLastQuestion}
+      insightTone={step === 3 ? 'success' : 'neutral'}
+      insightText={
+        step === 1
+          ? '5 dots make two pairs plus 1 leftover orange dot — so 5 is odd!'
+          : step === 2
+          ? '3² = 9, 5² = 25, 7² = 49 — without any factor of 2, the product stays odd!'
+          : '🎉 Every odd number squared is ALWAYS odd!'
+      }
+      footerText={step === 3 ? '✓ Odd² is always odd!' : `Step ${step} of 3`}
+    >
+      <SquareZerosParitySvg
+        mode="parity"
+        parityNum={step === 1 ? 5 : step === 2 ? 7 : 5}
+      />
+    </QuickCheckStepShell>
   );
 };

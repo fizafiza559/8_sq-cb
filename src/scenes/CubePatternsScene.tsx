@@ -237,3 +237,64 @@ export const CubePatternsScene: React.FC<CubePatternsSceneProps> = ({
     </div>
   );
 };
+
+export interface CubeZeroTriplerSvgProps {
+  baseZeros: number;
+  tripled: boolean;
+  showImpossible00?: boolean;
+}
+
+export const CubeZeroTriplerSvg: React.FC<CubeZeroTriplerSvgProps> = ({
+  baseZeros,
+  tripled,
+  showImpossible00 = false,
+}) => {
+  const outCount = tripled ? baseZeros * 3 : baseZeros;
+
+  return (
+    <div className="flex flex-col items-center gap-2 w-full">
+      {!showImpossible00 ? (
+        <div className="flex items-center gap-2 flex-wrap justify-center font-mono font-black">
+          <span className="px-2.5 py-1 rounded-xl bg-purple-100 border border-purple-300 text-purple-900 text-small">
+            2 × 10^{baseZeros}
+          </span>
+          <span className="text-slate-400">→</span>
+          <span className="px-2 py-1 rounded-xl bg-slate-100 text-slate-900 text-small">
+            8
+          </span>
+          <div className="flex items-center gap-1 flex-wrap justify-center">
+            {Array.from({ length: outCount }).map((_, idx) => (
+              <span
+                key={idx}
+                className="w-6 h-7 rounded-lg bg-purple-600 text-white text-micro font-black flex items-center justify-center shadow-2xs transition-all duration-300"
+                style={{ transitionDelay: `${idx * 65}ms` }}
+              >
+                0
+              </span>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="flex items-center justify-center gap-3 font-mono font-black text-small">
+          <span className="px-2.5 py-1 rounded-xl bg-purple-100 border border-purple-300 text-purple-900">
+            3 zeros ✓
+          </span>
+          <span className="px-2.5 py-1 rounded-xl bg-rose-600 text-white border-2 border-rose-700">
+            2 zeros (00) ✗
+          </span>
+          <span className="px-2.5 py-1 rounded-xl bg-purple-100 border border-purple-300 text-purple-900">
+            6 zeros ✓
+          </span>
+        </div>
+      )}
+      <div className="text-micro font-bold text-purple-800">
+        {showImpossible00
+          ? 'Cube zeros only come in multiples of 3 (3, 6, 9…) — never 2!'
+          : tripled
+          ? `${baseZeros} zeros × 3 = ${outCount} trailing zeros!`
+          : `Each zero in the base multiplies into 3 zeros when cubed`}
+      </div>
+    </div>
+  );
+};
+

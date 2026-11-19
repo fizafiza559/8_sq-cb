@@ -349,3 +349,57 @@ export const DifferenceEngineTable: React.FC<DifferenceEngineTableProps> = ({
     </div>
   );
 };
+
+export interface DifferencePyramidBarSvgProps {
+  visibleLevels: number;
+  spotlightFirstDiff?: boolean;
+  cubes?: number[];
+  spotlightConstant6?: boolean;
+}
+
+export const DifferencePyramidBarSvg: React.FC<DifferencePyramidBarSvgProps> = ({
+  visibleLevels,
+  spotlightFirstDiff = false,
+  cubes = [1, 8, 27, 64],
+  spotlightConstant6 = false,
+}) => {
+  const levels = successiveDifferences(cubes);
+  const rowMeta = [
+    { label: 'Cubes (n³)', bg: 'bg-slate-100 border-slate-300 text-slate-900' },
+    { label: '1st Diff', bg: 'bg-sky-50 border-sky-300 text-sky-900' },
+    { label: '2nd Diff (×6)', bg: 'bg-purple-50 border-purple-300 text-purple-900' },
+    { label: '3rd Diff (=6)', bg: 'bg-emerald-600 border-emerald-700 text-white' },
+  ];
+
+  return (
+    <div className="flex flex-col items-center gap-1 w-full max-w-[360px]">
+      {levels.slice(0, Math.max(1, Math.min(4, visibleLevels))).map((row, rIdx) => (
+        <div key={rIdx} className="flex items-center justify-center gap-1.5 w-full">
+          <span className="text-micro font-bold text-slate-500 w-24 text-right shrink-0">
+            {rowMeta[rIdx]?.label}:
+          </span>
+          <div className="flex items-center gap-1 flex-wrap justify-center">
+            {row.map((val, cIdx) => {
+              const isFirstDiff7 = spotlightFirstDiff && rIdx === 1 && cIdx === 0;
+              const isConst6 = spotlightConstant6 && rIdx === 3;
+              return (
+                <span
+                  key={cIdx}
+                  className={`px-1.5 py-0.5 rounded-lg border font-mono font-black text-micro tabular-nums transition-all ${
+                    isFirstDiff7 || isConst6
+                      ? 'bg-emerald-600 text-white border-emerald-700 scale-105 shadow-xs'
+                      : rowMeta[rIdx]?.bg || 'bg-slate-50 border-slate-200'
+                  }`}
+                >
+                  {val}
+                </span>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+

@@ -485,3 +485,132 @@ export const TriangularSquareZipper: React.FC<TriangularSquareZipperProps> = ({
     </div>
   );
 };
+
+export interface TriangularZipperSvgProps {
+  n: number;
+  zipPercent: number;
+}
+
+export const TriangularZipperSvg: React.FC<TriangularZipperSvgProps> = ({
+  n,
+  zipPercent,
+}) => {
+  const safeN = Math.max(2, Math.min(7, n));
+  const progress = Math.max(0, Math.min(1, zipPercent / 100));
+  const svgW = 360;
+  const svgH = 148;
+  const spacing = safeN >= 7 ? 17 : safeN >= 5 ? 21 : 28;
+  const dotR = safeN >= 7 ? 6.5 : safeN >= 5 ? 8 : 10;
+
+  const squareW = (safeN - 1) * spacing;
+  const baseLeftX = 56 + (130 - 56) * progress;
+  const baseTopY = (svgH - squareW) / 2;
+
+  const orangeDots: { x: number; y: number; key: string }[] = [];
+  for (let r = 0; r < safeN; r++) {
+    for (let c = 0; c <= r; c++) {
+      orangeDots.push({
+        key: `o-${r}-${c}`,
+        x: baseLeftX + c * spacing,
+        y: baseTopY + r * spacing,
+      });
+    }
+  }
+
+  const prevRows = safeN - 1;
+  const blueStartX = 228;
+  const blueGridH = (prevRows - 1) * spacing;
+  const blueStartTopY = svgH / 2 - blueGridH / 2;
+  const blueDots: { x: number; y: number; key: string }[] = [];
+  for (let r = 0; r < prevRows; r++) {
+    for (let c = 0; c <= r; c++) {
+      const sx = blueStartX + c * spacing;
+      const sy = blueStartTopY + r * spacing;
+      const targetRow = prevRows - 1 - r;
+      const targetCol = safeN - 1 - c;
+      const tx = baseLeftX + targetCol * spacing;
+      const ty = baseTopY + targetRow * spacing;
+      const arcLift = Math.sin(progress * Math.PI) * -18;
+      blueDots.push({
+        key: `b-${r}-${c}`,
+        x: sx + (tx - sx) * progress,
+        y: sy + (ty - sy) * progress + arcLift,
+      });
+    }
+  }
+
+  return (
+    <svg viewBox={`0 0 ${svgW} ${svgH}`} className="h-[118px] w-full max-w-[340px] select-none">
+      {progress >= 0.95 && (
+        <rect
+          x={baseLeftX - dotR - 5}
+          y={baseTopY - dotR - 5}
+          width={squareW + (dotR + 5) * 2}
+          height={squareW + (dotR + 5) * 2}
+          rx={8}
+          fill="#ECFDF5"
+          stroke="#16A34A"
+          strokeWidth={2}
+        />
+      )}
+      {orangeDots.map((d) => (
+        <circle key={d.key} cx={d.x} cy={d.y} r={dotR} fill="#F27A00" stroke="#9A3412" strokeWidth={1.2} />
+      ))}
+      {blueDots.map((d) => (
+        <circle key={d.key} cx={d.x} cy={d.y} r={dotR} fill="#0EA5E9" stroke="#0369A1" strokeWidth={1.2} />
+      ))}
+    </svg>
+  );
+};
+
+export interface HundredBlockExplorerSvgProps {
+  highlightBlockIdx: number;
+  spotlightSquare?: { n: number; sq: number };
+}
+
+export const HundredBlockExplorerSvg: React.FC<HundredBlockExplorerSvgProps> = ({
+  highlightBlockIdx,
+  spotlightSquare,
+}) => {
+  const blocks = Array.from({ length: 10 }, (_, b) => {
+    const start = b * 100 + 1;
+    const end = (b + 1) * 100;
+    let count = 0;
+    for (let i = 1; i * i <= 1000; i++) {
+      if (i * i >= start && i * i <= end) count++;
+    }
+    return { idx: b, label: `${start}–${end}`, count };
+  });
+
+  return (
+    <div className="w-full max-w-[360px] flex flex-col items-center gap-1.5">
+      <div className="grid grid-cols-5 gap-1.5 w-full">
+        {blocks.map((b) => {
+          const isHit = b.idx === highlightBlockIdx;
+          return (
+            <div
+              key={b.label}
+              className={`px-1 py-1.5 rounded-xl border text-center tabular-nums transition-all duration-300 ${
+                isHit
+                  ? 'bg-emerald-600 text-white border-emerald-700 scale-105 shadow-xs ring-2 ring-emerald-200'
+                  : 'bg-slate-50 text-slate-700 border-slate-200'
+              }`}
+            >
+              <div className={`text-micro font-black leading-tight ${isHit ? 'text-white' : 'text-slate-900'}`}>
+                {b.count}
+              </div>
+              <div className={`text-micro font-bold leading-tight truncate ${isHit ? 'text-emerald-100' : 'text-slate-500'}`}>
+                {b.label}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      {spotlightSquare && (
+        <div className="text-micro font-extrabold text-emerald-800">
+          {spotlightSquare.n}² = {spotlightSquare.sq} sits inside {blocks[highlightBlockIdx]?.label}!
+        </div>
+      )}
+    </div>
+  );
+};

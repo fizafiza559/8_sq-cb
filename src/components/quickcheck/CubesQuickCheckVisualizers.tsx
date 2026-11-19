@@ -3,521 +3,331 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React from 'react';
 import {
-  ArrowRight,
-  Box,
-  CheckCircle2,
-  ChevronRight,
-  RotateCcw,
-  Sparkles,
-  Zap,
-} from 'lucide-react';
-import { QuickCheckVisualizerStageProps } from './SquaresQuickCheckVisualizers';
+  QuickCheckStepShell,
+  QuickCheckVisualizerStageProps,
+  StepDefinition,
+  useSequenceTick,
+  useStepProgress,
+} from './SquaresQuickCheckVisualizers';
+import { CompactIsometricCubeSvg } from '../IsometricCubeRenderer';
+import { CubeZeroTriplerSvg } from '../../scenes/CubePatternsScene';
+import {
+  CubeOddTapeSvg,
+  TaxicabBalanceScaleSvg,
+} from '../../scenes/CubeOddSumsAndTaxiScene';
+import { PrimeFactorCapsulesCanvas } from '../../scenes/SquareRootPrimeEstimateScene';
+import { DifferencePyramidBarSvg } from '../../scenes/DifferenceEngineTable';
 
 // -----------------------------------------------------------------------------
-// Helper: Card Shell Frame
+// SCENE 9: ISOMETRIC CUBE VOLUME (5 × 5 × 5 = 125)
 // -----------------------------------------------------------------------------
-interface VisualizerFrameProps {
-  title: string;
-  badge: string;
-  cue: React.ReactNode;
-  step: 1 | 2 | 3;
-  setStep: React.Dispatch<React.SetStateAction<1 | 2 | 3>>;
-  onNext: () => void;
-  onReset?: () => void;
-  isLastQuestion: boolean;
-  children: React.ReactNode;
-  footerNote?: string;
-}
-
-const VisualizerFrame: React.FC<VisualizerFrameProps> = ({
-  title,
-  badge,
-  cue,
-  step,
-  setStep,
+export const IsometricCubeVolumeVisualizer: React.FC<QuickCheckVisualizerStageProps> = ({
   onNext,
   onReset,
+  isCorrect,
   isLastQuestion,
-  children,
-  footerNote,
 }) => {
-  const advanceStep = () => {
-    if (step < 3) setStep((s) => (s + 1) as 1 | 2 | 3);
-  };
+  const { step, maxStep, advance, selectStep } = useStepProgress(3);
+  const stackTick = useSequenceTick(step === 2, 4, 260, step);
 
-  const stepLabels = ['Step 1', 'Step 2', 'Step 3 (Answer)'];
+  const visibleLayers = step === 1 ? 1 : step === 2 ? Math.min(5, 1 + stackTick) : 5;
+  const totalCubes = visibleLayers * 25;
+
+  const steps: StepDefinition[] = [
+    { label: 'Base layer', cue: 'Step 1: Start with a flat 5 × 5 floor of 25 unit cubes.' },
+    { label: 'Stack 5 high', cue: 'Step 2: Stack 5 identical floors high inside the cube!' },
+    { label: 'Answer', cue: 'Step 3: 5 × 5 × 5 = 5³ = 125 cubic units!' },
+  ];
 
   return (
-    <div className="w-full h-full min-h-0 bg-slate-50/80 border border-slate-200/80 rounded-3xl p-3 sm:p-3.5 flex flex-col justify-between gap-1.5 overflow-hidden shadow-2xs animate-fade-rise">
-      {/* Header Bar */}
-      <div className="flex items-center justify-between gap-2 pb-1 border-b border-slate-200/70 shrink-0">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-micro font-extrabold uppercase tracking-wider text-[#005583]">
-            {title}
-          </span>
-          <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200/80 text-[11px] font-bold text-slate-700 tabular-nums">
-            {badge}
-          </span>
+    <QuickCheckStepShell
+      ariaLabel="Isometric Cube Volume Step-by-Step Solution"
+      isCorrect={isCorrect}
+      headerTitle={isCorrect ? '✓ Right! Cube Volume' : 'Review — Cube Volume'}
+      headerBadge={step < 3 ? 'Edge = 5' : '5³ = 125'}
+      steps={steps}
+      step={step}
+      maxStep={maxStep}
+      onSelectStep={selectStep}
+      onAdvance={advance}
+      onReset={onReset}
+      onNext={onNext}
+      isLastQuestion={isLastQuestion}
+      insightTone={step === 3 ? 'success' : 'neutral'}
+      insightText={
+        step === 1
+          ? 'The bottom layer holds 5 × 5 = 25 unit cubes.'
+          : step === 2
+          ? `Layer ${visibleLayers} of 5 stacked → ${visibleLayers} × 25 = ${totalCubes} unit cubes!`
+          : '🎉 5 layers of 25 cubes fill 125 cubic units!'
+      }
+      footerText={step === 3 ? '✓ Volume = 125 cubic units!' : `Step ${step} of 3`}
+    >
+      <div className="flex items-center justify-center gap-4">
+        <CompactIsometricCubeSvg
+          n={5}
+          visibleLayers={visibleLayers}
+          showFinalHighlight={step === 3}
+        />
+        <div className="px-3 py-1.5 rounded-xl bg-purple-50 border border-purple-200 font-mono font-black text-small text-purple-900 tabular-nums">
+          {totalCubes} / 125
         </div>
-        {onReset && (
-          <button
-            type="button"
-            onClick={() => {
-              setStep(1);
-              onReset();
-            }}
-            className="min-h-[28px] px-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
-          >
-            <RotateCcw className="w-3 h-3" />
-            <span>Reset</span>
-          </button>
-        )}
       </div>
-
-      {/* Step Scrubber */}
-      <div className="flex items-center gap-1.5 shrink-0 py-0.5">
-        {stepLabels.map((label, idx) => {
-          const stepNum = (idx + 1) as 1 | 2 | 3;
-          const isActive = step === stepNum;
-          const isPast = step > stepNum;
-          return (
-            <React.Fragment key={stepNum}>
-              <button
-                type="button"
-                onClick={() => isPast && setStep(stepNum)}
-                className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border transition-all ${
-                  isActive
-                    ? 'bg-[#005583] text-white border-[#003F62] shadow-2xs'
-                    : isPast
-                    ? 'bg-white border-slate-200 text-[#005583] cursor-pointer hover:bg-slate-50'
-                    : 'bg-slate-100 border-slate-200 text-slate-400 cursor-default'
-                }`}
-              >
-                {label}
-              </button>
-              {idx < 2 && <span className="text-slate-300 text-[11px]">→</span>}
-            </React.Fragment>
-          );
-        })}
-      </div>
-
-      {/* Single Action Cue */}
-      <div className="text-micro font-bold text-slate-700 shrink-0 min-h-[20px] flex items-center">
-        {cue}
-      </div>
-
-      {/* Central Canvas */}
-      <div
-        onClick={advanceStep}
-        title={step < 3 ? 'Tap anywhere to advance →' : undefined}
-        className="w-full flex-1 min-h-[110px] max-h-[175px] bg-white rounded-2xl border border-slate-200/80 p-2 flex flex-col items-center justify-center gap-2 shadow-2xs overflow-hidden cursor-pointer select-none transition-colors duration-200 hover:border-[#005583]/40"
-      >
-        {children}
-      </div>
-
-      {/* Footer Navigation */}
-      <div className="pt-1 border-t border-slate-200/70 flex items-center justify-between gap-2 shrink-0">
-        <span className="text-micro font-bold text-slate-600 truncate">
-          {footerNote || (step < 3 ? 'Tap canvas or click next step' : '✓ Solution verified!')}
-        </span>
-        {step < 3 ? (
-          <button
-            type="button"
-            onClick={advanceStep}
-            className="min-h-[32px] px-3.5 rounded-xl bg-[#005583] hover:bg-[#003F62] text-white text-micro font-bold inline-flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
-          >
-            <span>Step {step + 1}</span>
-            <ChevronRight className="w-3.5 h-3.5" />
-          </button>
-        ) : (
-          <button
-            type="button"
-            onClick={onNext}
-            className="min-h-[32px] px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-micro font-bold inline-flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
-          >
-            <span>{!isLastQuestion ? 'Next Question' : 'See Results'}</span>
-            <ChevronRight className="w-3.5 h-3.5" />
-          </button>
-        )}
-      </div>
-    </div>
+    </QuickCheckStepShell>
   );
 };
 
 // -----------------------------------------------------------------------------
-// SCENE 9: Isometric Cube Volume Visualizer (Edge 5 → 125)
+// SCENE 10: CUBE ZEROS TRIPLER (200³ → 6 Zeros)
 // -----------------------------------------------------------------------------
-export const IsometricCubeVolumeVisualizer: React.FC<QuickCheckVisualizerStageProps> = (props) => {
-  const [step, setStep] = useState<1 | 2 | 3>(1);
+export const CubeZerosTriplerVisualizer: React.FC<QuickCheckVisualizerStageProps> = ({
+  onNext,
+  onReset,
+  isCorrect,
+  isLastQuestion,
+}) => {
+  const { step, maxStep, advance, selectStep } = useStepProgress(3);
 
-  const cues: Record<1 | 2 | 3, React.ReactNode> = {
-    1: <span>Step 1: An edge-5 cube has 5 square layers of 5×5 unit cubes.</span>,
-    2: <span>Step 2: Stack each layer: 25 + 25 + 25 + 25 + 25 = 125 cubes!</span>,
-    3: <span className="text-emerald-700">Step 3: Volume = 5 × 5 × 5 = 5³ = 125 cubic units!</span>,
-  };
+  const steps: StepDefinition[] = [
+    { label: 'Count zeros', cue: 'Step 1: Count trailing zeros in 200: 2 zeros!' },
+    { label: 'Triple ×3', cue: 'Step 2: Cubing triples every zero: 3 × 2 = 6 zeros!' },
+    { label: 'Answer', cue: 'Step 3: 200³ = 8,000,000 — ends in 6 trailing zeros!' },
+  ];
 
   return (
-    <VisualizerFrame
-      title="Cube Volume"
-      badge="Edge 5 Cube"
-      cue={cues[step]}
+    <QuickCheckStepShell
+      ariaLabel="Cube Trailing Zeros Step-by-Step Solution"
+      isCorrect={isCorrect}
+      headerTitle={isCorrect ? '✓ Right! Zero Tripler' : 'Review — Zero Tripler'}
+      headerBadge={step < 3 ? '200³' : '6 Zeros'}
+      steps={steps}
       step={step}
-      setStep={setStep}
-      onNext={props.onNext}
-      onReset={props.onReset}
-      isLastQuestion={props.isLastQuestion}
+      maxStep={maxStep}
+      onSelectStep={selectStep}
+      onAdvance={advance}
+      onReset={onReset}
+      onNext={onNext}
+      isLastQuestion={isLastQuestion}
+      insightTone={step === 3 ? 'success' : 'neutral'}
+      insightText={
+        step === 1
+          ? '200 has 2 zeros at the end (2 × 100).'
+          : step === 2
+          ? '100 × 100 × 100 stacks 2 + 2 + 2 = 6 trailing zeros!'
+          : '🎉 200³ = 8,000,000! Each zero triples when cubed.'
+      }
+      footerText={step === 3 ? '✓ 200³ ends in 6 zeros!' : `Step ${step} of 3`}
     >
-      {step === 1 && (
-        <div className="flex items-center gap-4 animate-fade-rise">
-          <div className="w-20 h-20 rounded-xl bg-sky-50 border-2 border-dashed border-[#005583] flex flex-col items-center justify-center">
-            <Box className="w-8 h-8 text-[#005583]" />
-            <span className="text-[10px] font-bold text-[#005583]">5 × 5 × 5</span>
-          </div>
-          <div className="text-micro text-slate-600 font-medium">
-            Length = 5, Width = 5, Height = 5. Tap to stack the 5 layers!
-          </div>
-        </div>
-      )}
-
-      {step === 2 && (
-        <div className="flex flex-col items-center gap-1.5 animate-fade-rise font-mono">
-          <div className="flex items-center gap-1">
-            {[25, 50, 75, 100, 125].map((val, idx) => (
-              <span
-                key={idx}
-                className="px-2 py-1 rounded-lg bg-sky-100 text-[#005583] font-bold text-micro border border-sky-300"
-              >
-                L{idx + 1}: {val}
-              </span>
-            ))}
-          </div>
-          <span className="text-micro font-bold text-slate-700">
-            5 layers of 25 cubes each
-          </span>
-        </div>
-      )}
-
-      {step === 3 && (
-        <div className="flex flex-col items-center gap-2 animate-fade-rise font-mono">
-          <div className="px-5 py-2 rounded-2xl bg-emerald-600 text-white font-black text-statement shadow-xs">
-            5³ = 125 Cubic Units
-          </div>
-          <div className="px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 font-bold text-micro text-center">
-            A cube with edge length s always contains s³ unit cubes!
-          </div>
-        </div>
-      )}
-    </VisualizerFrame>
+      <CubeZeroTriplerSvg
+        baseZeros={2}
+        tripled={step >= 2}
+      />
+    </QuickCheckStepShell>
   );
 };
 
 // -----------------------------------------------------------------------------
-// SCENE 10: Cube Zeros Tripler Visualizer (200³ → 6 zeros)
+// SCENE 11: HARDY-RAMANUJAN TAXICAB SCALE (1729)
 // -----------------------------------------------------------------------------
-export const CubeZerosTriplerVisualizer: React.FC<QuickCheckVisualizerStageProps> = (props) => {
-  const [step, setStep] = useState<1 | 2 | 3>(1);
+export const TaxicabDualCubeVisualizer: React.FC<QuickCheckVisualizerStageProps> = ({
+  onNext,
+  onReset,
+  isCorrect,
+  isLastQuestion,
+}) => {
+  const { step, maxStep, advance, selectStep } = useStepProgress(3);
 
-  const cues: Record<1 | 2 | 3, React.ReactNode> = {
-    1: <span>Step 1: Count the trailing zeros in 200 — it has 2 zeros.</span>,
-    2: <span>Step 2: Cubing TRIPLES trailing zeros: 2 zeros × 3 = 6 zeros!</span>,
-    3: <span className="text-emerald-700">Step 3: 200³ = 8,000,000 (exactly 6 zeros)!</span>,
-  };
+  const steps: StepDefinition[] = [
+    { label: 'First pan', cue: 'Step 1: Weigh 1³ + 12³ = 1 + 1728 = 1729 on the left!' },
+    { label: 'Second pan', cue: 'Step 2: Add 9³ + 10³ = 729 + 1000 = 1729 on the right!' },
+    { label: 'Answer', cue: 'Step 3: Both pans balance at 1729 — the smallest Taxicab number!' },
+  ];
 
   return (
-    <VisualizerFrame
-      title="Cube Zeros Rule"
-      badge="200³"
-      cue={cues[step]}
+    <QuickCheckStepShell
+      ariaLabel="Ramanujan Taxicab Scale Step-by-Step Solution"
+      isCorrect={isCorrect}
+      headerTitle={isCorrect ? '✓ Right! Taxicab 1729' : 'Review — Taxicab 1729'}
+      headerBadge={step < 3 ? 'Taxicab 1729' : '1³+12³ = 9³+10³'}
+      steps={steps}
       step={step}
-      setStep={setStep}
-      onNext={props.onNext}
-      onReset={props.onReset}
-      isLastQuestion={props.isLastQuestion}
+      maxStep={maxStep}
+      onSelectStep={selectStep}
+      onAdvance={advance}
+      onReset={onReset}
+      onNext={onNext}
+      isLastQuestion={isLastQuestion}
+      insightTone={step === 3 ? 'success' : 'neutral'}
+      insightText={
+        step === 1
+          ? 'Way 1: 1³ + 12³ = 1 + 1728 = 1729.'
+          : step === 2
+          ? 'Way 2: 9³ + 10³ = 729 + 1000 = 1729 — exact balance!'
+          : '🎉 1729 = 1³ + 12³ = 9³ + 10³ is the famous Hardy–Ramanujan number!'
+      }
+      footerText={step === 3 ? '✓ 1³ + 12³ and 9³ + 10³ make 1729!' : `Step ${step} of 3`}
     >
-      {step === 1 && (
-        <div className="flex flex-col items-center gap-2 animate-fade-rise font-mono">
-          <div className="text-display font-black text-slate-800">
-            2
-            <span className="text-amber-600 bg-amber-100 px-2 py-0.5 rounded-xl border border-amber-300">
-              00
-            </span>
-          </div>
-          <span className="text-micro font-bold text-slate-600">
-            Base number has <strong>2 trailing zeros</strong>
-          </span>
-        </div>
-      )}
-
-      {step === 2 && (
-        <div className="flex items-center gap-3 animate-fade-rise font-mono">
-          <div className="px-3 py-1.5 rounded-xl bg-amber-100 text-amber-950 font-bold text-small border border-amber-300">
-            2 zeros
-          </div>
-          <span className="text-statement font-black text-[#005583]">× 3</span>
-          <ArrowRight className="w-4 h-4 text-slate-400" />
-          <div className="px-3 py-1.5 rounded-xl bg-emerald-100 text-emerald-950 font-black text-small border border-emerald-400">
-            6 zeros
-          </div>
-        </div>
-      )}
-
-      {step === 3 && (
-        <div className="flex flex-col items-center gap-1.5 animate-fade-rise font-mono">
-          <div className="text-statement font-black text-slate-900">
-            200³ = 8,<span className="text-emerald-600 underline">000,000</span>
-          </div>
-          <div className="px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 font-bold text-micro text-center">
-            Trailing zeros ALWAYS triple when you cube! 2 × 3 = 6 zeros.
-          </div>
-        </div>
-      )}
-    </VisualizerFrame>
+      <TaxicabBalanceScaleSvg
+        taxicab={1729}
+        showRightPan={step >= 2}
+        balanced={step >= 2}
+      />
+    </QuickCheckStepShell>
   );
 };
 
 // -----------------------------------------------------------------------------
-// SCENE 11: Taxicab Dual Cube Visualizer (1729)
+// SCENE 12: ODD NUMBERS SUM TO A CUBE (4³ = 13+15+17+19 = 64)
 // -----------------------------------------------------------------------------
-export const TaxicabDualCubeVisualizer: React.FC<QuickCheckVisualizerStageProps> = (props) => {
-  const [step, setStep] = useState<1 | 2 | 3>(1);
+export const CubeOddPyramidVisualizer: React.FC<QuickCheckVisualizerStageProps> = ({
+  onNext,
+  onReset,
+  isCorrect,
+  isLastQuestion,
+}) => {
+  const { step, maxStep, advance, selectStep } = useStepProgress(3);
 
-  const cues: Record<1 | 2 | 3, React.ReactNode> = {
-    1: <span>Step 1: 1729 is the smallest number with a very rare property.</span>,
-    2: <span>Step 2: Way 1: 1³ + 12³ = 1729. Way 2: 9³ + 10³ = 1729!</span>,
-    3: <span className="text-emerald-700">Step 3: Smallest sum of two cubes in two different ways!</span>,
-  };
+  const steps: StepDefinition[] = [
+    { label: 'First 3 blocks', cue: 'Step 1: Cubes claim consecutive odd groups ending at 11.' },
+    { label: '4th block', cue: 'Step 2: 4³ claims the next 4 consecutive odd numbers!' },
+    { label: 'Answer', cue: 'Step 3: 13 + 15 + 17 + 19 = 64 = 4³!' },
+  ];
 
   return (
-    <VisualizerFrame
-      title="Ramanujan Taxicab"
-      badge="Number 1729"
-      cue={cues[step]}
+    <QuickCheckStepShell
+      ariaLabel="Cube Odd Sums Step-by-Step Solution"
+      isCorrect={isCorrect}
+      headerTitle={isCorrect ? '✓ Right! Odd Sums to Cubes' : 'Review — Odd Sums to Cubes'}
+      headerBadge={step < 3 ? 'Find 4³' : '13+15+17+19'}
+      steps={steps}
       step={step}
-      setStep={setStep}
-      onNext={props.onNext}
-      onReset={props.onReset}
-      isLastQuestion={props.isLastQuestion}
+      maxStep={maxStep}
+      onSelectStep={selectStep}
+      onAdvance={advance}
+      onReset={onReset}
+      onNext={onNext}
+      isLastQuestion={isLastQuestion}
+      insightTone={step === 3 ? 'success' : 'neutral'}
+      insightText={
+        step === 1
+          ? '1³ = 1, 2³ = 3+5, and 3³ = 7+9+11 ends right at 11!'
+          : step === 2
+          ? 'The 4th block picks up right after 11 with 4 odds: 13, 15, 17, 19!'
+          : '🎉 13 + 15 + 17 + 19 = 64 = 4³!'
+      }
+      footerText={step === 3 ? '✓ 4³ = 13 + 15 + 17 + 19!' : `Step ${step} of 3`}
     >
-      {step === 1 && (
-        <div className="flex flex-col items-center gap-1.5 animate-fade-rise font-mono">
-          <div className="text-display font-black text-[#005583] tracking-widest">
-            1729
-          </div>
-          <span className="text-micro font-bold text-slate-500">
-            "A very interesting number!" — Srinivasa Ramanujan
-          </span>
-        </div>
-      )}
-
-      {step === 2 && (
-        <div className="flex flex-col gap-2 w-full max-w-sm animate-fade-rise font-mono text-micro font-bold">
-          <div className="p-2 rounded-xl bg-sky-50 border border-sky-300 flex items-center justify-between">
-            <span>Way 1: 1³ + 12³</span>
-            <span className="text-[#005583]">1 + 1728 = 1729</span>
-          </div>
-          <div className="p-2 rounded-xl bg-amber-50 border border-amber-300 flex items-center justify-between">
-            <span>Way 2: 9³ + 10³</span>
-            <span className="text-amber-800">729 + 1000 = 1729</span>
-          </div>
-        </div>
-      )}
-
-      {step === 3 && (
-        <div className="flex flex-col items-center gap-1.5 animate-fade-rise font-mono">
-          <div className="px-5 py-2 rounded-2xl bg-emerald-600 text-white font-black text-statement shadow-xs">
-            1³ + 12³ = 9³ + 10³ = 1729
-          </div>
-          <div className="px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 font-bold text-micro text-center">
-            The Hardy-Ramanujan number is the smallest dual-sum-of-two-cubes!
-          </div>
-        </div>
-      )}
-    </VisualizerFrame>
+      <CubeOddTapeSvg
+        highlightN={step === 1 ? 3 : 4}
+      />
+    </QuickCheckStepShell>
   );
 };
 
 // -----------------------------------------------------------------------------
-// SCENE 12: Cube Odd Pyramid Visualizer (3³ = 7 + 9 + 11 = 27)
+// SCENE 13: CUBE ROOT BY PRIME TRIPLETS (∛512 = 8)
 // -----------------------------------------------------------------------------
-export const CubeOddPyramidVisualizer: React.FC<QuickCheckVisualizerStageProps> = (props) => {
-  const [step, setStep] = useState<1 | 2 | 3>(1);
+export const CubeRootTripletGroupingVisualizer: React.FC<QuickCheckVisualizerStageProps> = ({
+  onNext,
+  onReset,
+  isCorrect,
+  isLastQuestion,
+}) => {
+  const { step, maxStep, advance, selectStep } = useStepProgress(3);
 
-  const cues: Record<1 | 2 | 3, React.ReactNode> = {
-    1: <span>Step 1: Every cube n³ is a sum of n consecutive odd numbers.</span>,
-    2: <span>Step 2: For 3³: start at 7, then 9, then 11 (3 consecutive odds).</span>,
-    3: <span className="text-emerald-700">Step 3: 7 + 9 + 11 = 27 = 3³! Perfectly matches!</span>,
-  };
+  const steps: StepDefinition[] = [
+    { label: 'Split 512', cue: 'Step 1: Factor 512 completely into primes: nine 2s!' },
+    { label: 'Lock triplets', cue: 'Step 2: Group the nine 2s into three equal triplets!' },
+    { label: 'Answer', cue: 'Step 3: Take 1 from each triplet: 2 × 2 × 2 = 8!' },
+  ];
+
+  const groups = [
+    { factors: [2, 2, 2] },
+    { factors: [2, 2, 2] },
+    { factors: [2, 2, 2] },
+  ];
 
   return (
-    <VisualizerFrame
-      title="Cubes as Odd Sums"
-      badge="3³ = 27"
-      cue={cues[step]}
+    <QuickCheckStepShell
+      ariaLabel="Cube Root Triplets Step-by-Step Solution"
+      isCorrect={isCorrect}
+      headerTitle={isCorrect ? '✓ Right! Cube Root Triplets' : 'Review — Cube Root Triplets'}
+      headerBadge={step < 3 ? 'Find ∛512' : '∛512 = 8'}
+      steps={steps}
       step={step}
-      setStep={setStep}
-      onNext={props.onNext}
-      onReset={props.onReset}
-      isLastQuestion={props.isLastQuestion}
+      maxStep={maxStep}
+      onSelectStep={selectStep}
+      onAdvance={advance}
+      onReset={onReset}
+      onNext={onNext}
+      isLastQuestion={isLastQuestion}
+      insightTone={step === 3 ? 'success' : 'neutral'}
+      insightText={
+        step === 1
+          ? '512 = 2⁹ — divide by 2 nine times in a row!'
+          : step === 2
+          ? 'For cube roots, every 3 matching primes lock into 1 triplet capsule!'
+          : '🎉 One 2 from each of the 3 triplets gives 2 × 2 × 2 = 8 = ∛512!'
+      }
+      footerText={step === 3 ? '✓ ∛512 = 8!' : `Step ${step} of 3`}
     >
-      {step === 1 && (
-        <div className="flex flex-col items-center gap-1.5 animate-fade-rise font-mono text-micro font-bold">
-          <div>1 = 1³</div>
-          <div>3 + 5 = 8 = 2³</div>
-          <div className="text-[#005583] text-small font-black">
-            7 + 9 + 11 = ? = 3³
-          </div>
-        </div>
-      )}
-
-      {step === 2 && (
-        <div className="flex items-center gap-2 font-mono text-small font-bold animate-fade-rise">
-          <span className="px-3 py-1.5 rounded-xl bg-sky-100 text-sky-950 border border-sky-300">
-            7
-          </span>
-          <span className="text-slate-400">+</span>
-          <span className="px-3 py-1.5 rounded-xl bg-sky-100 text-sky-950 border border-sky-300">
-            9
-          </span>
-          <span className="text-slate-400">+</span>
-          <span className="px-3 py-1.5 rounded-xl bg-sky-100 text-sky-950 border border-sky-300">
-            11
-          </span>
-        </div>
-      )}
-
-      {step === 3 && (
-        <div className="flex flex-col items-center gap-2 animate-fade-rise font-mono">
-          <div className="px-5 py-2 rounded-2xl bg-emerald-600 text-white font-black text-statement shadow-xs">
-            7 + 9 + 11 = 27 = 3³
-          </div>
-          <div className="px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 font-bold text-micro text-center">
-            n³ is always the sum of n consecutive odd numbers starting at n² − n + 1!
-          </div>
-        </div>
-      )}
-    </VisualizerFrame>
+      <PrimeFactorCapsulesCanvas
+        groups={groups}
+        locked={step >= 2}
+        pickOneIndex={step === 3}
+        resultEquation={step === 3 ? '2 × 2 × 2 = 8' : undefined}
+      />
+    </QuickCheckStepShell>
   );
 };
 
 // -----------------------------------------------------------------------------
-// SCENE 13: Cube Root Triplet Grouping (∛512 = 8)
+// SCENE 14: CUBE DIFFERENCE ENGINE (2³ - 1³ = 7)
 // -----------------------------------------------------------------------------
-export const CubeRootTripletGroupingVisualizer: React.FC<QuickCheckVisualizerStageProps> = (props) => {
-  const [step, setStep] = useState<1 | 2 | 3>(1);
+export const CubeDifferenceEngineVisualizer: React.FC<QuickCheckVisualizerStageProps> = ({
+  onNext,
+  onReset,
+  isCorrect,
+  isLastQuestion,
+}) => {
+  const { step, maxStep, advance, selectStep } = useStepProgress(3);
 
-  const cues: Record<1 | 2 | 3, React.ReactNode> = {
-    1: <span>Step 1: Prime factorise 512: nine 2s (2 × 2 × ... × 2).</span>,
-    2: <span>Step 2: Group into TRIPLETS of 3 identical factors: (2³), (2³), (2³).</span>,
-    3: <span className="text-emerald-700">Step 3: Pull ONE 2 from each triplet: 2 × 2 × 2 = 8!</span>,
-  };
+  const steps: StepDefinition[] = [
+    { label: 'List cubes', cue: 'Step 1: Write the first four cubes: 1, 8, 27, 64.' },
+    { label: 'Subtract rows', cue: 'Step 2: Subtract neighbors: 8−1=7, 27−8=19, 64−27=37!' },
+    { label: 'Answer', cue: 'Step 3: The very first difference 2³ − 1³ equals 7!' },
+  ];
 
   return (
-    <VisualizerFrame
-      title="Prime Triplet Grouping"
-      badge="∛512"
-      cue={cues[step]}
+    <QuickCheckStepShell
+      ariaLabel="Cube Difference Engine Step-by-Step Solution"
+      isCorrect={isCorrect}
+      headerTitle={isCorrect ? '✓ Right! Cube Differences' : 'Review — Cube Differences'}
+      headerBadge={step < 3 ? '2³ − 1³' : 'First Diff = 7'}
+      steps={steps}
       step={step}
-      setStep={setStep}
-      onNext={props.onNext}
-      onReset={props.onReset}
-      isLastQuestion={props.isLastQuestion}
+      maxStep={maxStep}
+      onSelectStep={selectStep}
+      onAdvance={advance}
+      onReset={onReset}
+      onNext={onNext}
+      isLastQuestion={isLastQuestion}
+      insightTone={step === 3 ? 'success' : 'neutral'}
+      insightText={
+        step === 1
+          ? '1³ = 1 and 2³ = 8 sit at the top of the Difference Pyramid!'
+          : step === 2
+          ? '1st differences are 7, 19, 37 — and their jumps (Level 2) are multiples of 6!'
+          : '🎉 2³ − 1³ = 8 − 1 = 7 is the first cube difference!'
+      }
+      footerText={step === 3 ? '✓ First difference = 7!' : `Step ${step} of 3`}
     >
-      {step === 1 && (
-        <div className="flex flex-col items-center gap-1.5 animate-fade-rise font-mono text-micro font-bold">
-          <div className="text-slate-800 text-small font-black">512 = 2⁹</div>
-          <div className="text-slate-500">2 × 2 × 2 × 2 × 2 × 2 × 2 × 2 × 2</div>
-        </div>
-      )}
-
-      {step === 2 && (
-        <div className="flex items-center gap-2 font-mono text-micro font-bold animate-fade-rise">
-          <span className="px-3 py-1.5 rounded-xl bg-sky-100 text-[#005583] border border-sky-300">
-            (2 × 2 × 2)
-          </span>
-          <span>×</span>
-          <span className="px-3 py-1.5 rounded-xl bg-sky-100 text-[#005583] border border-sky-300">
-            (2 × 2 × 2)
-          </span>
-          <span>×</span>
-          <span className="px-3 py-1.5 rounded-xl bg-sky-100 text-[#005583] border border-sky-300">
-            (2 × 2 × 2)
-          </span>
-        </div>
-      )}
-
-      {step === 3 && (
-        <div className="flex flex-col items-center gap-2 animate-fade-rise font-mono">
-          <div className="flex items-center gap-2 text-statement font-black text-emerald-900">
-            <span>∛512 = 2 × 2 × 2 =</span>
-            <span className="px-3.5 py-1.5 rounded-2xl bg-emerald-600 text-white shadow-xs">
-              8
-            </span>
-          </div>
-          <div className="px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 font-bold text-micro text-center">
-            Pull ONE factor from each locked triplet: 2 × 2 × 2 = 8!
-          </div>
-        </div>
-      )}
-    </VisualizerFrame>
-  );
-};
-
-// -----------------------------------------------------------------------------
-// SCENE 14: Cube Difference Engine (Successive Differences)
-// -----------------------------------------------------------------------------
-export const CubeDifferenceEngineVisualizer: React.FC<QuickCheckVisualizerStageProps> = (props) => {
-  const [step, setStep] = useState<1 | 2 | 3>(1);
-
-  const cues: Record<1 | 2 | 3, React.ReactNode> = {
-    1: <span>Step 1: Look at successive cubes: 1, 8, 27, 64, 125, 216, 343...</span>,
-    2: <span>Step 2: First differences: 7, 19, 37, 61, 91, 127. Formula = 1 + 3n(n-1)!</span>,
-    3: <span className="text-emerald-700">Step 3: 67³ − 66³ = 1 + 3(67)(66) = 13,267!</span>,
-  };
-
-  return (
-    <VisualizerFrame
-      title="Cube Difference Engine"
-      badge="Consecutive Cubes"
-      cue={cues[step]}
-      step={step}
-      setStep={setStep}
-      onNext={props.onNext}
-      onReset={props.onReset}
-      isLastQuestion={props.isLastQuestion}
-    >
-      {step === 1 && (
-        <div className="flex flex-wrap items-center justify-center gap-1.5 font-mono text-micro font-bold animate-fade-rise">
-          <span className="px-2 py-0.5 rounded bg-slate-100">1³=1</span>
-          <span className="px-2 py-0.5 rounded bg-slate-100">2³=8</span>
-          <span className="px-2 py-0.5 rounded bg-slate-100">3³=27</span>
-          <span className="px-2 py-0.5 rounded bg-slate-100">4³=64</span>
-          <span className="px-2 py-0.5 rounded bg-slate-100">5³=125</span>
-        </div>
-      )}
-
-      {step === 2 && (
-        <div className="flex flex-col items-center gap-1.5 animate-fade-rise font-mono">
-          <div className="text-micro font-bold text-slate-700">
-            Formula: n³ − (n-1)³ = 1 + 3 · n · (n-1)
-          </div>
-          <div className="flex items-center gap-1 text-[11px] font-bold text-[#005583]">
-            <span>Diffs: 7, 19, 37, 61, 91... (Second differences are always 6, 12, 18, 24...)</span>
-          </div>
-        </div>
-      )}
-
-      {step === 3 && (
-        <div className="flex flex-col items-center gap-2 animate-fade-rise font-mono">
-          <div className="px-5 py-2 rounded-2xl bg-emerald-600 text-white font-black text-statement shadow-xs">
-            67³ − 66³ = 13,267
-          </div>
-          <div className="px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 font-bold text-micro text-center">
-            1 + 3 × 67 × 66 = 1 + 13,266 = <strong>13,267</strong>!
-          </div>
-        </div>
-      )}
-    </VisualizerFrame>
+      <DifferencePyramidBarSvg
+        visibleLevels={step === 1 ? 1 : step === 2 ? 3 : 2}
+        spotlightFirstDiff={step === 3}
+      />
+    </QuickCheckStepShell>
   );
 };

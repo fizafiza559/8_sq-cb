@@ -2410,3 +2410,80 @@ export const LockerStorySection: React.FC<LockerStorySectionProps> = ({
   );
 };
 
+export interface LockerGridCanvasProps {
+  numbers: number[];
+  openNumbers: number[];
+  highlightNumbers?: number[];
+  touchedNumbers?: number[];
+  columns?: number;
+  maxWidthClass?: string;
+}
+
+export const LockerGridCanvas: React.FC<LockerGridCanvasProps> = ({
+  numbers,
+  openNumbers,
+  highlightNumbers = [],
+  touchedNumbers = [],
+  columns = 8,
+  maxWidthClass = 'max-w-[340px]',
+}) => {
+  return (
+    <div
+      className={`grid w-full ${maxWidthClass} gap-1.5`}
+      style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
+    >
+      {numbers.map((num, idx) => {
+        const isOpen = openNumbers.includes(num);
+        const isGold = highlightNumbers.includes(num);
+        const isTouched = touchedNumbers.includes(num);
+
+        const doorStyle: React.CSSProperties = isGold
+          ? {
+              background: 'linear-gradient(145deg, #E5BC58 0%, #B8862B 100%)',
+              borderColor: PARCHMENT_PALETTE.goldDark,
+              color: '#2A1A08',
+            }
+          : isOpen
+          ? {
+              background: `linear-gradient(150deg, ${PARCHMENT_PALETTE.woodOpenTop} 0%, ${PARCHMENT_PALETTE.woodOpenBottom} 100%)`,
+              borderColor: PARCHMENT_PALETTE.woodOpenBorder,
+              color: PARCHMENT_PALETTE.ink,
+            }
+          : {
+              background: `linear-gradient(155deg, ${PARCHMENT_PALETTE.woodClosedTop} 0%, ${PARCHMENT_PALETTE.woodClosedBottom} 100%)`,
+              borderColor: PARCHMENT_PALETTE.woodClosedBorder,
+              color: '#EFE3CE',
+            };
+
+        return (
+          <div
+            key={num}
+            className="relative h-8 rounded-lg border-2 font-mono font-black text-micro flex items-center justify-center tabular-nums transition-all duration-300"
+            style={{
+              ...doorStyle,
+              boxShadow: isTouched
+                ? `0 0 0 2px ${PARCHMENT_PALETTE.sealRed}`
+                : isGold
+                ? '0 0 0 2px #F59E0B'
+                : 'inset 0 1px 0 rgba(255,255,255,0.14)',
+              transform: isGold ? 'scale(1.06)' : isTouched ? 'scale(1.03)' : 'scale(1)',
+              transitionDelay: `${(idx % 8) * 28}ms`,
+              transitionTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)',
+            }}
+          >
+            {isOpen && (
+              <span
+                aria-hidden="true"
+                className="absolute left-0 inset-y-0 w-[3px] rounded-l-sm"
+                style={{ backgroundColor: isGold ? '#6E4B0D' : '#6A4E31' }}
+              />
+            )}
+            <span className="relative z-10">{num}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+

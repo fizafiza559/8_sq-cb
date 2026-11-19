@@ -627,3 +627,162 @@ export const SquareRootPrimeEstimateScene: React.FC<SquareRootPrimeEstimateScene
     </div>
   );
 };
+
+export interface PrimeGroupCapsule {
+  factors: number[];
+  missingSlot?: boolean;
+  filledBy?: number;
+}
+
+export interface PrimeFactorCapsulesCanvasProps {
+  groups: PrimeGroupCapsule[];
+  locked?: boolean;
+  pickOneIndex?: boolean;
+  resultEquation?: string;
+}
+
+export const PrimeFactorCapsulesCanvas: React.FC<PrimeFactorCapsulesCanvasProps> = ({
+  groups,
+  locked = false,
+  pickOneIndex = false,
+  resultEquation,
+}) => {
+  return (
+    <div className="flex flex-col items-center gap-2 w-full">
+      <div className="flex flex-wrap items-center justify-center gap-2">
+        {groups.map((grp, gIdx) => {
+          const isMissing = Boolean(grp.missingSlot);
+          return (
+            <div
+              key={gIdx}
+              className={`px-2.5 py-1.5 rounded-2xl border-2 flex items-center gap-1 font-mono font-black transition-all duration-300 ${
+                isMissing
+                  ? 'bg-rose-50 border-dashed border-rose-400 animate-pulse'
+                  : locked
+                  ? 'bg-emerald-50 border-emerald-500 shadow-xs'
+                  : 'bg-sky-50 border-sky-300'
+              }`}
+              style={{ transitionTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)' }}
+            >
+              {grp.factors.map((f, fIdx) => {
+                const isFirstPicked = pickOneIndex && fIdx === 0 && !isMissing;
+                return (
+                  <React.Fragment key={fIdx}>
+                    {fIdx > 0 && <span className="text-slate-400 text-micro">×</span>}
+                    <span
+                      className={`w-7 h-7 rounded-full flex items-center justify-center text-micro font-black transition-all ${
+                        isFirstPicked
+                          ? 'bg-emerald-600 text-white scale-110 ring-2 ring-emerald-200'
+                          : isMissing
+                          ? 'bg-rose-600 text-white'
+                          : 'bg-[#005583] text-white'
+                      }`}
+                    >
+                      {f}
+                    </span>
+                  </React.Fragment>
+                );
+              })}
+              {isMissing && (
+                <>
+                  <span className="text-rose-400 text-micro">×</span>
+                  <span
+                    className={`w-7 h-7 rounded-full border-2 border-dashed flex items-center justify-center text-micro font-black ${
+                      grp.filledBy !== undefined
+                        ? 'bg-amber-500 text-white border-amber-700 scale-110'
+                        : 'bg-white text-rose-600 border-rose-400'
+                    }`}
+                  >
+                    {grp.filledBy !== undefined ? grp.filledBy : '?'}
+                  </span>
+                </>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      {resultEquation && (
+        <div className="px-3 py-1 rounded-xl bg-emerald-600 text-white font-mono font-black text-small shadow-2xs">
+          {resultEquation}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export interface RootBracketNumberLineSvgProps {
+  lowVal: number;
+  lowLabel: string;
+  targetVal: number;
+  targetLabel: string;
+  highVal: number;
+  highLabel: string;
+  highlightAnswer?: boolean;
+}
+
+export const RootBracketNumberLineSvg: React.FC<RootBracketNumberLineSvgProps> = ({
+  lowVal,
+  lowLabel,
+  targetVal,
+  targetLabel,
+  highVal,
+  highLabel,
+  highlightAnswer = false,
+}) => {
+  const ratio = Math.max(0.14, Math.min(0.86, (targetVal - lowVal) / Math.max(1, highVal - lowVal)));
+  const targetX = 54 + ratio * 232;
+
+  return (
+    <svg viewBox="0 0 340 106" className="h-[100px] w-full max-w-[340px] select-none">
+      <line x1={48} y1={56} x2={292} y2={56} stroke="#94A3B8" strokeWidth={3} strokeLinecap="round" />
+
+      {/* Low Fence */}
+      <circle cx={54} cy={56} r={7} fill="#005583" />
+      <text x={54} y={36} textAnchor="middle" fill="#005583" fontSize={14} fontWeight={900}>
+        {lowVal}
+      </text>
+      <text x={54} y={84} textAnchor="middle" fill="#334155" fontSize={14} fontWeight={800}>
+        {lowLabel}
+      </text>
+
+      {/* High Fence */}
+      <circle cx={286} cy={56} r={7} fill="#005583" />
+      <text x={286} y={36} textAnchor="middle" fill="#005583" fontSize={14} fontWeight={900}>
+        {highVal}
+      </text>
+      <text x={286} y={84} textAnchor="middle" fill="#334155" fontSize={14} fontWeight={800}>
+        {highLabel}
+      </text>
+
+      {/* Target Pin */}
+      <circle
+        cx={targetX}
+        cy={56}
+        r={9}
+        fill={highlightAnswer ? '#16A34A' : '#F27A00'}
+        stroke="#FFFFFF"
+        strokeWidth={2}
+      />
+      <rect
+        x={targetX - 38}
+        y={8}
+        width={76}
+        height={24}
+        rx={8}
+        fill={highlightAnswer ? '#16A34A' : '#FFF7ED'}
+        stroke={highlightAnswer ? '#15803D' : '#F27A00'}
+        strokeWidth={1.5}
+      />
+      <text
+        x={targetX}
+        y={24}
+        textAnchor="middle"
+        fill={highlightAnswer ? '#FFFFFF' : '#9A3412'}
+        fontSize={14}
+        fontWeight={900}
+      >
+        {targetLabel}
+      </text>
+    </svg>
+  );
+};
